@@ -1,0 +1,17 @@
+{
+    "id": "sinking",
+    "name": "침잠",
+    "desc": "피격 시 위력만큼 정신력 피해를 입고 횟수가 1 감소.",
+    "effects": [
+        {
+            "trigger": "on_hit_received",
+            "action": "damage_sanity",
+            "value": "amount"
+        },
+        {
+            "trigger": "on_hit_received",
+            "action": "inc_count",
+            "value": -1
+        }
+    ]
+}

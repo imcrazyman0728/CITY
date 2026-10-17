@@ -1,0 +1,19 @@
+{
+  "id": "exam_term",
+  "name": "시험 기간",
+  "desc": "주사위를 굴릴 때 3의 피해를 입고, 공격 데미지가 1 증가합니다.",
+  "effects": [
+    {
+      "trigger": "on_roll",
+      "condition": { "kind": "all", "dmg_type": "all" },
+      "action": "damage_self",
+      "value": 3
+    },
+    {
+      "trigger": "modify_damage_dealt",
+      "condition": { "kind": "attack", "dmg_type": "all" },
+      "action": "add_value",
+      "value": 1
+    }
+  ]
+}

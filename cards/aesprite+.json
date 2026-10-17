@@ -1,0 +1,54 @@
+{
+    "id": "aesprite",
+
+    "name": "에이스프라이트",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 0,
+
+    "on_use_dialogue" : "{card_user}는 에이스프라이트를 20000원 주고 샀다!",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 6,
+            "max": 9,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 6,
+            "max": 9,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 6,
+            "max": 9,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

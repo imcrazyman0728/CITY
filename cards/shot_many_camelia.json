@@ -1,0 +1,64 @@
+{
+    "id": "shot_many_camelia",
+
+    "name": "난사",
+
+    "grade" : "hardcover",
+
+    "type" : "ranged",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 무차별적으로 총알을 흩뿌린다!",
+
+    "on_use_effect" :
+    [
+        {
+            "draw_cards" : 2
+        }
+    ],
+
+    "mode_change" : {
+        "근거리" : "cleave_camelia"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 4,
+            "max": 8,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 5,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1}
+            ]
+        }
+    ]
+}

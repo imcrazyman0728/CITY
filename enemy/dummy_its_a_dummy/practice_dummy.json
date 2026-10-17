@@ -1,0 +1,48 @@
+{
+    "id" : "pratice_dummy",
+
+    "status" :
+    {
+        "name" : "연습용 더미",
+
+        "appear" : "가만히 서있던 허수아비가 전투를 걸어왔다! (그러니까 왜 치냐고 이싸람아)",
+
+        "type" : "random",
+
+        "hp" : 30,
+
+        "sanity" : 0,
+
+        "stagger_resist" : 15,
+
+        "max_cost" : 3,
+
+        "card_slot" : 1,
+
+        "exp" : 10,
+
+        "endurance" : 
+        {
+            "slash" : 1.0,
+            "pierce" : 0.6,
+            "blunt" : 1.5
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.2   
+        },
+
+        "passives" :
+        [
+            "dummy_its_a_dummy"
+        ],
+
+        "deck" :
+        {
+            "stand_static" : 3
+        }
+    }
+}

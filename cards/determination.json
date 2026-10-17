@@ -1,0 +1,34 @@
+{
+    "id": "determination",
+
+    "name": "마음가짐",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 0,
+
+    "on_use_dialogue" : "{card_user}는 몸과 마음에 집중한다!",
+
+    "on_use_effect" :
+    [
+        {
+            "recover_cost" : 2
+        }
+    ],
+
+    "dice":
+    [
+        {
+            "type": "defense",
+            "damage_type" : "evade",
+            "min": 4,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "id" : "4sin",
+
+    "status" :
+    {
+        "name" : "사신",
+
+        "appear" : "끔찍한 시간을 보내게될 것 같은 기분이다!",
+
+        "type" : "random",
+
+        "hp" : 999,
+
+        "sanity" : 0,
+
+        "stagger_resist" : 999,
+
+        "max_cost" : 0,
+
+        "card_slot" : 1,
+
+        "exp" : 0,
+
+        "endurance" : 
+        {
+            "slash" : 0.1,
+            "pierce" : 0.1,
+            "blunt" : 0.1
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.0   
+        },
+
+        "passives" :
+        [
+            "dummy_its_a_dummy"
+        ],
+
+        "deck" :
+        {
+            "kill" : 3
+        }
+    }
+}

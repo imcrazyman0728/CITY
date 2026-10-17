@@ -1,0 +1,30 @@
+{
+    "id": "kill",
+
+    "name": "죽이기",
+
+    "grade" : "objet_d'art",
+
+    "type" : "melee",
+
+    "cost": 0,
+
+    "on_use_dialogue" : "{card_user}는 상대를 죽인다!",
+
+    "on_use_effect" :[
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 999,
+            "max": 999,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

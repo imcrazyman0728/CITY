@@ -1,0 +1,43 @@
+{
+    "id": "vector",
+
+    "name": "벡터 선긋기",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 펜을 꺼내고 선을 긋기 시작했다!",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 5,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 7,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

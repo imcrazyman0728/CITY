@@ -1,0 +1,28 @@
+{
+    "id": "bloody_strike",
+    "name": "혈점 찌르기",
+    "grade": "hardcover",
+    "type": "melee",
+    "cost": 2,
+    "on_use_dialogue": "{card_user}는 피를 흘리는 적의 빈틈을 파고든다!",
+    "on_use_effect": [
+        {
+            "condition_modify_dice_power": {
+                "target": "opponent",
+                "status_id": "bleed",
+                "check": "amount",
+                "threshold": 5,
+                "value": 2
+            }
+        }
+    ],
+    "dice": [
+        {
+            "type": "attack",
+            "damage_type": "pierce",
+            "min": 4,
+            "max": 8,
+            "dice_effect": []
+        }
+    ]
+}

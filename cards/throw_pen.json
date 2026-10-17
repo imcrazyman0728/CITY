@@ -1,0 +1,55 @@
+{
+    "id": "throw_pen",
+
+    "name": "펜 투척",
+
+    "grade" : "paperback",
+
+    "type" : "ranged",
+
+    "cost": 3,
+
+    "on_use_dialogue" : "{card_user}는 강하게 펜을 던졌다!",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 3,
+            "dice_effect" : 
+            [
+                null
+            ],
+            "sfx": "gun_3shot"
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 3,
+            "dice_effect" : 
+            [
+                null
+            ],
+            "sfx": "gun_3shot"
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 3,
+            "dice_effect" : 
+            [
+                null
+            ],
+            "sfx": "gun_3shot"
+        }
+    ]
+}

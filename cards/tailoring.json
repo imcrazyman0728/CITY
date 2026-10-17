@@ -1,0 +1,52 @@
+{
+    "id": "tailoring",
+
+    "name": "재단",
+
+    "grade" : "limited",
+
+    "type" : "melee",
+
+    "cost": 4,
+
+    "on_use_dialogue" : "지금이 기회예요. 찌를 수 있을 거 같아요?",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 6,
+            "max": 10,
+            "dice_effect" : 
+            [
+                {"apply_effects" :
+                {
+                    "bleed" : {
+                        "amount" : 3,
+                        "count" : 2
+                    }}}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 6,
+            "max": 10,
+            "dice_effect" : 
+            [
+                {"apply_effects" :
+                {
+                    "bleed" : {
+                        "amount" : 3,
+                        "count" : 2
+                    }}}
+            ]
+        }
+    ]
+}

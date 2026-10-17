@@ -1,0 +1,54 @@
+{
+    "id": "will_be_tasty",
+
+    "name": "맛있을 거예요?",
+
+    "grade" : "hardcover",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "맛있어 보여요? 하지만 인간은 아니에요.",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 1,
+            "max": 5,
+            "dice_effect" : 
+            [
+                {"heal_hp" : 1}
+            ]
+        },
+
+        {
+            "type": "defense",
+            "damage_type" : "evade",
+            "min": 1,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 2,
+            "max": 4,
+            "dice_effect" : 
+            [
+                {"heal_hp" : 1}
+            ]
+        }
+    ]
+}

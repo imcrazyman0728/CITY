@@ -1,0 +1,29 @@
+{
+    "id": "mode_change_camelia1",
+
+    "name": "모드 체인지",
+
+    "grade" : "objet_d'art",
+
+    "type" : "on_play",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 벤데타의 손잡이를 잡아 당긴다!",
+
+    "on_use_effect" :
+    [
+        {
+            "mode_change" : "원거리",
+            "apply_status": { "bullet": { "amount": 12, "count": 1 } }
+        }
+    ],
+
+    "mode_change" : {
+        "원거리" : "mode_change_camelia2"
+    },
+
+    "dice":
+    [
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "id": "draw_pixel",
+
+    "name": "도트 찍기",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 도트를 찍었다!",
+
+    "on_use_effect" :
+    [
+        {
+            "draw_cards" : 1
+        }
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 5,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

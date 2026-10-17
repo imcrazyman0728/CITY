@@ -1,0 +1,53 @@
+{
+    "id": "scratch",
+
+    "name": "스크래치 계정 생성",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 스치캣을 가져와서 고주파 공격을 시도한다!",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "blunt",
+            "min": 1,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "blunt",
+            "min": 1,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "blunt",
+            "min": 1,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

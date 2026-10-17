@@ -1,0 +1,27 @@
+{
+    "id": "aim_in_zero",
+
+    "name": "정조준",
+
+    "grade" : "objet_d'art",
+
+    "type" : "on_play",
+
+    "cost": 0,
+
+    "on_use_dialogue" : "{card_user}는 한 쪽 눈을 감고 다리를 어께 너비로 벌린다!",
+
+    "on_use_effect" :
+    [
+        { "modify_dice_power": { "kind": "pierce", "value": 1 } },
+
+        {"draw_cards" : 1}
+
+    ],
+
+
+
+    "dice":
+    [
+    ]
+}

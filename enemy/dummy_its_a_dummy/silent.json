@@ -1,0 +1,51 @@
+{
+    "id" : "silent",
+
+    "status" :
+    {
+        "name" : "사일런트",
+
+        "appear" : "아니 얘는 프문도 아니잖아...",
+
+        "type" : "random",
+
+        "hp" : 40,
+
+        "sanity" : 0,
+
+        "stagger_resist" : 999,
+
+        "panic_type" : "fear",
+
+
+        "max_cost" : 0,
+
+        "card_slot" : 1,
+
+        "exp" : 0,
+
+        "endurance" : 
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.0
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.0   
+        },
+
+        "passives" :
+        [
+            "dummy_its_a_dummy"
+        ],
+
+        "deck" :
+        {
+            "piercing_wail" : 3
+        }
+    }
+}

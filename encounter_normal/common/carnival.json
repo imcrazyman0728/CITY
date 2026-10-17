@@ -1,0 +1,129 @@
+{
+  "id": "carnival",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "\"되살아나서 이 곳에 떨어진지도 벌써 몇 달이 됐어요?\"\n음역대가 계속해서 변하는 이상한 목소리가 들려오고 있어.",
+
+      "choices": [
+
+        {
+          "text": "에...?",
+
+
+          "next": "1"
+        }
+      ]
+    },
+    "1": {
+
+      "text": "\"분명 검지가 우리를 구하러 돌아올거에요? 그 동안 더 많은 원단들을 만들며 기다려야 해요.\"\n소리가 들려오는 쪽을 보니,\n도저히 사람처럼은 안보이는 장신의 무언가가 3개나 서있어!",
+
+      "choices": [
+
+        {
+          "text": "검지...방금 검지라고 말한거지?",
+
+          "requirements" : {
+            "name" : "카멜리아"
+          },
+
+          "show" : false,
+
+
+          "next": "camelia_1"
+        },
+
+        {
+          "text": "으악!",
+
+          "requirements" : {
+            "not_name" : "카멜리아"
+          },
+
+          "show" : false,
+
+
+          "next": "2"
+        }
+      ]
+    },
+
+    "camelia_1": {
+
+      "text": "\"엄지 제식 코트를 입었으면서 검지의 천을 사용했어요?\"\n\"이상한 사람이에요. 어떤 맛이 날까요?\"\n커다란 사람들은 벌써 너의 코앞까지 다가왔네.",
+
+      "choices": [
+
+        {
+          "text": "아... 사실 이전에 엄지에 소속되어 있다가 검지로 전향했어요.",
+
+          "requirements" : {
+            "items" : 
+            {
+              "eloquence_invidia" : 1
+            }
+          },
+
+          
+
+
+          "next": "camelia_2"
+        },
+
+        {
+          "text": "무기를 든다.",
+          "effects" : 
+          {
+            "battle" : ["carnival_alpha", "carnival_beta", "carnival_gamma"],
+            "next" : "end_of_carnival"
+          }
+        },
+        {
+          "text": "도망친다.",
+          "end" : true 
+
+        }
+
+      ]
+    },
+
+    "end_of_carnival": {
+
+      "text": "기괴한 삼총사는 바닥으로 널부러져 더이상 움직이지 않게 되었어. 너가 그들의 시체 사이에서 발견한 건...",
+
+      "choices": [
+
+        {
+          "text": "값 비싸 보이는 여러 천들 (50000 안을 얻음)",
+
+          "effects" : {
+            "give_items" : {
+              "ahn" : 50000
+            }
+          },
+
+
+          "end": true
+        },
+
+        {
+          "text": "커다랗고 끔찍한 이빨 ('재단' 카드를 덱에 추가)",
+
+          "effects" : {
+            "give_card" : "tailoring"
+          },
+
+
+          "end": true
+        }
+      ]
+    }
+
+    
+  }
+}

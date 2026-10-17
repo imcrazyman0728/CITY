@@ -1,0 +1,84 @@
+{
+  "id": "truck",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "대략 200km/h의 8t트럭이 달려오고 있어!",
+
+      "choices": [
+
+        {
+          "text": "뭐...?",
+
+          "effects" : {
+
+            "hp": -30
+
+          },
+
+          "next": "dmg"
+        },
+
+        {
+            "text": "!!!!!(민첩 [오만] 1 이상 필요)",
+
+            "requirements" :
+            {
+                "items" : {"agility_pride" : 1}
+            },
+
+            "next": "phew"
+        },
+
+        {
+            "text": "이 쯤이야. (힘 [분노] 2 이상",
+
+            "requirements" :
+            {
+                "items" : {"strength_wrath" : 2}
+            },
+
+            "next" : "phew"
+        }
+      ]
+    },
+
+    "dmg": {
+
+      "text": "쾅! 너는 트럭에 치여버렸어!",
+
+      "choices": [
+
+        {
+          "text": "흐에...",
+
+
+          "end": true
+        }
+
+
+      ]
+    },
+
+    "phew": {
+
+      "text": "휴... 무사히 위기를 넘긴 것 같아.",
+
+      "choices": [
+
+        {
+          "text": "뭐 저런 트럭이 다있어....",
+
+
+          "end": true
+        }
+
+
+      ]
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+    "id": "repetitive_fire",
+
+    "name": "연계사격",
+
+    "grade" : "paperback",
+
+    "type" : "ranged",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 자세를 잡고, 적을 향해 연발로 쏘아낸다!",
+
+    "on_use_effect" :[
+        {
+            "draw_cards" : 2
+        }
+    ],
+
+    "mode_change" : {
+        "근거리" : "crossing_slash"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 8,
+            "sfx" : "gun_3shot.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1}
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 4,
+            "max": 6,
+            "sfx" : "gun_3shot.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 5,
+            "max": 6,
+            "sfx" : "gun_3shot.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1}
+            ]
+        }
+    
+    ]
+}

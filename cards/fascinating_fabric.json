@@ -1,0 +1,43 @@
+{
+    "id": "fascinating_fabric",
+
+    "name": "멋진 원단",
+
+    "grade" : "limited",
+
+    "type" : "melee",
+
+    "cost": 3,
+
+    "on_use_dialogue" : "화려한 원단이 {card_user}를 감싼다!",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "defense",
+            "damage_type" : "block",
+            "min": 8,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "defense",
+            "damage_type" : "evade",
+            "min": 6,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

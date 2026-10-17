@@ -1,0 +1,64 @@
+{
+    "id": "shot_camelia",
+
+    "name": "견제사격",
+
+    "grade" : "paperback",
+
+    "type" : "ranged",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 적을 쏘아낸다!",
+
+    "on_use_effect" :
+    [
+        {
+            "recover_cost" : 2
+        }
+    ],
+
+    "mode_change" : {
+        "근거리" : "slash_camelia"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 7,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1},
+                
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "burn" :                            
+                            {
+                                "amount" : 1,
+                                "count" : 2
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 6,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1}
+                
+            ]
+        }
+    ]
+}

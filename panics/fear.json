@@ -1,0 +1,23 @@
+{
+    "id": "fear",
+
+    "name" : "공포",
+    "low_morale_effects": [
+        {
+            "trigger": "modify_damage_dealt",
+            "condition": { "kind": "all" },
+            "action": "add_value",
+            "value": -2,
+            "desc": "주는 피해량 2 감소"
+        }
+    ],
+    "panic_effects": [
+        {
+            "trigger": "modify_damage_dealt",
+            "condition": { "kind": "all" },
+            "action": "add_value",
+            "value": -5,
+            "desc": "주는 피해량 5 감소"
+        }
+    ]
+}

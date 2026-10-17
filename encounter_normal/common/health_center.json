@@ -1,0 +1,172 @@
+
+{
+  "id": "health_center",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "한적한 골목을 걷다가 버려진 헬스장을 발견했어.\n들어가볼까?",
+
+      "choices": [
+
+        {
+          "text": "가보지, 뭐.",
+
+
+
+
+          "next": "1"
+        },
+        {
+          "text": "바빠.",
+
+
+
+
+          "end": true
+        }
+      ]
+    },
+
+    "1": {
+
+      "text": "오랫동안 쓰이지 않아서 그런지, 퀴퀴한 냄새가 풍겨오고 있어.\n시설들이 많이 망가지긴 했지만, 그래도 벤치 프레스는 할 수 있을 것 같아.",
+
+      "choices": [
+
+        {
+          "text": "해본다.",
+
+
+
+
+          "next": "bench_press"
+        },
+        {
+          "text": "저 기계는 뭐지...?",
+
+
+
+
+          "chance": 40,
+          "success" : "good_machine",
+          "fail" : "bad_machine"
+          
+        }
+      ]
+    },
+
+    "good_machine": {
+
+      "text": "멀끔한 러닝 머신이네! 한번 달려볼까?",
+
+      "choices": [
+
+        {
+          "text": "해본다.",
+
+          "effects" : {"give_item":"agility_pride"},
+
+
+
+
+          "next": "health_end"
+        },
+        {
+          "text": "아니, 벤치 프레스나 하자.",
+
+
+
+
+          "next": "bench_press"
+        }
+      ]
+    },
+
+    "bad_machine": {
+
+      "text": "기계를 살펴보니, 일종의 러닝머신 같다는게 느껴져.\n하지만 고장났는걸.\n어떡할 거야?",
+
+      "choices": [
+
+        {
+          "text": "쯧. 벤치 프레스나 하자.",
+
+
+
+
+          "next": "bench_press"
+        },
+        {
+          "text": "고쳐본다. (성공 확률 기본 20%, 지식 [나태]당 +30%)",
+
+
+
+
+          "chance": 20,
+          "bonus_item" : "intelligence_sloth",
+          "bonus_per_item" : 30,
+          "success_effects" : {"give_item" : "intelligence_sloth"},
+          "success" : "good_machine",
+          "fail" : "machine_fail"
+        }
+      ]
+    },
+
+    "machine_fail": {
+
+      "text": "엄청나게 노력을 들였지만, 결국 실패하고 말았어.\n몸이 땀으로 흠뻑 젖은건 덤이네.\n이것도 운동이라 치지 뭐.\n시간도 많이 지났으니 슬슬 나가자.",
+
+      "choices": [
+
+        {
+          "text": "쳇.",
+
+          "effects" : {"sanity" : -10},
+
+
+
+
+          "end": true
+        }
+      ]
+    },
+    "bench_press": {
+
+      "text": "조금 무거워 보이는데, 그래도 할 만 해보이는 정도네.\n해볼까?",
+
+      "choices": [
+
+        {
+          "text": "힘 자랑 좀 해보실까!",
+
+          "effects" : {"give_item":"strength_wrath"},
+
+
+
+
+          "next": "health_end"
+        }
+      ]
+    },
+    "health_end": {
+
+      "text": "개운하네!\n다시 여정을 떠나볼까?",
+
+      "choices": [
+
+        {
+          "text": "떠난다.",
+
+
+
+
+          "end": true
+        }
+      ]
+    }
+  }
+}

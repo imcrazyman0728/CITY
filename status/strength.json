@@ -1,0 +1,12 @@
+{
+    "id": "strength",
+    "name": "힘",
+    "desc": "위력만큼 모든 공격 및 반격 주사위 위력이 상승하고 턴 종료 시 횟수가 1 감소.",
+    "effects": [
+        {
+            "trigger": "on_turn_end",
+            "action": "inc_count",
+            "value": -1
+        }
+    ]
+}

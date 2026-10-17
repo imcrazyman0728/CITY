@@ -1,0 +1,18 @@
+{
+    "id": "bleed",
+    "name": "출혈",
+    "desc": "주사위를 굴릴 때 위력만큼 체력 피해를 입고 횟수 1 감소.",
+    "effects": [
+        {
+            "trigger": "on_roll",
+            "action": "damage_self",
+            "value": "amount"
+            
+        },
+        {
+            "trigger": "on_roll",
+            "action": "inc_count",
+            "value": -1
+        }
+    ]
+}

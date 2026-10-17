@@ -1,0 +1,56 @@
+{
+    "id": "slash_camelia",
+
+    "name": "베어내기",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 전방을 베어냈다!",
+
+    "on_use_effect" :
+    [
+    ],
+
+    "mode_change" : {
+        "원거리" : "shot_camelia"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 2,
+            "max": 5,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 1,
+                                "count" : 2
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 1,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

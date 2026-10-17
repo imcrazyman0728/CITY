@@ -1,0 +1,70 @@
+{
+    "id" : "camelia_ch1_rat",
+
+    "status" :
+    {
+        "name" : "깡 마른 불한당",
+
+        "appear" : "영광스러운 첫 전투다!",
+
+        "dialogue_lines" : {
+            "common" : ["불한당은 여전히 널 노려보고 있다.", "뚱땡이가 뒤에서 조용히 지켜보고 있다.", "당신의 손에 땀이 난다."],
+            "on_staggered" : {
+                "player" : "불한당은 너를 비웃고 있다.",
+                "enemy" : "불한당은 인상을 구겼다!"
+            },
+            "on_panic" : {
+                "player" : "당신이 이렇게나 약했었던가...?",
+                "enemy" : "불한당은 겁에 질렸다!"
+            }
+        },
+
+        "type" : "random",
+
+        "hp" : 40,
+
+        "sanity" : 25,
+
+        "stagger_resist" : 20,
+
+        "panic_type" : "fear",
+
+        "max_cost" : 3,
+
+        "card_slot" : 1,
+
+        "speed" : {
+            "min" : 1,
+            "max" : 3
+
+        },
+
+        "exp" : 3,
+
+        "endurance" : 
+        {
+            "slash" : 0.7,
+            "pierce" : 1.5,
+            "blunt" : 1.0
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 2.0,
+            "blunt" : 0.8   
+        },
+
+        "passives" :
+        [
+            "dummy_its_a_dummy"
+        ],
+
+        "deck" :
+        {
+            "rat_slash" : 3,
+            "rat_pierce" : 3,
+            "rat_blunt" : 3
+        }
+    }
+}

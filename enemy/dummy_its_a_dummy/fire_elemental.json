@@ -1,0 +1,50 @@
+{
+    "id" : "fire_elemental",
+
+    "status" :
+    {
+        "name" : "불의 정령",
+
+        "appear" : "아지랑이 속에서 미지의 존재를 마주쳤다!",
+
+        "type" : "random",
+
+        "hp" : 30,
+
+        "sanity" : 30,
+
+        "stagger_resist" : 20,
+
+        "panic_type" : "fear",
+
+        "max_cost" : 3,
+
+        "card_slot" : 1,
+
+        "exp" : 3,
+
+        "endurance" : 
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.0
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.2   
+        },
+
+        "passives" :
+        [
+        ],
+
+        "deck" :
+        {
+            "fire_slash" : 10
+
+        }
+    }
+}

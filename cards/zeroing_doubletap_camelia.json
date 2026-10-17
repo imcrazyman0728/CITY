@@ -1,0 +1,76 @@
+{
+    "id": "zeroing_doubletap_camelia",
+
+    "name": "영거리 더블 탭",
+
+    "grade" : "limited",
+
+    "type" : "ranged",
+
+    "cost": 3,
+
+    "on_use_dialogue" : "\u001b[91m정밀하게, 정확하게, 심장에 두 번. 따끔할 거야.\u001b[0m",
+
+    "on_use_effect" :
+    [
+    ],
+
+    "mode_change" : {
+        "근거리" : "wild_strike_camelia"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 5,
+            "max": 10,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1},
+
+                
+
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "burn" :                            
+                            {
+                                "amount" : 4,
+                                "count" : 1
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 5,
+            "max": 10,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                {"gun" : 1},
+
+                
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "burn" :                            
+                            {
+                                "amount" : 5,
+                                "count" : 1
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        }
+    ]
+}

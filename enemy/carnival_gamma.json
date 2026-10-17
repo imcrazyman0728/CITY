@@ -1,0 +1,71 @@
+{
+    "id" : "carnival_gamma",
+
+    "status" :
+    {
+        "name" : "감마",
+
+        "appear" : "기괴한 재단사들이 기어나왔다!",
+
+        "dialogue_lines" : {
+            "common" : ["고급진 원단 냄새가 난다.", "기괴한 말투가 너의 정신을 어지럽힌다.", "그들은 끔찍한 맛을 찾으려 한다."],
+            "on_staggered" : {
+                "player" : "천이 되어버릴 것 같다."
+
+            },
+            "on_panic" : {
+                "player" : "저들의 몸에 난 구멍 속으로 빨려들어갈 것만 같다."
+
+            }
+        },
+
+        "type" : "random",
+
+        "hp" : 30,
+
+        "sanity" : 30,
+
+        "stagger_resist" : 29,
+
+        "panic_type" : "weave",
+
+        "max_cost" : 5,
+
+        "card_slot" : 1,
+
+        "speed" : {
+            "min" : 2,
+            "max" : 5
+
+        },
+
+        "exp" : 2,
+
+        "endurance" : 
+        {
+            "slash" : 1.5,
+            "pierce" : 1.0,
+            "blunt" : 1.0
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.5,
+            "pierce" : 1.0,
+            "blunt" : 0.5
+        },
+
+        "passives" :
+        [
+            "remembrance"
+        ],
+
+        "deck" :
+        {
+            "as_the_prescript_orders" : 2,
+            "bizarre_attack" : 2,
+            "will_make_fine_silk" : 4
+            
+        }
+    }
+}

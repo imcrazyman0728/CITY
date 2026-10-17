@@ -1,0 +1,17 @@
+{
+    "id": "rupture",
+    "name": "파열",
+    "effects": [
+        {
+            "trigger": "on_hit_received",
+            "action": "damage_self",
+            "value": "amount",
+            "desc": "피격 시 위력만큼 체력 피해를 입음"
+        },
+        {
+            "trigger": "on_hit_received",
+            "action": "inc_count",
+            "value": -1
+        }
+    ]
+}

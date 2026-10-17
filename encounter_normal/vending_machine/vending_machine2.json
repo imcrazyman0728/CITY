@@ -1,0 +1,36 @@
+{
+  "id": "vending_machine2",
+  "start": "main",
+  "nodes": {
+    "main": {
+      "text": "휘황찬란한 빛을 내뿜는 자판기가 있어. 패널에는 세 가지 버튼이 활성화되어 있고. 너는 무엇을 선택했을까?",
+      "choices": [
+        {
+          "text": "시원한 에너지 드링크를 뽑아 마신다 (HP 모두 회복)",
+          "effects": {
+            "hp": 999
+          },
+          "end": true
+        },
+        {
+          "text": "따뜻한 아로마차를 뽑아 마신다 (정신력 모두 회복)",
+          "effects": {
+            "sanity": 999
+          },
+          "end": true
+        },
+        {
+          "text": "무기 연마 세트를 구매한다 (카드 1장 선택 강화)",
+          "effects": {
+            "choice_upgrade_card": true
+          },
+          "end": true
+        },
+        {
+          "text": "자리를 떠난다",
+          "end": true
+        }
+      ]
+    }
+  }
+}

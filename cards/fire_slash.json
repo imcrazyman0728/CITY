@@ -1,0 +1,87 @@
+{
+    "id": "fire_slash",
+
+    "name": "불타는 일격",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 0,
+
+    "on_use_dialogue" : "{card_user}의 검에서 불타는 검기가 나왔다!",
+
+    "on_use_effect" :
+    [],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 7,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :
+                    
+                    [
+
+                        {
+                            "burn" :
+                            
+                            {
+
+                                "amount" : 3,
+
+                                "count" : 2
+
+                            }
+                        }
+
+
+                    ]
+
+                        
+
+                }
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 7,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :
+                    
+                    [
+
+                        {
+                            "burn" :
+                            
+                            {
+
+                                "amount" : 3,
+
+                                "count" : 2
+
+                            }
+                        }
+
+
+                    ]
+
+                        
+
+                }
+            ]
+        }
+
+    ]
+
+}

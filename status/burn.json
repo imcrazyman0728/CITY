@@ -1,0 +1,18 @@
+
+{
+    "id": "burn",
+    "name": "화상",
+    "desc": "턴 종료 시 위력만큼 피해를 입고 횟수가 1 감소.",
+    "effects": [
+        {
+            "trigger": "on_turn_end",
+            "action": "damage_self",
+            "value": "amount"
+        },
+        {
+            "trigger": "on_turn_end",
+            "action": "inc_count",
+            "value": -1
+        }
+    ]
+}

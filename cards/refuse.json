@@ -1,0 +1,51 @@
+{
+    "id": "refuse",
+
+    "name": "거절",
+
+    "grade" : "limited",
+
+    "type" : "melee",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "\u001b[91m아무 말도 하지마.\u001b[0m",
+
+    "on_use_effect" :
+    [
+        {
+            "apply_status" : 
+                {
+                    "cold_fire" :
+                        {
+                            "amount" : 1,
+                            "count" : 2
+                        }
+                }
+        }
+    ],
+
+    "dice":
+    [
+        {
+            "type": "defense",
+            "damage_type" : "block",
+            "min": 5,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+        {
+            "type": "defense",
+            "damage_type" : "block",
+            "min": 5,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

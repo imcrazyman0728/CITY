@@ -1,0 +1,19 @@
+{
+    "id": "pixel_artist",
+    "name": "도트 아티스트",
+    "desc": "공격 적중 시마다 가하는 모든 피해량이 이번 전투 동안 1 증가합니다.",
+    "effects": [
+        {
+            "trigger": "on_hit",
+            "condition": { "kind": "attack" },
+            "action": "inc_var",
+            "variable": "hit_bonus",
+            "value": 1
+        },
+        {
+            "trigger": "modify_damage_dealt",
+            "action": "add_var_value",
+            "variable": "hit_bonus"
+        }
+    ]
+}

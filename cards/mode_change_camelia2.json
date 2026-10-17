@@ -1,0 +1,28 @@
+{
+    "id": "mode_change_camelia2",
+
+    "name": "모드 체인지",
+
+    "grade" : "objet_d'art",
+
+    "type" : "on_play",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 벤데타의 총신을 원래대로 올린다!",
+
+    "on_use_effect" :
+    [
+        {
+            "mode_change" : "근거리",
+            "remove_status": "bullet"
+        }
+    ],
+
+    "mode_change" : {
+        "camelia" : "mode_change_camelia1"
+    },
+    "dice":
+    [
+    ]
+}

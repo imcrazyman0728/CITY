@@ -1,0 +1,130 @@
+{
+    "id": "wild_strike_camelia",
+
+    "name": "난격",
+
+    "grade" : "limited",
+
+    "type" : "melee",
+
+    "cost": 3,
+
+    "on_use_dialogue" : "\u001b[91m직선으로 겨누고, 휘둘러 베어내고, 사선으로, 난무. 내 앞을 가로막지 마.\u001b[0m",
+
+    "on_use_effect" :
+    [
+
+    ],
+    "mode_change" : {
+        "원거리" : "zeroing_doubletap_camelia"
+    },
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 1,
+            "max": 3,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 1,
+                                "count" : 2
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 1,
+            "max": 3,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 1,
+                                "count" : 2
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 1,
+            "max": 3,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 2,
+                                "count" : 1
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 2,
+            "max": 5,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 3,
+                                "count" : 1
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                {
+                    "apply_effects" :                    
+                    [
+                        {
+                            "sinking" :                            
+                            {
+                                "amount" : 1,
+                                "count" : 2
+                            }
+                        }
+                    ]                        
+                }
+            ]
+        }
+
+    ]
+}

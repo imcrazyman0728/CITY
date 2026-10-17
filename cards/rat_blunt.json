@@ -1,0 +1,32 @@
+{
+    "id": "rat_blunt",
+
+    "name": "싱거운 타격",
+
+    "grade" : "hardcover",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 칼날을 쥐고 내려 찍는다!",
+
+    "on_use_effect" :
+    [
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "blunt",
+            "min": 5,
+            "max": 8,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+
+    ]
+}

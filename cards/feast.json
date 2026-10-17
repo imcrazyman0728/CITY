@@ -1,0 +1,54 @@
+{
+    "id": "feast",
+
+    "name": "식사",
+
+    "grade" : "hardcover",
+
+    "type" : "melee",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "배고파요. 나가고 싶어요?",
+
+    "on_use_effect" :
+    [
+        null
+    ],
+
+    "dice":
+    [
+        {
+            "type": "defense",
+            "damage_type" : "block",
+            "min": 5,
+            "max": 7,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 4,
+            "dice_effect" : 
+            [
+                {"heal_hp" : 2}
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 1,
+            "max": 7,
+            "dice_effect" : 
+            [
+                {"heal_hp" : 2}
+            ]
+        }
+    ]
+}

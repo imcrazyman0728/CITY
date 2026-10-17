@@ -1,0 +1,41 @@
+{
+    "id": "rat_pierce",
+
+    "name": "싱거운 찌르기",
+
+    "grade" : "paperback",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 어설프게 칼을 들고 달려든다!",
+
+    "on_use_effect" :
+    [
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

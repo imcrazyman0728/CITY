@@ -1,0 +1,34 @@
+{
+  "id": "hospital",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "작은 진료소를 발견했다.",
+
+      "choices": [
+
+        {
+          "text": "치료받는다",
+
+          "effects": {
+
+            "remove_item":
+            "부상"
+          },
+
+          "end": true
+        },
+
+        {
+          "text": "떠난다",
+
+          "end": true
+        }
+      ]
+    }
+  }
+}

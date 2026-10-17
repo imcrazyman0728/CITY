@@ -1,0 +1,17 @@
+{
+    "id": "remembrance",
+    "name": "추모",
+    "desc": "턴 시작 시 이번 전투 동안 사망한 아군이 있다면 힘 위력 2, 횟수 1 획득.",
+    "effects": [
+        {
+            "trigger": "on_turn_start",
+            "condition": {
+                "has_dead_ally": true
+            },
+            "action": "apply_status",
+            "status_id": "strength",
+            "amount": 2,
+            "count": 1
+        }
+    ]
+}

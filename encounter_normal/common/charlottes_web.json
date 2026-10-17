@@ -1,0 +1,26 @@
+
+{
+  "id": "charlottes_web",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "더미 템플릿 인카운터에요!!!!",
+
+      "choices": [
+
+        {
+          "text": "발표날짜까지 기다렸는데 겨우 이정도 분량이 맞다고 생각하는거니",
+
+
+
+
+          "end": true
+        }
+      ]
+    }
+  }
+}
