@@ -1,0 +1,40 @@
+{
+  "bgm": [
+    {
+      "file": "title_theme.mp3",
+      "role": "타이틀",
+      "title": "Kokoro - Rin Kagamine (Piano Version)",
+      "artist": "WolvesOfDread",
+      "url": "https://www.youtube.com/watch?v=QkoCRvZ79EM"
+    },
+    {
+      "file": "field_camelia1.mp3",
+      "role": "필드",
+      "title": "Field of Hopes and Dreams (Arrangement)",
+      "artist": "foogle",
+      "original": "DELTARUNE (Toby Fox)",
+      "url": "https://www.youtube.com/watch?v=53Ma5XodzL8"
+    },
+    {
+      "file": "rude_buster.mp3",
+      "role": "전투",
+      "title": "Rude Buster - Remix Cover (DELTARUNE)",
+      "artist": "Vetrom",
+      "original": "DELTARUNE (Toby Fox)",
+      "url": "https://www.youtube.com/watch?v=PPI4552LOKI"
+    },
+    {
+      "file": "death_theme.mp3",
+      "role": "게임 오버",
+      "title": "Game Over",
+      "artist": "Studio Thumpy Puppy - Topic",
+      "url": "https://www.youtube.com/watch?v=2J3CPfGhJ3w"
+    }
+  ],
+  "sfx": {
+    "source": "Library of Ruina",
+    "owner": "Project Moon"
+  },
+  "notice": "본 게임은 '프로젝트 문'의 '도시' 세계관을 바탕으로 하는 2차 창작물입니다.",
+  "developer": "30102 권순형 (2026년 코딩 크래프트 동아리 제출용)"
+}
