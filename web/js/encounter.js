@@ -190,16 +190,15 @@ export async function run_battle(enemy_ids) {
   const outcome = await ui().battle(battle);
   battle.finish();
 
-  if (game.field_theme) game.hooks.bgm(game.field_theme, { fade_ms: 1000 });
-  else game.hooks.stop_bgm(1000);
-
   if (outcome === "win") {
+    if (game.field_theme) game.hooks.bgm(game.field_theme, { fade_ms: 1000 });
+    else game.hooks.stop_bgm(1000);
     for (const e of battle.defeated) update_encyclopedia({ enemy: e });
     const total_exp = battle.defeated.reduce((s, e) => s + (e.exp ?? 0), 0);
     if (total_exp > 0) await gain_exp(battle.player, total_exp);
   } else {
     game.ended = true;
-    game.hooks.stop_bgm(1000);
+    game.hooks.stop_bgm(0); // 엔딩 화면이 죽음 곡을 직접 튼다
   }
   return outcome;
 }

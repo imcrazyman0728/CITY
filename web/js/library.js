@@ -106,12 +106,12 @@ function book_view(sub, setSub) {
     const cats = {};
     for (const id of ids) for (const c of (E.game.data.gadgets[id].category ?? ["기타"])) (cats[c] ??= []).push(id);
     const names = Object.keys(cats).sort();
-    wrap.append(names.length ? names.map((cat) => h("section", { style: { marginBottom: "18px" } },
+    wrap.append(...(names.length ? names.map((cat) => h("section", { style: { marginBottom: "18px" } },
       h("h3", { style: { margin: "0 0 8px" } }, `${cat} (${cats[cat].length}종)`),
       h("div", { class: "list" }, cats[cat].map((id) => {
         const g = E.game.data.gadgets[id];
         return h("button", { class: "record", onclick: () => gadget_detail(id) }, h("strong", {}, g.name ?? id), h("span", { class: "muted" }, (g.desc ?? "").slice(0, 38)));
-      })))) : h("p", { class: "empty-note" }, "획득한 기록이 있는 가젯이 없습니다."));
+      })))) : [h("p", { class: "empty-note" }, "획득한 기록이 있는 가젯이 없습니다.")]));
   }
   return wrap;
 }
