@@ -32,12 +32,18 @@ export class AudioManager {
     if (!this.unlocked) { this.pending = { name, opts }; return; }
     if (this.bgm_name === file && this.bgm_el && !this.bgm_el.paused) return;
     this._stop_now();
+    this.pending = null;
     const el = new Audio(CONFIG.mus_dir + encodeURI(file));
     el.loop = opts.loop ?? true;
     el.volume = 0;
     this.bgm_el = el;
     this.bgm_name = file;
-    el.play().catch(() => { this.pending = { name, opts }; this.unlocked = false; });
+    this.pending = null;
+    el.play().catch((err) => {
+      // 우리가 곧바로 pause()/교체해서 생기는 AbortError는 정상 동작이므로 무시한다.
+      // 브라우저가 자동재생을 막았을 때(NotAllowedError)만 다음 클릭에서 다시 시도한다.
+      if (err?.name === "NotAllowedError" && this.bgm_el === el) { this.pending = { name, opts }; this.unlocked = false; }
+    });
     this._fade_to(this._target_volume(), opts.fade_ms ?? 0);
   }
 
