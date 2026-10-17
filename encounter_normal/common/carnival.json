@@ -53,6 +53,30 @@
       ]
     },
 
+    "2": {
+
+      "text": "\"이상한 사람이에요. 어떤 맛이 날까요?\"\n커다란 사람들은 벌써 너의 코앞까지 다가왔네.",
+
+      "choices": [
+
+        {
+          "text": "무기를 든다.",
+
+          "effects" : {
+            "battle" : ["carnival_alpha", "carnival_beta", "carnival_gamma"]
+          },
+
+          "next" : "end_of_carnival"
+        },
+        {
+          "text": "도망친다.",
+
+          "end" : true
+        }
+
+      ]
+    },
+
     "camelia_1": {
 
       "text": "\"엄지 제식 코트를 입었으면서 검지의 천을 사용했어요?\"\n\"이상한 사람이에요. 어떤 맛이 날까요?\"\n커다란 사람들은 벌써 너의 코앞까지 다가왔네.",
@@ -63,32 +87,44 @@
           "text": "아... 사실 이전에 엄지에 소속되어 있다가 검지로 전향했어요.",
 
           "requirements" : {
-            "items" : 
+            "items" :
             {
               "eloquence_invidia" : 1
             }
           },
-
-          
-
 
           "next": "camelia_2"
         },
 
         {
           "text": "무기를 든다.",
-          "effects" : 
-          {
-            "battle" : ["carnival_alpha", "carnival_beta", "carnival_gamma"],
-            "next" : "end_of_carnival"
-          }
+
+          "effects" : {
+            "battle" : ["carnival_alpha", "carnival_beta", "carnival_gamma"]
+          },
+
+          "next" : "end_of_carnival"
         },
         {
           "text": "도망친다.",
-          "end" : true 
 
+          "end" : true
         }
 
+      ]
+    },
+
+    "camelia_2": {
+
+      "text": "\"검지로 갔어요? 그럼 맛이 없을지도 몰라요?\"\n\"그래도 검지 사람이면 먹을 수는 없어요.\"\n커다란 사람들은 흥미를 잃은 듯 천천히 뒤로 물러났어.",
+
+      "choices": [
+
+        {
+          "text": "...(조용히 자리를 뜬다.)",
+
+          "end": true
+        }
       ]
     },
 
@@ -124,6 +160,5 @@
       ]
     }
 
-    
   }
 }

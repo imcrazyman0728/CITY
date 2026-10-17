@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+
+# 플레이어별 저장 데이터
+player/profile.json
+graves/
+clears/

@@ -10,13 +10,17 @@ try:
 except ImportError:
     pygame = None
 
-BASE_DIR = Path(__file__).resolve().parent
-GRAVES_DIR = BASE_DIR / "graves"
-CLEARS_DIR = BASE_DIR / "clears"
-
 # PyInstaller 배포 환경 대응
+# BASE_DIR : 읽기 전용 리소스(cards, enemy, mus ...)  / DATA_DIR : 실행 후에도 남아야 하는 저장 데이터
 if getattr(sys, "frozen", False):
     BASE_DIR = Path(sys._MEIPASS)
+    DATA_DIR = Path(sys.executable).resolve().parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent
+    DATA_DIR = BASE_DIR
+
+GRAVES_DIR = DATA_DIR / "graves"
+CLEARS_DIR = DATA_DIR / "clears"
 
 _AUDIO_ENABLED = pygame is not None
 
@@ -196,6 +200,7 @@ def get_card_data_internal(card_id):
     path = BASE_DIR / "cards" / f"{card_id}.json"
     data = load_json(path)
     if data:
+        data["id"] = card_id  # JSON 안의 id가 파일명과 달라도 파일명을 기준으로 통일
         CARD_DATA_CACHE[card_id] = data
     return data
 
@@ -254,7 +259,10 @@ def load_ally_data(ally_id):
 def load_enemy(enemy_id):
     path = BASE_DIR / "enemy" / f"{enemy_id}.json"
     if not path.exists():
-        raise Exception(f"적 없음 : {enemy_id}")
+        found = list((BASE_DIR / "enemy").rglob(f"{enemy_id}.json"))
+        if not found:
+            raise Exception(f"적 없음 : {enemy_id}")
+        path = found[0]
     data = load_json(path)
     if not data:
         raise Exception(f"적 데이터를 불러올 수 없습니다 (JSON 오류): {enemy_id}")
@@ -726,15 +734,13 @@ class Unit:
         self.level = status.get("level", 1)
         self.exp = status.get("exp", 0)
         self.card_pool = status.get("card_pool", [])
-        self.dice_power_modifiers = {}  # 1회만 초기화
+        self.dice_power_modifiers = {}
         self.gadgets = {}
         self.panic_type = status.get("panic_type")
         self.active_panic_effects = []
         self.is_panicked = False
         self.is_low_morale = False
-        self.dice_power_modifiers = {}
-        self.card_dice_power_modifier = 0  # 해당 카드 한정 위력 보정치 추가
-        self.gadgets = {}
+        self.card_dice_power_modifier = 0  # 해당 카드 한정 위력 보정치
 
     def change_hp(self, amount):
         old_hp = self.hp
@@ -858,6 +864,7 @@ class Game:
         self.allies = []
         self.enemies = []
         self.basic_battle_theme = None
+        self.fallen_enemy_count = 0  # 이번 전투에서 쓰러진 적 수 (적 진영의 has_dead_ally 판단용)
 
 
 game = Game()
@@ -991,8 +998,11 @@ def begin_turn(unit):
     unit.dice_power_modifiers = {}
     ensure_staggered(unit)
 
-    allies_to_check = [game.player_char] + game.allies
-    has_dead = any(a.hp <= 0 for a in allies_to_check if a)
+    if getattr(unit, "faction", "player") == "enemy":
+        has_dead = game.fallen_enemy_count > 0
+    else:
+        allies_to_check = [game.player_char] + game.allies
+        has_dead = any(a.hp <= 0 for a in allies_to_check if a)
     trigger_passive_action(unit, "on_turn_start", {"has_dead_ally": has_dead})
 
     if unit.is_panicked:
@@ -1099,6 +1109,10 @@ def extract_counter_dice(unit):
 
 
 def resolve_one_side_attack(attacker, defender, attack_dice):
+    if not check_and_consume_gun_cost(attacker, attack_dice):
+        print(f"[{attacker.name}] 탄환 부족으로 주사위 파괴!")
+        return
+
     defense_pool = []
     defense_pool.extend(defender.saved_counter)
     defense_pool.extend(defender.saved_defense)
@@ -1196,12 +1210,12 @@ def clash_cards(player, enemy, player_card, enemy_card):
     enemy.card_dice_power_modifier = 0
 
     play_card_dialogue(player, player_card)
-    apply_on_use_effects(player, player_card)
+    apply_on_use_effects(player, player_card, target=enemy)
 
     print()
 
     play_card_dialogue(enemy, enemy_card)
-    apply_on_use_effects(enemy, enemy_card)
+    apply_on_use_effects(enemy, enemy_card, target=player)
     print()
 
     clash_index = 1
@@ -1432,7 +1446,7 @@ def clash_cards(player, enemy, player_card, enemy_card):
         if p_dice["type"] == "attack":
             print(f"\n[{player.name}] 남은 주사위 일방공격!")
             resolve_one_side_attack(player, enemy, p_dice)
-        elif p_dice["type"] in ["block", "evade"]:
+        elif p_dice["type"] in ["defense", "block", "evade"]:
             player.saved_defense.append(p_dice)
         elif p_dice["type"] == "counter":
             player.saved_counter.append(p_dice)
@@ -1442,7 +1456,7 @@ def clash_cards(player, enemy, player_card, enemy_card):
         if e_dice["type"] == "attack":
             print(f"\n[{enemy.name}] 남은 주사위 일방공격!")
             resolve_one_side_attack(enemy, player, e_dice)
-        elif e_dice["type"] in ["block", "evade"]:
+        elif e_dice["type"] in ["defense", "block", "evade"]:
             enemy.saved_defense.append(e_dice)
         elif e_dice["type"] == "counter":
             enemy.saved_counter.append(e_dice)
@@ -1498,7 +1512,7 @@ def resolve_turn(allies, enemies):
                     resolve_one_side_attack(attacker, defender, dice)
                     if defender.hp <= 0:
                         break
-                elif dtype in ["block", "evade"]:
+                elif dtype in ["defense", "block", "evade"]:
                     attacker.saved_defense.append(dice)
                 elif dtype == "counter":
                     attacker.saved_counter.append(dice)
@@ -1953,9 +1967,9 @@ def player_select_cards(allies, enemies, msg=""):
                 active_unit.current_cost -= card.cost
                 print(f"\n[{card.name}] 사용!")
                 active_unit.hand.pop(index)
+                active_unit.discard_pile.append(card.id)
                 play_card_dialogue(active_unit, card)
                 apply_on_use_effects(active_unit, card)
-                active_unit.discard_pile.append(card.id)
             pause()
             continue
 
@@ -2022,6 +2036,8 @@ def start_battle(enemy_ids):
 
     clear_screen()
     game.enemies = [Enemy(load_enemy(eid)) for eid in enemy_ids]
+    game.fallen_enemy_count = 0
+    defeated_enemies = []
     player = game.player_char
     allies = [player] + game.allies
 
@@ -2074,6 +2090,10 @@ def start_battle(enemy_ids):
         for u in allies + game.enemies:
             trigger_status_effect(u, "on_turn_end", {})
 
+        for e in game.enemies:
+            if e.hp <= 0:
+                game.fallen_enemy_count += 1
+                defeated_enemies.append(e)
         game.enemies = [e for e in game.enemies if e.hp > 0]
 
         if not game.enemies:
@@ -2086,6 +2106,12 @@ def start_battle(enemy_ids):
                 play_bgm(game.field_theme, fade_ms=1000)
             else:
                 stop_bgm(fade_ms=1000)
+
+            for e in defeated_enemies:
+                update_encyclopedia(enemy=e)
+            total_exp = sum(e.exp for e in defeated_enemies)
+            if total_exp > 0:
+                player.gain_exp(total_exp)
             pause()
             return
 
@@ -2140,9 +2166,9 @@ def enemy_select_cards(unit, opponents):
         if card.cost <= unit.current_cost:
             unit.current_cost -= card.cost
             unit.hand.remove(card)
-            apply_on_use_effects(unit, card)
-            play_card_dialogue(unit, card)
             unit.discard_pile.append(card.id)
+            play_card_dialogue(unit, card)
+            apply_on_use_effects(unit, card)
 
     for i in range(unit.card_slot):
         candidates = [c for c in unit.hand if c.cost <= unit.current_cost]
@@ -2941,6 +2967,8 @@ def show_ending():
         return
 
     if game.player_char.hp <= 0 or game.player_char.sanity <= 0:
+        game.profile["death_count"] = game.profile.get("death_count", 0) + 1
+        save_profile(game.profile)
         play_bgm("death_theme.mp3", loop=-1, fade_ms=1000)
         print("\n" + "!" * 50)
         print("당신은 도시의 차가운 바닥에서 숨을 거두었습니다...")
@@ -3015,17 +3043,17 @@ def game_loop():
 # 프로필 및 도감 / 기록 시스템
 # ==================================================
 
-PROFILE_PATH = BASE_DIR / "player" / "profile.json"
+PROFILE_PATH = DATA_DIR / "player" / "profile.json"
 
 
 def save_profile(data):
-    PROFILE_PATH.parent.mkdir(exist_ok=True)
+    PROFILE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(PROFILE_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
 def load_profile():
-    PROFILE_PATH.parent.mkdir(exist_ok=True)
+    PROFILE_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not PROFILE_PATH.exists():
         data = {
             "death_count": 0,

@@ -17,7 +17,7 @@
           "effects": {
 
             "remove_item":
-            "부상"
+            "injured"
           },
 
           "end": true
