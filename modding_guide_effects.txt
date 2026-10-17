@@ -1,0 +1,108 @@
+================================================================================
+ 인카운터 효과(Effects) 모딩 가이드
+================================================================================
+
+이 파일은 JSON 인카운터 파일의 "effects" 딕셔너리 내에서 사용할 수 있는 모든 키값과
+그 설명에 대해 다룹니다.
+
+1. 능력치 및 캐릭터 정보
+- "hp" : (int) 플레이어의 체력을 증감시킵니다. 예: -10, 5
+- "sanity" : (int) 플레이어의 정신력을 증감시킵니다.
+- "level_up" : (any) 즉시 레벨업 시퀀스를 실행합니다.
+- "change_name" : (string) 캐릭터의 인게임 표시 이름을 변경합니다.
+- "max_cost" : (int) 최대 빛(코스트) 수치를 영구적으로 증감시킵니다. (최소 1)
+- "card_slot" : (int) 최대 카드 슬롯(합 개수)을 영구적으로 증감시킵니다. (최소 1)
+- "endurance" : (dict) 공격 타입별 체력 내성 계수를 수정합니다. 예: {"slash": -0.2} (수치가 낮을수록 강함)
+- "stagger_endurance" : (dict) 공격 타입별 흐트러짐 내성 계수를 수정합니다. 예: {"blunt": 0.1}
+
+2. 가젯(Gadget/Item) 관련
+- "give_item" : (string) 특정 가젯 ID를 1개 획득합니다. (자동으로 예약 인카운터 체크)
+- "give_items" : (dict) { "가젯ID": 개수 } 형식으로 여러 가젯을 획득합니다.
+- "remove_item" : (string) 특정 가젯 ID를 1개 제거합니다.
+- "remove_items" : (dict) { "가젯ID": 개수 } 형식으로 여러 가젯을 제거합니다.
+- "choice_remove_gadget_category" : (dict) { "category": "카테고리명", "count": 개수 } 특정 카테고리의 가젯을 플레이어가 선택하여 제거합니다.
+
+3. 카드 및 패시브 관련
+- "give_card" : (string) 특정 카드 ID를 덱에 1장 추가합니다.
+- "give_cards" : (dict) { "카드ID": 개수 } 형식으로 여러 장의 카드를 추가합니다.
+- "remove_card" : (string) 특정 카드 ID를 덱에서 1장 제거합니다.
+- "remove_cards" : (dict) { "카드ID": 개수 } 형식으로 여러 장의 카드를 제거합니다.
+- "give_passive" : (string) 특정 패시브 ID를 획득합니다.
+- "give_passives" : (list) [ "패시브ID1", "패시브ID2" ] 형식으로 여러 패시브를 획득합니다.
+- "remove_passive" : (string) 특정 패시브를 제거합니다.
+- "remove_passives" : (list) 여러 패시브를 리스트 형식으로 제거합니다.
+
+4. 카드 관리 UI (플레이어 선택/무작위)
+- "choice_remove_card" : (any) 덱에서 제거할 카드를 선택하는 화면을 띄웁니다.
+- "choice_duplicate_card" : (any) 덱에서 복제할 카드를 선택하는 화면을 띄웁니다.
+- "choice_upgrade_card" : (any) 덱에서 강화할 카드를 선택하는 화면을 띄웁니다.
+- "random_remove_card" : (int) 덱에서 지정된 수만큼 카드를 무작위로 제거합니다.
+- "random_duplicate_card" : (int) 덱에서 지정된 수만큼 카드를 무작위로 복제합니다.
+- "random_upgrade_card" : (int) 덱에서 지정된 수만큼 카드를 무작위로 강화합니다.
+
+5. 게임 진행 및 전투
+- "battle" : (string) 특정 적 ID와 즉시 전투를 시작합니다. (다인 전투 시 리스트의 첫 번째 적의 등장 대사가 출력됩니다.)
+- "load_player_char" : (string) 플레이어 캐릭터 데이터를 해당 ID의 파일에서 로드합니다.
+- "achievement" : (string) 특정 도전과제를 달성 처리합니다.
+- "schedule" : (dict) { "인카운터ID": 턴수 } 형식으로 특정 턴 뒤에 이벤트를 예약합니다.
+  (참조 폴더: encounter_normal/schedule/)
+
+6. 프로필 및 플래그(Flags)
+- "set_flag" : (dict) 프로필 플래그를 특정 값으로 설정하거나 업데이트합니다.
+- "inc_flag" : (dict) 숫자형 플래그 값을 증가시킵니다.
+- "dec_flag" : (dict) 숫자형 플래그 값을 감소시킵니다.
+- "remove_flag" : (string) 특정 플래그를 프로필에서 삭제합니다.
+
+7. 사운드 및 테마
+- "set_field_theme" : (string) 필드 배경음악(BGM)을 설정하고 재생합니다.
+- "set_basic_battle_theme" : (string) 기본 전투 BGM을 설정합니다.
+- "bgm_fade_out" : (int) BGM을 지정된 밀리초(ms) 동안 페이드 아웃하며 정지합니다.
+- "bgm_fade_in" : (int) 현재 필드 테마를 지정된 밀리초(ms) 동안 페이드 인하며 재생합니다.
+- "sfx" : (string) sfx 폴더 내의 효과음 파일을 재생합니다. (파일명 입력, 확장자 생략 가능)
+
+8. 선택지 요구 사항 (Requirements)
+선택지("choices")나 분기("branches") 내부에 작성하여 해당 항목의 활성화 조건을 설정합니다.
+조건을 만족하지 못한 선택지는 붉은색으로 표시되며 선택할 수 없습니다.
+
+- "item" : (string) 특정 가젯 1개 이상 소지 여부.
+- "not_item" : (string) 특정 가젯 미소지 여부.
+- "items" : (dict) { "가젯ID": 최소개수 } 여러 가젯의 최소 수량 조건.
+- "required_category" : (dict) { "카테고리명": 최소합계 } 특정 카테고리 가젯들의 총합 수.
+- "has_card" : (string) 특정 카드가 덱에 1장 이상 있는지 여부.
+- "has_cards" : (dict) { "카드ID": 최소장수 } 여러 종류 카드의 소지 조건.
+- "has_passive" : (string) 특정 패시브 보유 여부.
+- "name" : (string) 캐릭터 이름이 일치해야 함. (예: "카멜리아")
+- "not_name" : (string) 캐릭터 이름이 일치하지 않아야 함.
+- "flag_min" : (dict) 프로필 플래그(숫자)가 지정된 값 이상일 때.
+- "flag_max" : (dict) 프로필 플래그(숫자)가 지정된 값 미만일 때.
+
+9. 선택지 분기 (Branches)
+하나의 선택지("choices") 내부에 리스트 형식으로 작성합니다. 클릭한 버튼은 같더라도 
+플레이어의 상태(이름, 아이템 등)에 따라 결과(Node)를 다르게 출력할 때 사용합니다.
+
+구조 예시:
+"choices": [
+  {
+    "text": "말을 건다",
+    "branches": [
+      {
+        "requirements": { "name": "카멜리아" },
+        "next": "meet_felice_as_camellia"
+      },
+      {
+        "requirements": { "item": "old_letter" },
+        "next": "show_letter_event"
+      }
+    ],
+    "next": "default_talk_event"
+  }
+]
+* 작동 원리: 
+  1. branches 리스트를 위에서부터 검사하여 가장 먼저 조건을 만족하는 분기로 이동합니다.
+  2. 어떤 branch 조건도 만족하지 못하면 선택지의 기본 "next" 경로를 따릅니다.
+
+--------------------------------------------------------------------------------
+* 주의사항: 
+- JSON 파일 작성 시 오타에 주의하세요. (예: "give_item" vs "give_items")
+- 키값에 따른 value의 타입(문자열, 숫자, 리스트, 딕셔너리)을 반드시 준수해야 합니다.
+--------------------------------------------------------------------------------

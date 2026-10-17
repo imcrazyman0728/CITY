@@ -1,0 +1,107 @@
+================================================================================
+ 카드가이드 (Card JSON Syntax Guide)
+================================================================================
+
+카드 JSON 파일은 크게 '기본 정보', '사용시 효과(on_use_effect)', 그리고 '주사위 정보(dice)'로 나뉩니다.
+
+--------------------------------------------------------------------------------
+1. 기본 정보 (Basic Fields)
+--------------------------------------------------------------------------------
+- "id" : (string) 카드의 고유 식별자 (파일명과 일치 필수)
+- "name" : (string) 게임 내에 표시될 카드의 이름
+- "cost" : (int) 카드를 사용하는 데 필요한 빛(코스트)의 양
+- "type" : (string) 카드의 유형
+  * "melee" : 근거리 공격 카드
+  * "ranged" : 원거리 공격 카드
+  * "on_play" : 즉시 발동 카드 (주사위 대결 없이 효과만 바로 적용)
+- "grade" : (string) 카드의 등급
+  * "paperback" (보급) / "hardcover" (고급) / "limited" (한정) / "objet_d'art" (예술)
+- "on_use_dialogue" : (string) 카드 사용 시 출력될 대사
+  * 예: "{card_user}의 일격!" ({card_user}는 시전자 이름으로 자동 치환됨)
+
+--------------------------------------------------------------------------------
+2. 사용시 효과 (on_use_effect)
+--------------------------------------------------------------------------------
+카드를 사용할 때 즉시 발동하는 효과들을 리스트 형태로 정의합니다.
+
+- "draw_cards" : (int) 카드 지정된 수만큼 드로우.
+- "recover_cost" : (int) 지정된 수만큼 빛(코스트) 회복.
+- "remove_status" : (string) 특정 상태이상 ID 제거.
+- "apply_status" : (dict) 자신에게 상태이상 부여.
+  * 예: { "apply_status": { "strength": { "amount": 2, "count": 1 } } }
+- "modify_dice_power" : (int 또는 dict) 이번 턴 동안 주사위 위력 보정.
+  * 숫자만 적을 경우: 모든 주사위 위력 증가
+  * dict 형식 예: { "kind": "slash", "value": 2 } ("slash", "block" 등 특정 주사위만 지정 가능)
+- "mode_change" : (dict) 카드 사용 시 덱/패의 카드를 다른 카드로 변환 (모드 전환).
+  * 예: { "mode_change": { "마왕": "boss_slash_enhanced" } }
+
+--------------------------------------------------------------------------------
+3. 주사위 정보 (dice)
+--------------------------------------------------------------------------------
+카드가 가진 주사위들을 순서대로 리스트 내에 정의합니다. 각 주사위는 개별 효과를 가질 수 있습니다.
+
+[주사위 기본 속성]
+- "type" : (string) 주사위 행동 유형 ("attack" / "defense" / "counter")
+- "damage_type" : (string) 세부 속성 
+  * attack일 때: "slash"(참격), "pierce"(관통), "blunt"(타격)
+  * defense일 때: "block"(수비), "evade"(회피)
+  * counter일 때: "counter_slash", "counter_block" 등 앞에 counter_ 접두사 사용
+- "min" : (int) 주사위의 최솟값
+- "max" : (int) 주사위의 최댓값
+- "sfx" : (string) 주사위 사용 시 재생할 wav 파일명 (선택 사항)
+
+[주사위 특수 효과 (dice_effect)]
+주사위 내의 "dice_effect" 리스트 안에 딕셔너리로 작성합니다.
+
+① 적중 시 효과 (On Hit)
+- "apply_effects" : (list) 대상에게 상태이상 부여.
+  * 예: "apply_effects": [ { "burn": { "amount": 3, "count": 1 } } ]
+- "fixed_damage" : (int) 적중 시 고정 체력 피해.
+- "sanity_damage" : (int) 적중 시 정신력 피해.
+- "heal_hp" : (int) 적중 시 공격자의 체력 회복.
+- "tremor_burst" : (bool) 진동 폭발 발동 여부 (true 설정 시 대상의 진동 위력만큼 흐트러짐 피해).
+
+② 합 승리 시 효과 (Clash Win)
+- "clash_recover_cost" : (int) 합 승리 시 빛 회복.
+- "clash_fixed_damage" : (int) 합 승리 시 대상에게 고정 체력 피해.
+- "clash_fixed_stagger" : (int) 합 승리 시 대상에게 고정 흐트러짐 피해.
+- "clash_give_card_self" : (string) 합 승리 시 자신의 패에 특정 카드 생성.
+- "clash_give_card_target" : (string) 합 승리 시 상대의 패에 특정 카드 생성.
+
+③ 기타 조건
+- "gun" : (int) 원거리 총기류 구현용. 주사위를 굴리기 전 필요한 탄환('bullet' 상태이상 수치) 개수. 탄환이 부족하면 주사위가 파괴됨.
+
+--------------------------------------------------------------------------------
+4. 종합 예시 JSON (Example)
+--------------------------------------------------------------------------------
+{
+    "id": "example_strike",
+    "name": "순형이의 습격",
+    "type": "melee",
+    "cost": 2,
+    "grade": "hardcover",
+    "on_use_dialogue": "{card_user}(이)가 돌진해서 뱃살로 당신을 깔아 뭉갭니다!!!!!!! 어우 더러워 저거 뭐야",
+    "on_use_effect": [
+        { "draw_cards": 1 },
+        { "apply_status": { "strength": { "amount": 1, "count": 1 } } }
+    ],
+    "dice": [
+        {
+            "type": "attack",
+            "damage_type": "slash",
+            "min": 4,
+            "max": 8,
+            "dice_effect": [
+                { "apply_effects": [ { "tremor": { "amount": 3, "count": 2 } } ] },
+                { "clash_recover_cost": 1 }
+            ]
+        },
+        {
+            "type": "defense",
+            "damage_type": "block",
+            "min": 3,
+            "max": 7
+        }
+    ]
+}
+================================================================================
