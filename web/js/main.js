@@ -85,7 +85,8 @@ async function title_loop() {
     const choice = await title_screen();
     try {
       if (choice === "story") await start_story();
-      else if (choice === "suppress") await suppression_mode();
+      // 제압 모드는 리워크 전까지 잠금 (다시 열려면 아래 줄 주석 해제 + 타이틀 메뉴의 disabled 제거)
+      // else if (choice === "suppress") await suppression_mode();
       else if (choice === "library") await openLibrary();
       else if (choice === "profile") await openProfile();
       else if (choice === "settings") await openSettings();
@@ -113,7 +114,7 @@ function title_screen() {
       h("p", { class: "title-sub" }, "카드를 겨누고, 주사위를 굴려, 도시의 이야기를 따라갑니다."),
       h("nav", { class: "menu", "aria-label": "메인 메뉴" },
         item("story", "게임 시작"),
-        item("suppress", "제압 모드 (단판 전투)"),
+        item("suppress", "제압 모드 (리워크 예정)", { disabled: true }),
         item("library", "서재"),
         item("profile", "내 정보"),
         item("settings", "설정"),
