@@ -334,3 +334,11 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* 패시브 / 패닉 */
+.unit-passives { display: flex; gap: 5px; flex-wrap: wrap; margin: 6px 0 0; }
+.chip.passive { background: transparent; border-color: var(--faint); color: var(--text); cursor: help; }
+.chip.passive:hover, .chip.passive:focus-visible { border-color: var(--text); }
+.info-list { margin: 6px 0; padding-left: 18px; }
+.info-list li { margin: 4px 0; line-height: 1.6; }
+.sheet-desc { margin: 6px 0 0; color: var(--dim); font-size: 13.5px; line-height: 1.65; }

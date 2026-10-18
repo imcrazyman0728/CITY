@@ -4,7 +4,7 @@
 //  - 끌기가 어려운 환경을 위해 "카드 클릭 → 슬롯 클릭"으로도 같은 일을 할 수 있다.
 import * as E from "./engine.js";
 import { h, svg, clear, sleep, prefersReducedMotion } from "./dom.js";
-import { bar, setBar, cardEl, cardSheet, showTip, hideTip, attachCardTip, diceIcon, statusChips } from "./components.js";
+import { bar, setBar, cardEl, cardSheet, showTip, hideTip, attachCardTip, diceIcon, statusChips, passiveChips, passiveList, panicInfo } from "./components.js";
 import { describe_card } from "./cardinfo.js";
 import { ctx, mount, modal, toast, openSettings } from "./ui.js";
 import { store } from "./storage.js";
@@ -124,9 +124,11 @@ class BattleView {
     const stg = bar("stg", u.current_stagger, u.stagger_resist, "흐트러짐");
     stg.title = "흐트러짐 저항";
     const status = h("div", { class: "unit-status" });
+    const chips = passiveChips(u.passives);
+    const passives = chips.length ? h("div", { class: "unit-passives", "aria-label": "패시브" }, ...chips) : null;
     const slots = h("div", { class: "slots" });
     const root = h("section", { class: `unit ${side}`, "aria-label": u.name, onclick: () => this.pick_active(u) },
-      h("div", { class: "unit-head" }, name, tags), h("div", { class: "unit-bars" }, hp, san, stg), status, slots);
+      h("div", { class: "unit-head" }, name, tags), h("div", { class: "unit-bars" }, hp, san, stg), passives, status, slots);
     const slotEls = [];
     for (let i = 0; i < u.card_slot; i++) {
       const slot = h("div", { class: `slot ${side === "ally" ? "mine" : "enemy"}`, dataset: { uid: u.uid, slot: i }, tabindex: "0", role: "button" });
@@ -558,8 +560,6 @@ class BattleView {
 
   // ---------- 유닛 상세 ----------
   unit_modal(u) {
-    const passives = u.passives.map((id) => E.load_passive_data(id));
-    const panic = u.panic_type ? E.load_panic_data(u.panic_type) : null;
     const cards = [...u.hand.map((c) => [c, "패"]), ...u.equipped.filter(Boolean).map((c) => [c, "장착"])];
     const m = modal(h("div", {},
       h("h2", {}, `${u.name}${u.is_panicked ? " (패닉)" : u.is_low_morale ? " (사기저하)" : ""}`),
@@ -573,9 +573,9 @@ class BattleView {
         h("tr", {}, h("th", {}, "속성"), h("th", {}, "피해"), h("th", {}, "흐트러짐")),
         ...["slash", "pierce", "blunt"].map((k) => h("tr", {}, h("td", {}, E.DICE_TYPE_MAP[k]), h("td", {}, `${u.endurance[k]}x`), h("td", {}, `${u.stagger_endurance[k]}x`)))),
       h("h3", {}, "패시브"),
-      passives.length ? h("ul", {}, passives.map((p, i) => h("li", {}, p ? `${p.name} — ${p.desc ?? ""}` : u.passives[i]))) : h("p", { class: "muted" }, "없음"),
-      panic ? h("div", {}, h("h3", {}, `패닉 유형: ${panic.name}`),
-        h("ul", {}, [...(panic.low_morale_effects ?? []).map((e) => h("li", {}, `사기저하: ${e.desc ?? "설명 없음"}`)), ...(panic.panic_effects ?? []).map((e) => h("li", {}, `패닉: ${e.desc ?? "설명 없음"}`))])) : null,
+      passiveList(u.passives),
+      h("h3", {}, "패닉 유형"),
+      panicInfo(u.panic_type),
       h("h3", {}, "패 / 장착 카드"),
       cards.length ? h("div", { class: "card-grid" }, cards.map(([c, tag]) => { const el = cardEl(c); attachCardTip(el, () => c); return h("div", { class: "pick-row" }, el, h("span", { class: "muted" }, tag)); })) : h("p", { class: "muted" }, "확인 가능한 카드가 없습니다."),
       h("div", { class: "modal-actions" }, h("button", { class: "btn btn-primary", onclick: () => m.close() }, "닫기"))), { wide: true });
