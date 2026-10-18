@@ -14,7 +14,7 @@
     "on_use_effect" :
     [
         {
-            "draw_cards" : 2
+            "draw_cards" : 1
         }
     ],
 

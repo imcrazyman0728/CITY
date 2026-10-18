@@ -1,0 +1,74 @@
+{
+    "id": "shot_many_camelia+",
+
+    "name": "점사",
+
+    "grade" : "hardcover",
+
+    "type" : "ranged",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 전방에 집중하고 총알들을 박아 넣는다!",
+
+    "on_use_effect" :
+    [
+        {
+            "draw_cards" : 2
+        }
+    ],
+
+    "mode_change" : {
+        "근거리" : "cleave_camelia"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 4,
+            "max": 8,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1},
+                {"apply_effects" :                    
+                [
+                    {
+                        "burn" :                            
+                        {
+                            "amount" : 3,
+                            "count" : 2
+                        }
+                    }
+                ]}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1}
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 2,
+            "max": 5,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect" : 
+            [
+                
+                {"gun" : 1}
+            ]
+        }
+    ]
+}

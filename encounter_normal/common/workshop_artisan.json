@@ -1,0 +1,47 @@
+{
+  "id": "workshop_artisan",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "가스등 불빛 아래, 온갖 특수 공구와 무기 숫돌이 달린 수레를 끄는 공방 장인을 만났어.\n그는 기름 묻은 앞치마에 손을 닦으며 거친 미소를 지어.\n\"해결사 양반, 날개 소속 공방 부럽지 않은 특제 연마 기술을 보여주지. 무기 손질이라도 할 텐가?\"",
+      "choices": [
+        {
+          "text": "무기를 한층 더 날카롭게 벼린다. (30,000 안 소모, 덱에서 카드 1장 강화.)",
+          "requirements": {
+            "items": { "ahn": 30000 }
+          },
+          "effects": {
+            "remove_items": { "ahn": 30000 },
+            "choice_upgrade_card": true
+          },
+          "next": "done_smith"
+        },
+        {
+          "text": "전투 효율을 위해 무기의 녹을 제거한다. (15,000 안 소모, 덱에서 카드 1장 제거.)",
+          "requirements": {
+            "items": { "ahn": 15000 }
+          },
+          "effects": {
+            "remove_items": { "ahn": 15000 },
+            "choice_remove_card": true
+          },
+          "next": "done_smith"
+        },
+        {
+          "text": "돈이 부족하니 구경만 하고 자리를 뜬다.",
+          "end": true
+        }
+      ]
+    },
+    "done_smith": {
+      "text": "장인이 숫돌에 불꽃을 튀기며 작업을 마쳤어.\n손잡이를 쥐는 순간, 균형이 완벽하게 잡히고 위력이 한 단계 상승한 것이 손끝으로 전해져.\n\"훌륭한 연마였어. 다음에도 찾아오라고!\"",
+      "choices": [
+        {
+          "text": "만족스러운 장비 정비였다.",
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

@@ -1,0 +1,57 @@
+{
+  "id": "sin_gloom",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "잿빛 비가 내리는 축축하고 좁은 골목길이야.\n찢어진 우산을 쓴 거리의 화가가 벽면에 붉은 물감으로 거대한 벽화를 그리고 있어.\n비극 속에서 죽어가는 사람들과 무너지는 건물들이 기괴할 만큼 처연하고 아름답게 묘사되어 있어.\n시선을 떼려 해도 묘하게 눈을 뗄 수 없는 압도감이 느껴져.",
+      "choices": [
+        {
+          "text": "빗속에 서서 벽화의 슬픔과 비극을 온전히 응시한다. (미적감각 [우울] 1 필요)",
+          "requirements": {
+            "items": { "aesthetic_gloom": 1 }
+          },
+          "effects": {
+            "sanity": -10,
+            "give_item": "aesthetic_gloom"
+          },
+          "next": "gloom_insight"
+        },
+        {
+          "text": "화가에게 따뜻한 음료와 약간의 돈을 건넨다. (5,000 안 소모)",
+          "requirements": {
+            "items": { "ahn": 5000 }
+          },
+          "effects": {
+            "remove_items": { "ahn": 5000 },
+            "give_item": "salt_candy",
+            "sanity": 15
+          },
+          "next": "gloom_comfort"
+        },
+        {
+          "text": "이 도시서 예술은 뭔 예술.",
+          "end": true
+        }
+      ]
+    },
+    "gloom_insight": {
+      "text": "피와 눈물, 부조리 속에서도 비틀린 미학이 존재한다는 사실을 깨달았어.\n가슴 한구석이 서늘하게 내려앉으며 예리한 미적 감각이 눈을 떴어.",
+      "choices": [
+        {
+          "text": "...저런 비극 속에서도 미학이라는 건 존재하는 거구나.",
+          "end": true
+        }
+      ]
+    },
+    "gloom_comfort": {
+      "text": "화가가 떨리는 손으로 돈을 받고는 품속에서 소금 사탕 하나를 꺼내 건넸어.\n\"이 차가운 비 속에서 온기를 나눠준 사람은 당신이 처음이군요... 고마워요.\"\n마음이 조금은 따뜻해지는 기분이야.",
+      "choices": [
+        {
+          "text": "화가에게 가벼운 목례를 건네고 떠난다.",
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

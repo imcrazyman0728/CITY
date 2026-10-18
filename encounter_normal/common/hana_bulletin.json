@@ -1,0 +1,54 @@
+{
+  "id": "hana_bulletin",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "벽면에 설치된 하나 협회 지부의 공식 전자 공시판이야.\n치직거리는 모니터 위로 도시 전설, 도시 질병급 뒤틀림 위험 경보와 함께\n해결사 사무소들의 의뢰 공고 및 주요 수배범들의 인적 사항이 쉴 새 없이 갱신되고 있어.",
+      "choices": [
+        {
+          "text": "뒤틀림 전투 지침서와 분석 보고서를 꼼꼼히 정독해본다. (지식 [나태] 1 필요)",
+          "requirements": {
+            "items": { "intelligence_sloth": 1 }
+          },
+          "effects": {
+            "choice_upgrade_card": true
+          },
+          "next": "study_report"
+        },
+        {
+          "text": "현상 수배범들의 숨겨진 은신처와 이동 경로 정보를 찾아본다. (말솜씨 [질투] 1 필요)",
+          "requirements": {
+            "items": { "eloquence_invidia": 1 }
+          },
+          "effects": {
+            "give_items": { "ahn": 35000 }
+          },
+          "next": "bounty_info"
+        },
+        {
+          "text": "수배 명단에 내 얼굴이 없는지 확인하고 자리를 뜬다.",
+          "end": true
+        }
+      ]
+    },
+    "study_report": {
+      "text": "하나 협회가 정리한 체계적인 전투 분석을 통해, 너의 기술을 한 단계 더 효율적으로 개선할 수 있었어.",
+      "choices": [
+        {
+          "text": "후... (땀을 닦으며 자리를 뜬다.)",
+          "end": true
+        }
+      ]
+    },
+    "bounty_info": {
+      "text": "알짜배기 수배 정보를 챙겨 뒷골목 정보상에게 넘기자 두둑한 중개 수수료가 들어왔어.",
+      "choices": [
+        {
+          "text": "짭짤하네!",
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

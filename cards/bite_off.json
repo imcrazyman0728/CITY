@@ -1,0 +1,30 @@
+{
+    "id": "bite_off",
+
+    "name": "물어뜯기",
+
+    "grade" : "hardcover",
+
+    "type" : "melee",
+
+    "cost": 1,
+
+    "on_use_dialogue" : "{card_user}는 칼을 쥐고 상대에게 칼날을 박는다!",
+
+    "on_use_effect" :[
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "blunt",
+            "min": 1,
+            "max": 2,
+            "dice_effect" : 
+            [
+                null
+            ]
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "lost_prescript",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "골목 바닥에 검지의 상징인 휜 종이로 감싸이고 붉은 밀랍이 찍힌 편지봉투가 떨어져 있어.\n누군가 전달 도중 흘린 '지령'인 것이 분명해.\n봉투에는 알 수 없는 암호 같은 문양과 함께 서늘한 기운이 감돌고 있어.",
+      "choices": [
+        {
+          "text": "봉인을 뜯어 적힌 지령을 확인하고 그대로 따라 해본다. (정신력 -5)",
+          "requirements" : {
+            "not_name" : "카멜리아"
+          },
+          "effects": {
+            "sanity": -5
+          },
+          "next": "read_prescript"
+        },
+        {
+          "text": "지령에 둘러진 최고급 붉은 비단천만 조심스럽게 벗겨낸다. (미적감각 [우울] 1 필요)",
+
+          "requirements": {
+            "not_name" : "카멜리아",
+            "items": { "aesthetic_gloom": 1 }
+          },
+          "next": "take_silk"
+        },
+        {
+          "text": "내가 목숨이 여러개도 아니고 미쳤냐. (무시하고 지나친다)",
+          "requirements" : {
+            "not_name" : "카멜리아"
+          },
+          "end": true
+        },
+
+        {
+          "text": "지령을 땅에 내치고, 즈려 밟아 구겨버린다.",
+
+          "requirements" : {
+            "name" : "카멜리아"
+          },
+
+          "show" : false,
+
+
+          "end": true
+        }
+      ]
+    },
+    "read_prescript": {
+      "text": "봉투 안에는 이렇게 적혀 있었어.\n[오른발로 세 걸음 걷고, 허공을 향해 소금 사탕을 던진 뒤 돌아보지 마라.]\n황당하지만 지령대로 행동하자, 등 뒤에서 무언가 떨어지는 소리가 들리더니 품속에 신비로운 부적이 들어왔어.",
+      "choices": [
+        {
+          "text": "이것이 지령의 신비인가... ('행운의 펜던트' 획득)",
+          "effects": {
+            "give_item": "pendant_of_luck"
+          },
+          "end": true
+        }
+      ]
+    },
+    "take_silk": {
+      "text": "내용물엔 손대지 않고, 방직자가 자아낸 귀한 비단천만을 감쪽같이 챙겼어.\n암시장에 내다 팔면 꽤 두둑한 값을 쳐줄 거야.",
+      "choices": [
+        {
+          "text": "비단천을 챙긴다. (40,000 안 획득)",
+          "effects": {
+            "give_items": { "ahn": 40000 }
+          },
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

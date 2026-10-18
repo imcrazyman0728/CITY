@@ -1,0 +1,72 @@
+{
+    "id" : "rat",
+
+    "status" :
+    {
+        "name" : "이름 모를 쥐",
+
+        "appear" : "내장 뜯는 깡패들이 나타났다!",
+
+        "dialogue_lines" : {
+            "common" : ["솔직히 허접한 녀석들이다.", "...이런 녀석들에게 돈을 빼앗기는 사람이 더 멍청한 거 아닐까?"],
+            "on_staggered" : {
+                "player" : "쥐들은 너를 비웃고 있다.",
+                "enemy" : "허접 하나를 썰어버릴 시간이다!"
+            },
+            "on_panic" : {
+                "player" : "...?",
+                "enemy" : "쥐는 겁에 질렸다!"
+            }
+        },
+
+        "type" : "random",
+
+        "hp" : 20,
+
+        "sanity" : 15,
+
+        "stagger_resist" : 10,
+
+        "panic_type" : "fear",
+
+        "max_cost" : 3,
+
+        "card_slot" : 1,
+
+        "speed" : {
+            "min" : 1,
+            "max" : 2
+
+        },
+
+        "exp" : 2,
+
+        "endurance" : 
+        {
+            "slash" : 1.0,
+            "pierce" : 1.5,
+            "blunt" : 1.2
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 1.0,
+            "pierce" : 2.0,
+            "blunt" : 1.2   
+        },
+
+        "passives" :
+        [
+            "dummy_its_a_dummy"
+        ],
+
+        "deck" :
+        {
+            "rat_guide" : 2,
+            "bite_off" : 1,
+            "backstreets_dash" : 1,
+            "skitter_away" : 1
+            
+        }
+    }
+}

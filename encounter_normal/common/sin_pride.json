@@ -1,0 +1,48 @@
+{
+  "id": "sin_pride",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "낡은 건물 옥상 난간 위를 가볍게 도약하며 질주하는 제뱌찌 협회 해결사를 목격했어.\n그는 허공을 가르며 다음 건물 지붕 위로 착지하더니, 너를 내려다보며 비웃어.\n\"하하! 흙먼지 날리는 바닥을 기어 다니는 굼벵이들은 이 짜릿한 질주를 평생 모르겠지!\"",
+      "choices": [
+        {
+          "text": "...나도 한번 뛰어볼까? (민첩 [오만] 죄악 판정, 기본 확률 50%, 민첩 [오만] 1당 +25% 보정)",
+          "chance": 50,
+          "bonus_item": "agility_pride",
+          "bonus_per_item": 25,
+          "success": "rooftop_success",
+          "fail": "rooftop_fail"
+        },
+        {
+          "text": "딸배 자식이 말투가 왜 저따구야.",
+          "end": true
+        }
+      ]
+    },
+    "rooftop_success": {
+      "text": "바람을 가르며 허공을 뛰어넘는 순간, 발밑의 세상이 아득하게 작아 보여.\n아찔한 고도감과 오만한 쾌감이 혈관을 타고 흐르며 날렵한 도약의 감각이 몸에 배었어.",
+      "choices": [
+        {
+          "text": "야호~!",
+          "effects": {
+            "give_item": "agility_pride"
+          },
+          "end": true
+        }
+      ]
+    },
+    "rooftop_fail": {
+      "text": "착지 도중 낡은 슬레이트 지붕이 부서지며 바닥으로 굴러 떨어졌어!\n제뱌찌 협회 해결사는 비웃으며 저 멀리 사라졌고, 온몸에 타박상을 입었어.",
+      "choices": [
+        {
+          "text": "아야... (체력 -15)",
+          "effects": {
+            "hp": -15
+          },
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

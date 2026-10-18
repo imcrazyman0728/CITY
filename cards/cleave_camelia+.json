@@ -1,0 +1,67 @@
+{
+    "id": "cleave_camelia+",
+
+    "name": "회전절삭",
+
+    "grade" : "hardcover",
+
+    "type" : "melee",
+
+    "cost": 2,
+
+    "on_use_dialogue" : "{card_user}는 돌면서 주변을 썰어낸다!",
+
+    "on_use_effect" :
+    [
+        {
+            "draw_cards" : 2
+        }
+    ],
+
+    "mode_change" : {
+        "원거리" : "shot_many_camelia+"
+    },
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                null
+            ]
+        },
+        {
+            "type": "attack",
+            "damage_type" : "slash",
+            "min": 3,
+            "max": 8,
+            "dice_effect" : 
+            [
+                {"apply_effects" :                    
+                [
+                    {
+                        "sinking" :                            
+                        {
+                            "amount" : 3,
+                            "count" : 2
+                        }
+                    }
+                ]}
+            ]
+        }
+    ]
+}

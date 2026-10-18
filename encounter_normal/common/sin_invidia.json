@@ -1,0 +1,74 @@
+{
+  "id": "sin_invidia",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "트렌치코트 깃을 바짝 세운 뒷골목 브로커가 은밀하게 손짓하며 귓속말을 건네.\n\"어이, 방금 지나간 4급 해결사 녀석 봤어? 실력도 쥐뿔 없는 주제에 공방제 특제 무기를 둘둘 감고 꺼드럭거리더군.\n배알 꼴리지 않아? 저 녀석 뒤통수를 칠 아주 짭짤한 정보가 있는데, 들어볼래?\"",
+      "choices": [
+        {
+          "text": "오, 진짜요??",
+
+          "branches" : [
+            {"requirements" : {"item" : "eloquence_invidia"},
+            "effects" : {
+              "give_item" : "eloquence_invidia"
+            },
+            "next" : "broker_talk"},
+
+            {"requirements" : {"not_item" : "eloquence_invidia"},
+            "effects" : {
+              "remove_items" : { "ahn" : 40000 }
+            },
+            "next" : "broker_scam"}
+          ]
+
+
+        },
+        {
+          "text": "이봐~! 여기 이 녀석이 널 이길 방법을 안다는데? (힘 [분노] 2 필요)",
+          "requirements": {
+            "items": { "strength_wrath": 1 }
+          },
+          "next": "broker_threat"
+        },
+        {
+          "text": "뭐하는 놈이야. 꺼져.",
+          "end": true
+        }
+      ]
+    },
+    "broker_talk": {
+      "text": "브로커와 한참 동안 혀를 굴리며 거짓과 참말을 능란하게 섞어 대화를 나누고 자연스럽게 해어졌어.\n하지만 네 눈에는 그저 전부 사기일 뿐이야.\n그래도 저 말솜씨와 자신감 하나는 배울 법 하네.",
+      "choices": [
+        {
+          "text": "나 참, 로직 아틀리에 공방 장비가 그렇게 쌀리가 없잖아.",
+          "end": true
+        }
+      ]
+    },
+    "broker_threat": {
+      "text": "브로커가 얼굴이 파랗게 질려 손을 내저으며 입막음용 돈봉투를 쥐여줬어!\n\"아, 알았어! 농담이었어, 농담! 제발 조용히 해줘!\"",
+      "choices": [
+        {
+          "text": "돈봉투를 챙긴다.",
+          "effects": {
+            "give_item": "eloquence_invidia",
+            "give_items": { "ahn": 40000 }
+          },
+          "end": true
+        }
+      ]
+    },
+
+    "broker_scam": {
+      "text": "너는 꽤나 큰 돈을 주고 브로커에게서 로직 아틀리에제 피스툴 한 자루를 샀어!\n\n...그냥 물총이네.",
+      "choices": [
+        {
+          "text": "...에?",
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

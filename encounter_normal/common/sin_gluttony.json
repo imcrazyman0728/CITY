@@ -1,0 +1,70 @@
+{
+  "id": "sin_gluttony",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "갓 구운 두툼한 고기 냄새와 주사위 굴리는 소리가 섞여 풍겨오는 심야 식당이야.\n기름때 묻은 앞치마를 두른 뚱뚱한 주인이 황금 주사위 컵을 흔들며 탐욕스러운 미소를 지어.\n\"손님! 배를 채우고 싶나요, 아니면 지갑을 채우고 싶나요? 둘 다 한 번에 가질 수도 있죠!\"",
+      "choices": [
+        {
+          "text": "대담하게 주사위 내기에 뛰어든다. (탐식 [행운] 판정)",
+          "chance": 50,
+          "bonus_item": "luck_gluttony",
+          "bonus_per_item": 20,
+          "success": "gamble_win",
+          "fail": "gamble_lose"
+        },
+        {
+          "text": "오늘의 특선 미식 고기 파이를 사 먹는다. (5,000 안 소모)",
+          "requirements": {
+            "items": { "ahn": 5000 }
+          },
+          "effects": {
+            "remove_items": { "ahn": 5000 },
+            "hp": 35
+          },
+          "next": "eat_pie"
+        },
+        {
+          "text": "고기 원산지가 의심스럽다. (지나친다)",
+          "end": true
+        }
+      ]
+    },
+    "gamble_win": {
+      "text": "우와, 주사위가 믿을 수 없는 높은 숫자로 멈춰 섰어!\n주인이 혀를 차며 꽤나 많은 돈과, 도박에 쓰였던 주사위 한 쌍을 너에게 주었어.\n\"쯧. 지금까지 한 번도 진적이 없었건만. 이 주사위는 당신에게 드리죠...\"",
+      "choices": [
+        {
+          "text": "끼얏 호우~!",
+          "effects": {
+            "give_item": "luck_gluttony",
+            "give_items": { "ahn": 50000 }
+          },
+          "end": true
+        }
+      ]
+    },
+    "gamble_lose": {
+      "text": "주사위는 처참하게 낮은 숫자를 가리켰어.\n주인이 호탕하게 웃으며 네 돈을 쓸어 담았어.\n\"탐욕을 부리기엔 그릇이 모자랐군 그래!\"",
+      "choices": [
+        {
+          "text": "크윽...",
+          "effects": {
+            "remove_items": { "ahn": 20000 }
+          },
+          "end": true
+        }
+      ]
+    },
+    "eat_pie": {
+      "text": "육즙이 풍부하고 진한 고기 파이가 입안 가득 퍼져나가.\n머리카락과 이빨이 조금 섞여있지만, 맛 하나만큼은 뒷골목치고 끝내주네.\n허기가 채워지고 활력이 솟아올라.",
+      "choices": [
+        {
+          "text": "든든하게 배를 채웠다.",
+
+          "end": true
+        }
+      ]
+    }
+  }
+}
+
