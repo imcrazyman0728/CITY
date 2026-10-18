@@ -482,7 +482,8 @@
           "effects" : {
             "change_name" : "카멜리아",
             "set_field_theme" : "field_camelia1.mp3",
-            "set_flag" : {"camelia_prologue" : 1}
+            "set_flag" : {"camelia_prologue" : 1},
+            "hp" : 999
           },
 
           "next_main" : "ch1"

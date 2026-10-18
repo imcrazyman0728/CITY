@@ -51,13 +51,14 @@ function ensureTip() {
   }
   return tipEl;
 }
-export function statusSheet(s) {
+export function statusSheet(s, state = null) {
+  const meta = state ? `위력 ${state.amount} · 횟수 ${state.count}` : "상태이상";
   return h("div", { class: `sheet status-sheet st-${s.id}` },
     h("div", { class: "sheet-head" },
       h("div", { class: "sheet-name" }, s.name),
-      h("div", { class: "sheet-sub" }, "상태이상"),
+      h("div", { class: "sheet-sub" }, meta),
     ),
-    h("p", { class: "sheet-desc" }, s.desc ?? "설명이 없습니다."),
+    h("p", { class: "sheet-desc" }, s.desc || s.effects?.[0]?.desc || "설명이 없습니다."),
   );
 }
 
@@ -137,8 +138,15 @@ export function setBar(el, value, max, label) {
 export function statusChips(statuses) {
   const entries = Object.entries(statuses ?? {});
   return entries.map(([id, st]) => {
-    const data = E.load_status_data(id);
-    return h("span", { class: `chip st-${id}`, title: data?.desc ?? "" }, `${data?.name ?? id} ${st.amount}(${st.count})`);
+    const data = E.load_status_data(id) ?? { id, name: id, desc: "" };
+    const el = h("span", {
+      class: `chip st-${id}`,
+      tabindex: "0",
+      role: "button",
+      "aria-label": `상태이상 ${data.name}: 위력 ${st.amount}, 횟수 ${st.count}. ${data.desc ?? ""}`,
+    }, `${data.name} ${st.amount}(${st.count})`);
+    attachTip(el, () => statusSheet(data, st));
+    return el;
   });
 }
 

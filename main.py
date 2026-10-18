@@ -341,6 +341,8 @@ def execute_passive_logic(effect, unit, value=None, target=None):
         return (value or 0) + val
     elif action == "recover_hp":
         unit.change_hp(val)
+    elif action == "recover_sanity":
+        unit.change_sanity(val)
     elif action == "set_var":
         unit.passive_vars[var_name] = val
     elif action == "inc_var":

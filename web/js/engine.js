@@ -253,6 +253,7 @@ export function execute_passive_logic(effect, unit, value = null, target = null)
   if (action === "damage_self") unit.take_damage(val, 0);
   else if (action === "add_value") return (value || 0) + val;
   else if (action === "recover_hp") unit.change_hp(val);
+  else if (action === "recover_sanity") unit.change_sanity(val);
   else if (action === "set_var") unit.passive_vars[var_name] = val;
   else if (action === "inc_var") unit.passive_vars[var_name] = (unit.passive_vars[var_name] ?? 0) + val;
   else if (action === "add_var_value") return (value || 0) + (unit.passive_vars[var_name] ?? 0);

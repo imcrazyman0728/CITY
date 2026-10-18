@@ -1,0 +1,13 @@
+{
+    "id": "camelia_mind",
+    "name": "불완전하지만 확고한 의지",
+    "desc": "턴 시작 시 정신력 10 회복.",
+    "effects": [
+        {
+            "trigger": "on_turn_start",
+            "action": "recover_sanity",
+            "value": 10
+        }
+    ]
+}
+
