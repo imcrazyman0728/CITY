@@ -1,7 +1,7 @@
 // 화면 공통부 + 인카운터 엔진이 요구하는 UI 어댑터(rt.ui) 구현
 import * as E from "./engine.js";
 import { h, clear, sleep, prefersReducedMotion } from "./dom.js";
-import { bar, setBar, cardEl, attachCardTip, cardSheet, attachTip } from "./components.js";
+import { bar, setBar, cardEl, attachCardTip, cardSheet, attachTip, passiveList, panicInfo } from "./components.js";
 import { store } from "./storage.js";
 
 export const ctx = { audio: null, settings: null, bundle: null };
@@ -102,8 +102,15 @@ export function openStatus() {
     h("table", { class: "table" },
       h("tr", {}, h("th", {}, "속성"), h("th", {}, "피해"), h("th", {}, "흐트러짐")),
       ...["slash", "pierce", "blunt"].map((k) => h("tr", {}, h("td", {}, E.DICE_TYPE_MAP[k]), h("td", {}, `${p.endurance[k]}x`), h("td", {}, `${p.stagger_endurance[k]}x`)))),
+    h("h3", {}, "패시브"),
+    passiveList(p.passives),
+    h("h3", {}, "패닉 유형"),
+    panicInfo(p.panic_type),
     h("h3", {}, "가젯"),
-    gadgets.length ? h("div", { class: "hud-gadgets" }, gadgets.map(([id, n]) => gadgetChip(id, n))) : h("p", { class: "muted" }, "없음"),
+    gadgets.length ? h("ul", { class: "info-list" }, gadgets.map(([id, n]) => {
+      const g = E.load_gadget_data(id);
+      return h("li", {}, h("strong", {}, `${g?.name ?? id}${n > 1 ? ` ×${n}` : ""}`), g?.desc ? ` — ${g.desc}` : "");
+    })) : h("p", { class: "muted" }, "없음"),
     h("h3", {}, "덱"),
     h("div", { class: "card-grid" }, deck.map(([id, n]) => {
       const c = cardEl(E.load_card(id));
@@ -144,7 +151,12 @@ function build_hud() {
 
 export function update_hud() {
   const p = E.game.player_char;
-  if (!node_state || !node_state.hud || !p) return;
+  if (!node_state || !p) return;
+  if (!node_state.hud) {
+    if (!node_state.root.isConnected) return;
+    node_state.hud = build_hud();
+    node_state.root.prepend(node_state.hud.el);
+  }
   const { hud } = node_state;
   hud.name.textContent = p.name;
   hud.lv.textContent = `LV.${p.level}`;
