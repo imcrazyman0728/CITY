@@ -291,7 +291,8 @@ button { font: inherit; color: inherit; }
 .die { display: flex; align-items: center; gap: 6px; font-size: 13px; font-variant-numeric: tabular-nums; }
 .die-ic { width: 17px; height: 17px; flex: none; }
 .die.dk-defense, .die.dk-counter { padding-left: 0; }
-.die.dk-defense .die-range::after { content: " 수비"; color: var(--faint); font-size: 11px; }
+.die.dk-defense .die-range::after { content: " 방어"; color: var(--faint); font-size: 11px; }
+.die.dk-defense.dt-evade .die-range::after { content: " 회피"; }
 .die-gun { font-size: 10px; border: 1px solid var(--line-2); border-radius: 4px; padding: 0 4px; color: var(--dim); }
 .dt-slash { color: var(--slash); } .dt-pierce { color: var(--pierce); } .dt-blunt { color: var(--blunt); }
 .dt-block { color: var(--block); } .dt-evade { color: var(--evade); }

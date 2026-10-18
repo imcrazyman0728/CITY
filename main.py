@@ -157,12 +157,12 @@ DICE_TYPE_MAP = {
     "slash": "참격",
     "pierce": "관통",
     "blunt": "타격",
-    "block": "수비",
+    "block": "방어",
     "evade": "회피",
     "counter_slash": "반격-참격",
     "counter_pierce": "반격-관통",
     "counter_blunt": "반격-타격",
-    "counter_block": "반격-수비",
+    "counter_block": "반격-방어",
     "counter_evade": "반격-회피",
 }
 

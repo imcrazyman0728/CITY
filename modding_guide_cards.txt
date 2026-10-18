@@ -44,7 +44,7 @@
 - "type" : (string) 주사위 행동 유형 ("attack" / "defense" / "counter")
 - "damage_type" : (string) 세부 속성 
   * attack일 때: "slash"(참격), "pierce"(관통), "blunt"(타격)
-  * defense일 때: "block"(수비), "evade"(회피)
+  * defense일 때: "block"(방어), "evade"(회피)
   * counter일 때: "counter_slash", "counter_block" 등 앞에 counter_ 접두사 사용
 - "min" : (int) 주사위의 최솟값
 - "max" : (int) 주사위의 최댓값

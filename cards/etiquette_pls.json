@@ -1,18 +1,18 @@
 {
     "id": "etiquette_pls",
-    "name": "떨어져",
+    "name": "예의를 갖춰주겠어?",
     "grade": "hardcover",
-    "type": "melee",
+    "type": "ranged",
     "cost": 2,
     "mode_change" : {
-        "원거리" : "etiquette_pls"
+        "근거리" : "get_off"
     },
-    "on_use_dialogue": "\u001b[91m길에서 비켜.\u001b[0m",
+    "on_use_dialogue": "\u001b[91m어딜 나한테 눈을 부라려?\u001b[0m",
     "on_use_effect": [
         {
             "condition_modify_dice_power": {
                 "target": "opponent",
-                "status_id": "sinking",
+                "status_id": "burn",
                 "check": "amount",
                 "threshold": 4,
                 "value": 3
@@ -22,30 +22,25 @@
     "dice": [
         {
             "type": "attack",
-            "damage_type": "slash",
-            "min": 2,
-            "max": 5,
-            "dice_effect": []
+            "damage_type": "pierce",
+            "min": 3,
+            "max": 6,
+            "sfx" : "gun_pistol.wav",
+            "dice_effect": [{"gun" : 1}]
         },
         {
             "type": "attack",
-            "damage_type": "slash",
-            "min": 2,
-            "max": 5,
-            "dice_effect": []
-        },
-        {
-            "type": "attack",
-            "damage_type": "slash",
-            "min": 1,
-            "max": 3,
+            "damage_type": "pierce",
+            "min": 3,
+            "max": 6,
+            "sfx" : "gun_pistol.wav",
             "dice_effect": 
             [
                 {
                     "apply_effects" :                    
                     [
                         {
-                            "sinking" :                            
+                            "burn" :                            
                             {
                                 "amount" : 4,
                                 "count" : 1
@@ -55,6 +50,15 @@
                 }
 
             ]
+        },
+
+        {
+            "type": "defense",
+            "damage_type": "block",
+            "min": 4,
+            "max": 8,
+
+            "dice_effect": []
         }
     ]
 }

@@ -1,0 +1,61 @@
+{
+    "id": "purge",
+
+    "name": "숙청",
+
+    "grade" : "objet_d'art",
+
+    "type" : "ranged",
+
+    "cost": 3,
+
+    "on_use_dialogue" : "{card_user}는 상대를 벌집으로 만든다!",
+
+    "on_use_effect" :[
+
+        {
+            "condition_modify_dice_power": {
+                "target": "opponent",
+                "is_staggered": true,
+                "value": 3
+            }
+        }
+
+    ],
+
+    "dice":
+    [
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                {"gun":1}
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                {"gun":1}
+            ]
+        },
+
+        {
+            "type": "attack",
+            "damage_type" : "pierce",
+            "min": 3,
+            "max": 6,
+            "dice_effect" : 
+            [
+                {"gun":1}
+            ]
+        }
+    ]
+}

@@ -40,9 +40,9 @@ export function weighted_pick_n(items, weights, n) {
 }
 
 export const DICE_TYPE_MAP = {
-  slash: "참격", pierce: "관통", blunt: "타격", block: "수비", evade: "회피",
+  slash: "참격", pierce: "관통", blunt: "타격", block: "방어", evade: "회피",
   counter_slash: "반격-참격", counter_pierce: "반격-관통", counter_blunt: "반격-타격",
-  counter_block: "반격-수비", counter_evade: "반격-회피",
+  counter_block: "반격-방어", counter_evade: "반격-회피",
 };
 export const CARD_TYPE_MAP = { melee: "근거리", ranged: "원거리", on_play: "즉시 발동" };
 export const CARD_GRADE_MAP = { paperback: "보급", hardcover: "고급", limited: "한정", "objet_d'art": "예술" };

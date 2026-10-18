@@ -1,17 +1,29 @@
 {
     "id": "execution",
 
-    "name": "죽이기",
+    "name": "처형",
 
     "grade" : "objet_d'art",
 
     "type" : "melee",
 
-    "cost": 0,
+    "cost": 3,
 
-    "on_use_dialogue" : "{card_user}는 상대를 죽인다!",
+    "mode_change" : {
+        "원거리" : "purge"
+    },
+
+    "on_use_dialogue" : "{card_user}는 상대의 머리를 자비 없이 베어낸다!",
 
     "on_use_effect" :[
+
+        {
+            "condition_modify_dice_power": {
+                "target": "opponent",
+                "is_staggered": true,
+                "value": 15
+            }
+        }
     ],
 
     "dice":
@@ -19,8 +31,8 @@
         {
             "type": "attack",
             "damage_type" : "slash",
-            "min": 999,
-            "max": 999,
+            "min": 5,
+            "max": 5,
             "dice_effect" : 
             [
                 null
