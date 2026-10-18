@@ -51,9 +51,19 @@ function ensureTip() {
   }
   return tipEl;
 }
+export function statusSheet(s) {
+  return h("div", { class: `sheet status-sheet st-${s.id}` },
+    h("div", { class: "sheet-head" },
+      h("div", { class: "sheet-name" }, s.name),
+      h("div", { class: "sheet-sub" }, "상태이상"),
+    ),
+    h("p", { class: "sheet-desc" }, s.desc ?? "설명이 없습니다."),
+  );
+}
+
 export function cardSheet(card) {
   const d = describe_card(card);
-  return h("div", { class: `sheet g-${card.grade.replace(/\W/g, "")}` },
+  const main = h("div", { class: `sheet g-${card.grade.replace(/\W/g, "")}` },
     h("div", { class: "sheet-head" },
       h("span", { class: "card-cost" }, String(d.cost)),
       h("div", {}, h("div", { class: "sheet-name" }, d.name), h("div", { class: "sheet-sub" }, `${d.type_label} · ${d.grade_label}`)),
@@ -68,6 +78,16 @@ export function cardSheet(card) {
         x.notes.length ? h("ul", { class: "sheet-notes" }, x.notes.map((n) => h("li", {}, n))) : null,
       ))),
     d.dialogue ? h("p", { class: "sheet-quote" }, d.dialogue) : null,
+  );
+
+  const statuses = d.statuses ?? [];
+  if (!statuses.length) return main;
+
+  return h("div", { class: "sheet-wrap" },
+    main,
+    h("div", { class: "sheet-side" },
+      statuses.map((s) => statusSheet(s)),
+    ),
   );
 }
 export function showTip(content, anchor) {

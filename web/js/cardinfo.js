@@ -61,6 +61,40 @@ function dice_effect_lines(entry) {
   return out;
 }
 
+export function card_status_effects(card) {
+  if (!card) return [];
+  const statusIds = new Set();
+  for (const eff of card.on_use_effect ?? []) {
+    if (!eff || typeof eff !== "object") continue;
+    if (eff.apply_status) {
+      for (const id of Object.keys(eff.apply_status)) statusIds.add(id);
+    }
+    if (eff.condition_modify_dice_power?.status_id) {
+      statusIds.add(eff.condition_modify_dice_power.status_id);
+    }
+    if (eff.remove_status) {
+      statusIds.add(eff.remove_status);
+    }
+  }
+  for (const d of card.dice ?? []) {
+    for (const de of d.dice_effect ?? []) {
+      if (!de || typeof de !== "object") continue;
+      if (de.apply_effects) {
+        const list = Array.isArray(de.apply_effects) ? de.apply_effects : [de.apply_effects];
+        for (const g of list) {
+          if (g && typeof g === "object") {
+            for (const id of Object.keys(g)) statusIds.add(id);
+          }
+        }
+      }
+      if (de.tremor_burst) statusIds.add("tremor");
+    }
+  }
+  return Array.from(statusIds)
+    .map((id) => E.load_status_data(id))
+    .filter(Boolean);
+}
+
 export function describe_card(card) {
   const uses = (card.on_use_effect ?? []).flatMap(on_use_lines);
   const dice = (card.dice ?? []).map((d) => ({
@@ -77,6 +111,7 @@ export function describe_card(card) {
     type: card.type, type_label: E.CARD_TYPE_MAP[card.type] ?? card.type,
     grade: card.grade, grade_label: E.CARD_GRADE_MAP[card.grade] ?? card.grade,
     uses, dice,
+    statuses: card_status_effects(card),
     dialogue: card.on_use_dialogue ? card.on_use_dialogue.split("{card_user}").join("나").replace(/\u001b\[\d+m/g, "") : "",
   };
 }
