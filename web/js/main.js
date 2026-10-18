@@ -55,12 +55,26 @@ async function boot() {
   await title_loop();
 }
 
+function create_title_bg() {
+  return h("div", { class: "title-bg-slides", "aria-hidden": "true" },
+    h("div", { class: "title-slide slide-1" }),
+    h("div", { class: "title-slide slide-2" }),
+    h("div", { class: "title-slide slide-3" }),
+    h("div", { class: "title-slide slide-4" }),
+    h("div", { class: "title-bg-overlay" }),
+  );
+}
+
 // 브라우저는 사용자 입력 전에는 소리를 낼 수 없으므로 첫 화면에서 한 번 눌러 달라고 합니다.
 function gate() {
   return new Promise((resolve) => {
     const el = h("div", { class: "screen gate", tabindex: "0", role: "button", "aria-label": "시작하려면 누르세요" },
-      h("h1", { class: "title-mark" }, "CITY"),
-      h("p", {}, "화면을 누르면 시작합니다. 소리가 나옵니다."));
+      create_title_bg(),
+      h("div", { class: "gate-content" },
+        h("h1", { class: "title-mark" }, "CITY"),
+        h("p", {}, "화면을 누르면 시작합니다. 소리가 나옵니다."),
+      ),
+    );
     const go = () => { ctx.audio.unlock(); resolve(); };
     el.addEventListener("click", go);
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") go(); });
@@ -110,16 +124,20 @@ function title_screen() {
     const item = (id, label, { disabled = false } = {}) =>
       h("button", { class: `btn ${id === "story" ? "btn-primary" : ""}`, disabled, onclick: () => resolve(id) }, label);
     const el = h("div", { class: "screen title-screen" },
-      h("h1", { class: "title-mark" }, "CITY"),
-      h("p", { class: "title-sub" }, "카드를 겨누고, 주사위를 굴려, 도시의 이야기를 따라갑니다."),
-      h("nav", { class: "menu", "aria-label": "메인 메뉴" },
-        item("story", "게임 시작"),
-        item("suppress", "제압 모드 (리워크 예정)", { disabled: true }),
-        item("library", "서재"),
-        item("profile", "내 정보"),
-        item("settings", "설정"),
-        item("shop", "상점 (준비 중)", { disabled: true })),
-      h("p", { class: "title-foot" }, ctx.bundle.credits?.notice ?? ""));
+      create_title_bg(),
+      h("div", { class: "title-content" },
+        h("h1", { class: "title-mark" }, "CITY"),
+        h("p", { class: "title-sub" }, "카드를 겨누고, 주사위를 굴려, 도시의 이야기를 따라갑니다."),
+        h("nav", { class: "menu", "aria-label": "메인 메뉴" },
+          item("story", "게임 시작"),
+          item("suppress", "제압 모드 (리워크 예정)", { disabled: true }),
+          item("library", "서재"),
+          item("profile", "내 정보"),
+          item("settings", "설정"),
+          item("shop", "상점 (준비 중)", { disabled: true })),
+        h("p", { class: "title-foot" }, ctx.bundle.credits?.notice ?? ""),
+      ),
+    );
     mount(el, "title");
     el.querySelector("button")?.focus();
   });
