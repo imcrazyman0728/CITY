@@ -121,3 +121,40 @@ export function statusChips(statuses) {
     return h("span", { class: `chip st-${id}`, title: data?.desc ?? "" }, `${data?.name ?? id} ${st.amount}(${st.count})`);
   });
 }
+
+// ---------- 패시브 / 패닉 ----------
+// 효과가 하나도 없는 자리표시용 패시브(예: "없음")는 화면에 보여 주지 않는다.
+export const isRealPassive = (p) => !!p && (p.effects?.length ?? 0) > 0;
+export function realPassives(ids) {
+  return (ids ?? []).map((id) => ({ id, data: E.load_passive_data(id) })).filter((x) => isRealPassive(x.data));
+}
+export function passiveSheet(p) {
+  return h("div", { class: "sheet" },
+    h("div", { class: "sheet-name" }, p.name),
+    h("div", { class: "sheet-sub" }, "패시브"),
+    h("p", { class: "sheet-desc" }, p.desc ?? "설명이 없습니다."));
+}
+// 전투 화면의 유닛 패널에 붙는 칩. 마우스를 올리거나 탭(포커스)하면 설명이 뜬다.
+export function passiveChips(ids) {
+  return realPassives(ids).map(({ data }) => {
+    const el = h("span", { class: "chip passive", tabindex: "0", role: "button", "aria-label": `패시브 ${data.name}: ${data.desc ?? ""}` }, data.name);
+    attachTip(el, () => passiveSheet(data));
+    return el;
+  });
+}
+export function passiveList(ids) {
+  const list = realPassives(ids);
+  if (!list.length) return h("p", { class: "muted" }, "없음");
+  return h("ul", { class: "info-list" }, list.map(({ data }) => h("li", {}, h("strong", {}, data.name), data.desc ? ` — ${data.desc}` : "")));
+}
+export function panicInfo(type) {
+  if (!type) return h("p", { class: "muted" }, "없음");
+  const data = E.load_panic_data(type);
+  if (!data) return h("p", { class: "muted" }, "정보 없음");
+  const rows = [
+    ...(data.low_morale_effects ?? []).map((e) => ["사기저하 (정신력 절반 이하)", e.desc]),
+    ...(data.panic_effects ?? []).map((e) => ["패닉 (정신력 0)", e.desc]),
+  ];
+  return h("div", {}, h("strong", {}, data.name),
+    rows.length ? h("ul", { class: "info-list" }, rows.map(([k, d]) => h("li", {}, `${k}: ${d ?? "설명 없음"}`))) : null);
+}

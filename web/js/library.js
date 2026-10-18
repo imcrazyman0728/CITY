@@ -1,7 +1,7 @@
 // 서재(공동묘지·명예의 전당·도감·크레딧)와 내 정보 화면
 import * as E from "./engine.js";
 import { h, clear } from "./dom.js";
-import { cardEl, attachCardTip } from "./components.js";
+import { cardEl, attachCardTip, passiveList, panicInfo } from "./components.js";
 import { ctx, mount, modal, confirmModal, gadgetChip, toast } from "./ui.js";
 import { store } from "./storage.js";
 
@@ -44,7 +44,6 @@ export function openLibrary(initial = "graves") {
 function record_detail(rec, kind) {
   const deck = Object.entries(rec.deck ?? {});
   const gadgets = Object.entries(rec.gadgets ?? {});
-  const passives = (rec.passives ?? []).map((id) => E.load_passive_data(id)?.name ?? id);
   const m = modal(h("div", {},
     h("h2", {}, kind === "grave" ? `${rec.name}의 묘비` : `${rec.name} (LV.${rec.level ?? 1})`),
     h("p", { class: "sub" }, `${kind === "grave" ? "사망 일시" : "클리어 일시"}: ${fmt_date(rec.date)}${rec.story ? ` · ${rec.story}` : ""}`),
@@ -53,12 +52,13 @@ function record_detail(rec, kind) {
       h("dt", {}, "최종 체력"), h("dd", {}, `${rec.hp} / ${rec.max_hp}`),
       h("dt", {}, "최종 정신력"), h("dd", {}, `${rec.sanity} / ${rec.max_sanity}`),
       h("dt", {}, "흐트러짐 저항"), h("dd", {}, String(rec.stagger_resist ?? 20)),
-      h("dt", {}, "빛 / 슬롯"), h("dd", {}, `${rec.max_cost ?? 3} / ${rec.card_slot ?? 1}`),
-      h("dt", {}, "패시브"), h("dd", {}, passives.length ? passives.join(", ") : "없음")),
+      h("dt", {}, "빛 / 슬롯"), h("dd", {}, `${rec.max_cost ?? 3} / ${rec.card_slot ?? 1}`)),
     h("table", { class: "table" },
       h("tr", {}, h("th", {}, "속성"), h("th", {}, "피해"), h("th", {}, "흐트러짐")),
       ...["slash", "pierce", "blunt"].map((k) => h("tr", {}, h("td", {}, E.DICE_TYPE_MAP[k]),
         h("td", {}, `${rec.endurance?.[k] ?? 1}x`), h("td", {}, `${rec.stagger_endurance?.[k] ?? 1}x`)))),
+    h("h3", {}, "패시브"),
+    passiveList(rec.passives),
     h("h3", {}, "가젯"),
     gadgets.length ? h("div", { class: "hud-gadgets" }, gadgets.map(([id, n]) => gadgetChip(id, n))) : h("p", { class: "muted" }, "없음"),
     h("h3", {}, "덱"),
@@ -126,12 +126,15 @@ function enemy_detail(id) {
     h("dl", { class: "kv" },
       h("dt", {}, "최대 체력"), h("dd", {}, String(s.hp ?? 0)),
       h("dt", {}, "최대 정신력"), h("dd", {}, String(s.sanity ?? 0)),
-      h("dt", {}, "흐트러짐 저항"), h("dd", {}, String(s.stagger_resist ?? 20)),
-      h("dt", {}, "패시브"), h("dd", {}, (s.passives ?? []).map((p) => E.load_passive_data(p)?.name ?? p).join(", ") || "없음")),
+      h("dt", {}, "흐트러짐 저항"), h("dd", {}, String(s.stagger_resist ?? 20))),
     h("table", { class: "table" },
       h("tr", {}, h("th", {}, "속성"), h("th", {}, "피해"), h("th", {}, "흐트러짐")),
       ...["slash", "pierce", "blunt"].map((k) => h("tr", {}, h("td", {}, E.DICE_TYPE_MAP[k]),
         h("td", {}, `${s.endurance?.[k] ?? 1}x`), h("td", {}, `${s.stagger_endurance?.[k] ?? 1}x`)))),
+    h("h3", {}, "패시브"),
+    passiveList(s.passives),
+    h("h3", {}, "패닉 유형"),
+    panicInfo(s.panic_type),
     h("h3", {}, "사용 카드"),
     h("div", { class: "card-grid" }, deck.map(([cid, n]) => {
       const c = cardEl(E.load_card(cid));
