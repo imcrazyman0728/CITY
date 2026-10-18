@@ -136,17 +136,18 @@ function build_hud() {
   const p = E.game.player_char;
   const hp = bar("hp", p.hp, p.max_hp, "HP");
   const san = bar("san", p.sanity, p.max_sanity, "SAN");
+  const exp = bar("exp", p.exp, 10, "EXP");
   const name = h("span", { class: "hud-name" });
   const lv = h("span", { class: "hud-lv" });
   const gadgets = h("div", { class: "hud-gadgets" });
   const el = h("header", { class: "hudbar" },
     h("div", { class: "hud-id" }, name, lv),
-    h("div", { class: "hud-bars" }, hp, san),
+    h("div", { class: "hud-bars" }, hp, san, exp),
     gadgets,
     h("div", { class: "hud-actions" },
       h("button", { class: "btn btn-sm btn-ghost", onclick: openStatus }, "정보"),
       h("button", { class: "btn btn-sm btn-ghost", onclick: openSettings }, "설정")));
-  return { el, hp, san, name, lv, gadgets };
+  return { el, hp, san, exp, name, lv, gadgets };
 }
 
 export function update_hud() {
@@ -162,6 +163,7 @@ export function update_hud() {
   hud.lv.textContent = `LV.${p.level}`;
   setBar(hud.hp, p.hp, p.max_hp, "HP");
   setBar(hud.san, p.sanity, p.max_sanity, "SAN");
+  setBar(hud.exp, p.exp, 10, "EXP");
   clear(hud.gadgets).append(...Object.entries(p.gadgets).map(([id, n]) => gadgetChip(id, n)));
 }
 
