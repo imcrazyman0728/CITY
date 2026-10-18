@@ -21,6 +21,13 @@ async function boot() {
     return;
   }
 
+  // 크레딧은 번들을 다시 만들지 않아도 credits.json만 고치면 바로 반영되도록 따로 읽는다.
+  // (못 읽으면 번들에 들어 있는 사본을 그대로 쓴다)
+  try {
+    const cr = await fetch("../credits.json", { cache: "no-cache" });
+    if (cr.ok) bundle.credits = await cr.json();
+  } catch { /* 번들 사본 사용 */ }
+
   ctx.bundle = bundle;
   ctx.settings = store.settings();
   ctx.audio = new AudioManager(bundle.audio, ctx.settings);
