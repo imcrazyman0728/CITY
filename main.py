@@ -3010,7 +3010,7 @@ def show_ending():
 def game_loop():
     current_main = "start"
     total_main = len(game.main_encounters)
-    total_sub_events = 4
+    total_sub_events = len(game.common_deck)
     mains_played = 0
     remaining_sub = total_sub_events
 
@@ -3045,7 +3045,7 @@ def game_loop():
 
         if result.get("type") == "next_main":
             next_main = result["target"]
-            gaps_remaining = total_main - mains_played
+            gaps_remaining = max(1, total_main - mains_played)
             if gaps_remaining > 0:
                 count = remaining_sub // gaps_remaining
                 run_sub_events(count)

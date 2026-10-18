@@ -555,7 +555,7 @@ async function run_sub_events(count) {
 export async function game_loop() {
   let current_main = "start";
   const total_main = Object.keys(game.main_encounters).length;
-  const total_sub_events = 4;
+  const total_sub_events = game.common_deck.length;
   let mains_played = 0;
   let remaining_sub = total_sub_events;
 
@@ -593,7 +593,7 @@ export async function game_loop() {
       break;
     }
     if (result.type === "next_main") {
-      const gaps_remaining = total_main - mains_played;
+      const gaps_remaining = Math.max(1, total_main - mains_played);
       if (gaps_remaining > 0) {
         const count = Math.floor(remaining_sub / gaps_remaining);
         await run_sub_events(count);
