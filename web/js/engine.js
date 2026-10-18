@@ -185,6 +185,23 @@ export function play_card_dialogue(user, card) {
 // ==================================================
 // 패닉 / 패시브 / 상태이상
 // ==================================================
+export function unit_cannot_equip(unit) {
+  if (!unit) return false;
+  if (unit.is_panicked && unit.active_panic_effects) {
+    for (const effect of unit.active_panic_effects) {
+      if (
+        effect.trigger === "cannot_equip" ||
+        effect.trigger === "cannot_equip_card" ||
+        effect.action === "cannot_equip" ||
+        (effect.trigger === "equip_card" && effect.action === "prevent")
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 export function apply_panic_effects(unit) {
   if (!unit || !unit.panic_type) return;
   const data = panic_data(unit.panic_type);
@@ -195,6 +212,7 @@ export function apply_panic_effects(unit) {
       unit.active_panic_effects = data.panic_effects ?? data.effects ?? [];
       unit.is_panicked = true;
       unit.is_low_morale = false;
+      unit.panicked_turns_remaining = 1;
       say(`[패닉] ${unit.name}의 정신이 붕괴되어 패닉 상태에 빠졌습니다!`, "panic");
     }
   } else if (unit.sanity <= unit.max_sanity / 2) {
@@ -399,6 +417,7 @@ export class Unit {
     this.active_panic_effects = [];
     this.is_panicked = false;
     this.is_low_morale = false;
+    this.panicked_turns_remaining = 0;
     this.card_dice_power_modifier = 0;
   }
 
@@ -726,9 +745,14 @@ export function begin_turn(unit) {
   trigger_passive_action(unit, "on_turn_start", { has_dead_ally: has_dead });
 
   if (unit.is_panicked) {
-    say(`${unit.name} 패닉에서 회복, 정신력을 최대로 회복합니다.`, "panic");
-    unit.change_sanity(unit.max_sanity);
-    unit.is_panicked = false;
+    if ((unit.panicked_turns_remaining ?? 0) > 0) {
+      unit.panicked_turns_remaining -= 1;
+    } else {
+      say(`${unit.name} 패닉에서 회복, 정신력을 최대로 회복합니다.`, "panic");
+      unit.is_panicked = false;
+      unit.panicked_turns_remaining = 0;
+      unit.change_sanity(unit.max_sanity);
+    }
   }
 
   apply_panic_effects(unit);
@@ -1255,7 +1279,7 @@ export function resolve_turn(allies, enemies) {
 // AI 카드 선택
 // ==================================================
 export function enemy_select_cards(unit, opponents) {
-  if (unit.hp <= 0 || unit.is_staggered || !opponents.length) return;
+  if (unit.hp <= 0 || unit.is_staggered || unit_cannot_equip(unit) || !opponents.length) return;
   const live = opponents.filter((o) => o.hp > 0);
   if (!live.length) return;
 
@@ -1285,7 +1309,7 @@ export function enemy_select_cards(unit, opponents) {
 }
 
 export function ally_select_cards(ally, enemies) {
-  if (ally.hp <= 0 || ally.is_staggered || !enemies.length) return;
+  if (ally.hp <= 0 || ally.is_staggered || unit_cannot_equip(ally) || !enemies.length) return;
   const ai_type = ally.ai_type ?? "random";
   if (ai_type === "random") enemy_select_cards(ally, enemies);
   else if (ai_type === "pattern") {
@@ -1337,6 +1361,7 @@ export class Battle {
       u.passive_vars = {};
       u.statuses = {};
       u.active_panic_effects = [];
+      u.panicked_turns_remaining = 0;
       u.draw_pile = build_deck_list(u.deck);
       u.hand = [];
       u.equipped = Array(u.card_slot).fill(null);
@@ -1375,10 +1400,15 @@ export class Battle {
   }
 
   // ----- 플레이어 조작 -----
-  can_act(unit) { return unit.hp > 0 && !unit.is_staggered && this.phase === "plan"; }
+  can_act(unit) { return unit.hp > 0 && !unit.is_staggered && !unit_cannot_equip(unit) && this.phase === "plan"; }
 
   equip(unit, hand_index, slot, target_unit, target_slot) {
-    if (!this.can_act(unit)) return { ok: false, error: unit.is_staggered ? "이 유닛은 흐트러진 상태입니다." : "전투 불능 상태입니다." };
+    if (!this.can_act(unit)) {
+      let error = "전투 불능 상태입니다.";
+      if (unit.is_staggered) error = "이 유닛은 흐트러진 상태입니다.";
+      else if (unit_cannot_equip(unit)) error = "이 유닛은 패닉으로 인해 카드를 장착할 수 없습니다.";
+      return { ok: false, error };
+    }
     const card = unit.hand[hand_index];
     if (!card) return { ok: false, error: "카드가 없습니다." };
     if (card.type === "on_play") return this.play_on_play(unit, hand_index);

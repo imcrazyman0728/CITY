@@ -273,6 +273,17 @@ def load_enemy(enemy_id):
 # 전투 규칙 및 패시브/효과 로직
 # ==================================================
 
+def unit_cannot_equip(unit):
+    """유닛이 패닉 등의 효과로 인해 카드를 장착할 수 없는 상태인지 확인합니다."""
+    if not unit:
+        return False
+    if getattr(unit, "is_panicked", False):
+        for effect in getattr(unit, "active_panic_effects", []):
+            if effect.get("trigger") in ["cannot_equip", "cannot_equip_card"] or effect.get("action") in ["cannot_equip", "prevent_equip"] or (effect.get("trigger") == "equip_card" and effect.get("action") == "prevent"):
+                return True
+    return False
+
+
 def apply_panic_effects(unit):
     """유닛의 정신력 수치에 따라 패닉 효과를 활성화하거나 해제합니다."""
     if not unit or not unit.panic_type:
@@ -287,6 +298,7 @@ def apply_panic_effects(unit):
             unit.active_panic_effects = data.get("panic_effects", data.get("effects", []))
             unit.is_panicked = True
             unit.is_low_morale = False
+            unit.panicked_turns_remaining = 1
             print(f"\n[패닉] {unit.name}의 정신이 붕괴되어 패닉 상태에 빠졌습니다!")
     elif unit.sanity <= unit.max_sanity / 2:
         if not unit.is_low_morale:
@@ -740,6 +752,7 @@ class Unit:
         self.active_panic_effects = []
         self.is_panicked = False
         self.is_low_morale = False
+        self.panicked_turns_remaining = 0
         self.card_dice_power_modifier = 0  # 해당 카드 한정 위력 보정치
 
     def change_hp(self, amount):
@@ -1006,9 +1019,13 @@ def begin_turn(unit):
     trigger_passive_action(unit, "on_turn_start", {"has_dead_ally": has_dead})
 
     if unit.is_panicked:
-        print(f"\n{unit.name} 패닉에서 회복, 정신력을 최대로 회복합니다.")
-        unit.change_sanity(unit.max_sanity)
-        unit.is_panicked = False
+        if getattr(unit, "panicked_turns_remaining", 0) > 0:
+            unit.panicked_turns_remaining -= 1
+        else:
+            print(f"\n{unit.name} 패닉에서 회복, 정신력을 최대로 회복합니다.")
+            unit.is_panicked = False
+            unit.panicked_turns_remaining = 0
+            unit.change_sanity(unit.max_sanity)
 
     apply_panic_effects(unit)
 
@@ -1928,7 +1945,7 @@ def player_select_cards(allies, enemies, msg=""):
                 c_idx = int(input("> ")) - 1
                 if 0 <= c_idx < len(controllables):
                     active_unit = controllables[c_idx]
-                    if active_unit.hp <= 0 or active_unit.is_staggered:
+                    if active_unit.hp <= 0 or active_unit.is_staggered or unit_cannot_equip(active_unit):
                         print(f"\n{active_unit.name}은(는) 현재 명령을 내릴 수 없는 상태입니다.")
                         active_unit = allies[0]
                         pause()
@@ -1947,6 +1964,11 @@ def player_select_cards(allies, enemies, msg=""):
 
         if active_unit.is_staggered:
             print("이 유닛은 흐트러진 상태입니다.")
+            pause()
+            continue
+
+        if unit_cannot_equip(active_unit):
+            print(f"{active_unit.name}은(는) 패닉 상태로 인해 카드를 장착할 수 없습니다.")
             pause()
             continue
 
@@ -2049,6 +2071,7 @@ def start_battle(enemy_ids):
         u.passive_vars = {}
         u.statuses = {}
         u.active_panic_effects = []
+        u.panicked_turns_remaining = 0
         u.draw_pile = build_deck_list(u.deck)
         u.hand = []
         u.equipped = [None] * u.card_slot
@@ -2133,7 +2156,7 @@ def start_battle(enemy_ids):
 
 
 def ally_select_cards(ally, enemies):
-    if ally.hp <= 0 or ally.is_staggered or not enemies:
+    if ally.hp <= 0 or ally.is_staggered or unit_cannot_equip(ally) or not enemies:
         return
 
     ai_type = getattr(ally, "ai_type", "random")
@@ -2154,7 +2177,7 @@ def ally_select_cards(ally, enemies):
 
 
 def enemy_select_cards(unit, opponents):
-    if unit.hp <= 0 or unit.is_staggered or not opponents:
+    if unit.hp <= 0 or unit.is_staggered or unit_cannot_equip(unit) or not opponents:
         return
 
     live_opponents = [o for o in opponents if o.hp > 0]

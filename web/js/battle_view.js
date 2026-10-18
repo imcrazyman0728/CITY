@@ -149,7 +149,7 @@ class BattleView {
     if (this.targeting) return;
     if (!this.allies.includes(u)) return;
     if (!this.is_controllable(u)) { toast(`${u.name}은(는) 직접 조종할 수 없습니다.`); return; }
-    if (u.hp <= 0 || u.is_staggered) { toast(`${u.name}은(는) 지금 명령을 내릴 수 없는 상태입니다.`); return; }
+    if (u.hp <= 0 || u.is_staggered || E.unit_cannot_equip(u)) { toast(`${u.name}은(는) 지금 명령을 내릴 수 없는 상태입니다.`); return; }
     this.active = u;
     this.selected = null;
     this.refresh();
@@ -199,7 +199,8 @@ class BattleView {
           slot.append(h("button", { class: "slot-x", title: "장착 해제", "aria-label": "장착 해제", onclick: (e) => { e.stopPropagation(); this.unequip(u, i); } }, "✕"));
         }
       } else if (els.side === "ally") {
-        slot.append(h("div", { class: "slot-empty" }, u === this.active ? "카드를 놓으세요" : "비어 있음"));
+        const cannot = E.unit_cannot_equip(u);
+        slot.append(h("div", { class: "slot-empty" }, cannot ? "장착 불가" : (u === this.active ? "카드를 놓으세요" : "비어 있음")));
       } else {
         slot.append(h("div", { class: "slot-empty" }, u.hp > 0 ? "대기" : ""));
       }

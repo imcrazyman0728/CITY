@@ -1,0 +1,22 @@
+{
+    "id": "weave",
+    "name": "흐트러진 방직",
+    "low_morale_effects": [
+        {
+            "trigger": "modify_roll",
+            "condition": { "kind": "all" },
+            "action": "add_value",
+            "value": -1,
+            "desc": "모든 주사위 위력 1 감소"
+        }
+    ],
+    "panic_effects": [
+        {
+            "trigger": "cannot_equip",
+            "condition": { "kind": "all" },
+            "action": "prevent",
+            "desc": "한 턴 동안 카드를 장착할 수 없음"
+        }
+    ]
+}
+
