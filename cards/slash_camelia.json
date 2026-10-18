@@ -13,6 +13,9 @@
 
     "on_use_effect" :
     [
+        {
+            "recover_cost" : 2
+        }
     ],
 
     "mode_change" : {
@@ -24,8 +27,8 @@
         {
             "type": "attack",
             "damage_type" : "slash",
-            "min": 2,
-            "max": 5,
+            "min": 3,
+            "max": 6,
             "dice_effect" : 
             [
                 {
@@ -45,7 +48,7 @@
         {
             "type": "attack",
             "damage_type" : "slash",
-            "min": 1,
+            "min": 3,
             "max": 6,
             "dice_effect" : 
             [

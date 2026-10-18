@@ -25,7 +25,7 @@
 
         "sanity" : 30,
 
-        "stagger_resist" : 29,
+        "stagger_resist" : 15,
 
         "panic_type" : "weave",
 
