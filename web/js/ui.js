@@ -308,7 +308,7 @@ function level_up(info) {
 // ==================================================
 const ENDING_LABEL = { death_hp: "육체적 사망", missing_main: "이야기가 끊겼습니다" };
 
-function show_ending({ name: raw_name, dead }) {
+function show_ending({ name: raw_name, dead, lunacy_gain = 0 }) {
   const name = ENDING_LABEL[raw_name] ?? raw_name;
   const p = E.game.player_char;
   if (dead) ctx.audio.bgm("death_theme.mp3", { fade_ms: 1000 });
@@ -320,6 +320,7 @@ function show_ending({ name: raw_name, dead }) {
       h("h1", {}, dead ? "당신은 도시의 차가운 바닥에서 숨을 거두었습니다…" : (name || "게임 종료")),
       dead && name ? h("p", { class: "muted" }, `엔딩: ${name}`) : null,
       p ? h("p", { class: "muted" }, `${p.name} · LV.${p.level} · HP ${p.hp}/${p.max_hp} · 정신력 ${p.sanity}/${p.max_sanity}`) : null,
+      lunacy_gain > 0 ? h("p", { style: { color: "var(--brass)", fontWeight: "600", fontSize: "16px", margin: "12px 0 6px" } }, `✦ 광기 +${lunacy_gain} 획득! (보유 광기: ${E.game.profile.lunacy ?? 0})`) : null,
       dead ? will : null,
       h("div", { class: "modal-actions", style: { justifyContent: "center" } }, done));
     mount(el, "ending");

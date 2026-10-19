@@ -5,6 +5,7 @@ import { h, clear } from "./dom.js";
 import { ctx, mount, modal, toast, create_ui, openSettings, reset_node_state } from "./ui.js";
 import { play_battle } from "./battle_view.js";
 import { openLibrary, openProfile } from "./library.js";
+import { openShop } from "./shop.js";
 import { AudioManager } from "./audio.js";
 import { store } from "./storage.js";
 
@@ -34,9 +35,11 @@ async function boot() {
   E.set_data(bundle);
 
   E.game.profile = store.loadProfile(bundle.profile_default);
-  for (const k of ["achievements", "unlocked_cards", "unlocked_enemies", "unlocked_gadgets"]) E.game.profile[k] ??= [];
+  for (const k of ["achievements", "unlocked_cards", "unlocked_enemies", "unlocked_gadgets", "purchased_packs", "enabled_packs"]) E.game.profile[k] ??= [];
+  E.game.profile.lunacy ??= 0;
   E.game.profile.enemy_kills ??= {};
   E.game.profile.flags ??= {};
+  E.rebuild_active_data();
 
   E.game.hooks = {
     bgm: (name, opts) => ctx.audio.bgm(name, opts),
@@ -102,6 +105,7 @@ async function title_loop() {
       // 제압 모드는 리워크 전까지 잠금 (다시 열려면 아래 줄 주석 해제 + 타이틀 메뉴의 disabled 제거)
       // else if (choice === "suppress") await suppression_mode();
       else if (choice === "library") await openLibrary();
+      else if (choice === "shop") await openShop();
       else if (choice === "profile") await openProfile();
       else if (choice === "settings") await openSettings();
     } catch (err) {
@@ -132,9 +136,9 @@ function title_screen() {
           item("story", "게임 시작"),
           item("suppress", "제압 모드 (리워크 예정)", { disabled: true }),
           item("library", "서재"),
+          item("shop", "상점"),
           item("profile", "내 정보"),
-          item("settings", "설정"),
-          item("shop", "상점 (준비 중)", { disabled: true })),
+          item("settings", "설정")),
         h("p", { class: "title-foot" }, ctx.bundle.credits?.notice ?? ""),
       ),
     );

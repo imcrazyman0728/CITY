@@ -39,6 +39,82 @@ def encounters_by_id(folder):
     return result
 
 
+def load_expansion_packs():
+    packs = {}
+    candidates = [ROOT / "expension_pack", ROOT / "expansion_pack"]
+    for base in candidates:
+        if not base.exists():
+            continue
+        for folder in sorted(base.iterdir()):
+            if not folder.is_dir():
+                continue
+            shop_info_file = folder / "shop_info.json"
+            info = load(shop_info_file) if shop_info_file.exists() else {}
+
+            img_rel = None
+            for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+                img_file = folder / f"shop_image{ext}"
+                if img_file.exists():
+                    target_dir = ROOT / "web" / "img" / "packs"
+                    target_dir.mkdir(parents=True, exist_ok=True)
+                    target_file = target_dir / f"{folder.name}{ext}"
+                    try:
+                        import shutil
+                        shutil.copyfile(img_file, target_file)
+                        img_rel = f"img/packs/{folder.name}{ext}"
+                    except Exception as e:
+                        print(f"이미지 복사 실패 ({img_file}): {e}")
+                    break
+
+            norm_dir = folder / "encounter_normal"
+            common_encs = []
+            special_encs = {}
+            if norm_dir.exists():
+                common_sub = norm_dir / "common"
+                if common_sub.exists():
+                    common_encs.extend(load(f) for f in sorted(common_sub.glob("*.json")))
+                for f in sorted(norm_dir.glob("*.json")):
+                    data = load(f)
+                    if data:
+                        common_encs.append(data)
+                for sub in sorted(norm_dir.iterdir()):
+                    if sub.is_dir() and sub.name not in ("common", "schedule"):
+                        special_encs[sub.name] = [load(f) for f in sorted(sub.glob("*.json"))]
+
+            main_dir = folder / "encounter_main"
+            stories_encs = {}
+            if main_dir.exists():
+                for sub in sorted(main_dir.iterdir()):
+                    if sub.is_dir():
+                        stories_encs[sub.name] = encounters_by_id(sub)
+
+            pack_data = {
+                "id": folder.name,
+                "name": info.get("name", folder.name),
+                "price": int(info.get("price", 0)),
+                "tags": info.get("tags", []),
+                "shop": info.get("shop", "common"),
+                "desc": info.get("desc", ""),
+                "image": img_rel,
+                "data": {
+                    "cards": by_stem(folder / "cards"),
+                    "enemies": by_stem(folder / "enemy", recursive=True),
+                    "allies": by_stem(folder / "ally"),
+                    "passives": by_stem(folder / "passives"),
+                    "status": by_stem(folder / "status"),
+                    "panics": by_stem(folder / "panics"),
+                    "gadgets": by_stem(folder / "gadgets"),
+                    "players": by_stem(folder / "player" / "char"),
+                    "common": common_encs,
+                    "special": special_encs,
+                    "stories": stories_encs,
+                    "schedule": by_stem(norm_dir / "schedule") if norm_dir.exists() else {},
+                },
+            }
+            packs[folder.name] = pack_data
+    return packs
+
+
 def main():
     normal = ROOT / "encounter_normal"
     main_root = ROOT / "encounter_main"
@@ -68,6 +144,7 @@ def main():
         "common": [load(f) for f in sorted((normal / "common").glob("*.json"))] if (normal / "common").exists() else [],
         "special": special,
         "schedule": by_stem(normal / "schedule"),
+        "expansion_packs": load_expansion_packs(),
         "profile_default": load(ROOT / "player" / "profile.json") if (ROOT / "player" / "profile.json").exists() else {},
         "credits": load(ROOT / "credits.json") if (ROOT / "credits.json").exists() else {},
         "audio": {

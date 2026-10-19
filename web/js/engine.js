@@ -75,7 +75,63 @@ export const game = {
   },
 };
 
-export function set_data(bundle) { game.data = bundle; }
+export let base_data = null;
+
+export function set_data(bundle) {
+  base_data = bundle;
+  rebuild_active_data();
+}
+
+export function rebuild_active_data() {
+  if (!base_data) return;
+  game.data = {
+    ...base_data,
+    cards: { ...(base_data.cards ?? {}) },
+    enemies: { ...(base_data.enemies ?? {}) },
+    allies: { ...(base_data.allies ?? {}) },
+    passives: { ...(base_data.passives ?? {}) },
+    status: { ...(base_data.status ?? {}) },
+    panics: { ...(base_data.panics ?? {}) },
+    gadgets: { ...(base_data.gadgets ?? {}) },
+    players: { ...(base_data.players ?? {}) },
+    common: [...(base_data.common ?? [])],
+    special: { ...(base_data.special ?? {}) },
+    stories: { ...(base_data.stories ?? {}) },
+    schedule: { ...(base_data.schedule ?? {}) },
+    expansion_packs: { ...(base_data.expansion_packs ?? {}) },
+  };
+
+  const enabled = game.profile?.enabled_packs ?? [];
+  const packs = base_data.expansion_packs ?? {};
+
+  for (const pack_id of enabled) {
+    const pack = packs[pack_id];
+    if (!pack || !pack.data) continue;
+    const d = pack.data;
+    if (d.cards) Object.assign(game.data.cards, d.cards);
+    if (d.enemies) Object.assign(game.data.enemies, d.enemies);
+    if (d.allies) Object.assign(game.data.allies, d.allies);
+    if (d.passives) Object.assign(game.data.passives, d.passives);
+    if (d.status) Object.assign(game.data.status, d.status);
+    if (d.panics) Object.assign(game.data.panics, d.panics);
+    if (d.gadgets) Object.assign(game.data.gadgets, d.gadgets);
+    if (d.players) Object.assign(game.data.players, d.players);
+    if (d.common && Array.isArray(d.common)) {
+      for (const enc of d.common) {
+        if (!game.data.common.some((c) => c.id === enc.id)) {
+          game.data.common.push(enc);
+        }
+      }
+    }
+    if (d.special) {
+      for (const [k, v] of Object.entries(d.special)) {
+        game.data.special[k] = (game.data.special[k] ?? []).concat(v);
+      }
+    }
+    if (d.stories) Object.assign(game.data.stories, d.stories);
+    if (d.schedule) Object.assign(game.data.schedule, d.schedule);
+  }
+}
 
 const status_data = (id) => game.data.status[id] ?? null;
 const passive_data = (id) => game.data.passives[id] ?? null;

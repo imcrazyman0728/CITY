@@ -5,6 +5,8 @@ import { cardEl, attachCardTip, passiveList, panicInfo } from "./components.js";
 import { ctx, mount, modal, confirmModal, gadgetChip, toast } from "./ui.js";
 import { store } from "./storage.js";
 
+import { openShop } from "./shop.js";
+
 const fmt_date = (s) => s ?? "";
 
 function frame(title, sub, body, onBack) {
@@ -29,10 +31,11 @@ export function openLibrary(initial = "graves") {
     let tab = initial, sub = "cards";
     const draw = () => {
       const body = h("div", {});
-      body.append(tabs([["graves", "공동묘지"], ["clears", "명예의 전당"], ["book", "도감"], ["credits", "크레딧"]], tab, (t) => { tab = t; draw(); }));
+      body.append(tabs([["graves", "공동묘지"], ["clears", "명예의 전당"], ["book", "도감"], ["packs", "확장팩"], ["credits", "크레딧"]], tab, (t) => { tab = t; draw(); }));
       if (tab === "graves") body.append(graves_view());
       else if (tab === "clears") body.append(clears_view());
       else if (tab === "book") body.append(book_view(sub, (s) => { sub = s; draw(); }));
+      else if (tab === "packs") body.append(packs_view(() => draw(), () => { openShop().then(() => draw()); }));
       else body.append(credits_view());
       mount(frame("서재", "", body, () => resolve()), "library");
     };
@@ -168,6 +171,63 @@ function credits_view() {
   if (c.sfx) wrap.append(h("h3", { style: { margin: "22px 0 4px" } }, "효과음"),
     h("div", { class: "credit-row" }, `${c.sfx.source}${c.sfx.owner ? ` (${c.sfx.owner})` : ""}`));
   if (c.notice) wrap.append(h("p", { class: "muted", style: { marginTop: "26px" } }, c.notice));
+  return wrap;
+}
+
+// ---------- 확장팩 소장 및 활성화 관리 ----------
+function packs_view(refresh, goToShop) {
+  const p = E.game.profile;
+  const purchased = p.purchased_packs ?? [];
+  const allPacks = E.game.data?.expansion_packs ?? {};
+  const enabled = new Set(p.enabled_packs ?? []);
+
+  const wrap = h("div", { class: "lib-packs" });
+
+  if (!purchased.length) {
+    wrap.append(h("div", { class: "empty-note", style: { padding: "48px 16px", textAlign: "center" } },
+      h("p", { style: { fontSize: "16px", marginBottom: "8px", fontWeight: "600" } }, "소장 중인 확장팩이 없습니다."),
+      h("p", { class: "muted", style: { marginBottom: "20px" } }, "상점에서 광기를 사용하여 새로운 확장팩을 해금할 수 있습니다."),
+      h("button", { class: "btn btn-primary", onclick: goToShop }, "상점으로 가기")));
+    return wrap;
+  }
+
+  wrap.append(h("p", { class: "muted", style: { marginBottom: "18px" } },
+    "확장팩을 활성화하면 해당 확장팩의 카드, 적, 인카운터 등이 게임에 즉시 합쳐집니다."));
+
+  const list = h("div", { class: "lib-pack-list" }, purchased.map((packId) => {
+    const pack = allPacks[packId] ?? { id: packId, name: packId, desc: "", tags: [] };
+    const isEnabled = enabled.has(packId);
+
+    const toggleBtn = h("button", {
+      class: `btn ${isEnabled ? "btn-ghost" : "btn-primary"} btn-sm`,
+      onclick: () => {
+        if (isEnabled) {
+          p.enabled_packs = (p.enabled_packs ?? []).filter((id) => id !== packId);
+          toast(`[${pack.name}] 확장팩을 비활성화했습니다.`);
+        } else {
+          p.enabled_packs = p.enabled_packs ?? [];
+          if (!p.enabled_packs.includes(packId)) p.enabled_packs.push(packId);
+          toast(`[${pack.name}] 확장팩을 활성화했습니다.`);
+        }
+        E.rebuild_active_data();
+        E.game.hooks.save_profile(p);
+        refresh();
+      }
+    }, isEnabled ? "비활성화하기" : "활성화하기");
+
+    return h("div", { class: `lib-pack-card ${isEnabled ? "pack-active" : "pack-inactive"}` },
+      pack.image ? h("img", { src: pack.image, alt: pack.name, class: "lib-pack-img" }) : null,
+      h("div", { class: "lib-pack-info" },
+        h("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" } },
+          h("strong", { style: { fontSize: "17px" } }, pack.name),
+          h("span", { class: `badge-status ${isEnabled ? "status-on" : "status-off"}` }, isEnabled ? "ON (활성화됨)" : "OFF (비활성화됨)")),
+        h("div", { style: { display: "flex", gap: "5px", marginBottom: "8px" } },
+          (pack.tags ?? []).map((t) => h("span", { class: "shop-card-tag" }, t))),
+        h("p", { class: "muted", style: { margin: 0, fontSize: "13.5px" } }, pack.desc || "상세 설명이 없습니다.")),
+      h("div", { class: "lib-pack-actions" }, toggleBtn));
+  }));
+
+  wrap.append(list);
   return wrap;
 }
 

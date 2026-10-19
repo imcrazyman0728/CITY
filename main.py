@@ -194,11 +194,57 @@ def load_json(path):
         return None
 
 
+def get_expansion_pack_list():
+    packs = {}
+    candidates = [BASE_DIR / "expension_pack", BASE_DIR / "expansion_pack"]
+    for base in candidates:
+        if not base.exists():
+            continue
+        for folder in sorted(base.iterdir()):
+            if not folder.is_dir():
+                continue
+            shop_info_file = folder / "shop_info.json"
+            info = load_json(shop_info_file) if shop_info_file.exists() else {}
+            packs[folder.name] = {
+                "id": folder.name,
+                "name": info.get("name", folder.name),
+                "price": int(info.get("price", 0)),
+                "tags": info.get("tags", []),
+                "shop": info.get("shop", "common"),
+                "desc": info.get("desc", ""),
+                "dir": folder,
+            }
+    return packs
+
+
+def get_enabled_pack_dirs():
+    dirs = []
+    if "game" not in globals() or not hasattr(game, "profile"):
+        return dirs
+    enabled = game.profile.get("enabled_packs", [])
+    candidates = [BASE_DIR / "expension_pack", BASE_DIR / "expansion_pack"]
+    for base in candidates:
+        if not base.exists():
+            continue
+        for p_id in enabled:
+            p_dir = base / p_id
+            if p_dir.exists() and p_dir.is_dir() and p_dir not in dirs:
+                dirs.append(p_dir)
+    return dirs
+
+
 def get_card_data_internal(card_id):
     if card_id in CARD_DATA_CACHE:
         return CARD_DATA_CACHE[card_id]
     path = BASE_DIR / "cards" / f"{card_id}.json"
-    data = load_json(path)
+    data = load_json(path) if path.exists() else None
+    if not data:
+        for p_dir in get_enabled_pack_dirs():
+            p_card = p_dir / "cards" / f"{card_id}.json"
+            if p_card.exists():
+                data = load_json(p_card)
+                if data:
+                    break
     if data:
         data["id"] = card_id  # JSON 안의 id가 파일명과 달라도 파일명을 기준으로 통일
         CARD_DATA_CACHE[card_id] = data
@@ -213,6 +259,13 @@ def load_passive_data(p_id):
         data = load_json(path)
         PASSIVE_CACHE[p_id] = data
         return data
+    for p_dir in get_enabled_pack_dirs():
+        p_path = p_dir / "passives" / f"{p_id}.json"
+        if p_path.exists():
+            data = load_json(p_path)
+            if data:
+                PASSIVE_CACHE[p_id] = data
+                return data
     return None
 
 
@@ -224,6 +277,13 @@ def load_status_data(s_id):
         data = load_json(path)
         STATUS_CACHE[s_id] = data
         return data
+    for p_dir in get_enabled_pack_dirs():
+        p_path = p_dir / "status" / f"{s_id}.json"
+        if p_path.exists():
+            data = load_json(p_path)
+            if data:
+                STATUS_CACHE[s_id] = data
+                return data
     return None
 
 
@@ -235,6 +295,13 @@ def load_panic_data(p_id):
         data = load_json(path)
         PANIC_CACHE[p_id] = data
         return data
+    for p_dir in get_enabled_pack_dirs():
+        p_path = p_dir / "panics" / f"{p_id}.json"
+        if p_path.exists():
+            data = load_json(p_path)
+            if data:
+                PANIC_CACHE[p_id] = data
+                return data
     return None
 
 
@@ -246,6 +313,13 @@ def load_gadget_data(g_id):
         data = load_json(path)
         GADGET_CACHE[g_id] = data
         return data
+    for p_dir in get_enabled_pack_dirs():
+        p_path = p_dir / "gadgets" / f"{g_id}.json"
+        if p_path.exists():
+            data = load_json(p_path)
+            if data:
+                GADGET_CACHE[g_id] = data
+                return data
     return None
 
 
@@ -253,13 +327,30 @@ def load_ally_data(ally_id):
     path = BASE_DIR / "ally" / f"{ally_id}.json"
     if not path.exists():
         path = BASE_DIR / "enemy" / f"{ally_id}.json"
-    return load_json(path)
+    if path.exists():
+        return load_json(path)
+    for p_dir in get_enabled_pack_dirs():
+        p_ally = p_dir / "ally" / f"{ally_id}.json"
+        if p_ally.exists():
+            return load_json(p_ally)
+        p_enemy = p_dir / "enemy" / f"{ally_id}.json"
+        if p_enemy.exists():
+            return load_json(p_enemy)
+    return None
 
 
 def load_enemy(enemy_id):
     path = BASE_DIR / "enemy" / f"{enemy_id}.json"
     if not path.exists():
         found = list((BASE_DIR / "enemy").rglob(f"{enemy_id}.json"))
+        if not found:
+            for p_dir in get_enabled_pack_dirs():
+                e_dir = p_dir / "enemy"
+                if e_dir.exists():
+                    p_found = list(e_dir.rglob(f"{enemy_id}.json"))
+                    if p_found:
+                        found = p_found
+                        break
         if not found:
             raise Exception(f"적 없음 : {enemy_id}")
         path = found[0]
@@ -1071,12 +1162,24 @@ def load_main_story(story_name):
 def load_common_encounters():
     path = BASE_DIR / "encounter_normal" / "common"
     result = []
-    if not path.exists():
-        return result
-    for file in path.glob("*.json"):
-        data = load_json(file)
-        if data:
-            result.append(data)
+    if path.exists():
+        for file in sorted(path.glob("*.json")):
+            data = load_json(file)
+            if data:
+                result.append(data)
+    for p_dir in get_enabled_pack_dirs():
+        norm_dir = p_dir / "encounter_normal"
+        if norm_dir.exists():
+            c_dir = norm_dir / "common"
+            if c_dir.exists():
+                for f in sorted(c_dir.glob("*.json")):
+                    d = load_json(f)
+                    if d:
+                        result.append(d)
+            for f in sorted(norm_dir.glob("*.json")):
+                d = load_json(f)
+                if d and not any(r.get("id") == d.get("id") for r in result):
+                    result.append(d)
     return result
 
 
@@ -3233,6 +3336,11 @@ def show_ending():
         pause()
         return
 
+    gain = max(1, getattr(game.player_char, "level", 1)) * 5
+    game.profile["lunacy"] = game.profile.get("lunacy", 0) + gain
+    save_profile(game.profile)
+    print(f"\n[✦ 광기 +{gain} 획득! (현재 소지 광기: {game.profile['lunacy']})]")
+
     if game.player_char.hp <= 0 or game.player_char.sanity <= 0:
         game.profile["death_count"] = game.profile.get("death_count", 0) + 1
         save_profile(game.profile)
@@ -3330,12 +3438,19 @@ def load_profile():
             "enemy_kills": {},
             "unlocked_gadgets": [],
             "flags": {},
+            "lunacy": 0,
+            "purchased_packs": [],
+            "enabled_packs": [],
         }
         save_profile(data)
         return data
 
     with open(PROFILE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    data.setdefault("lunacy", 0)
+    data.setdefault("purchased_packs", [])
+    data.setdefault("enabled_packs", [])
+    return data
 
 
 def give_achievement(achievement_name):
@@ -3355,7 +3470,8 @@ def show_profile():
     print("\n" + "=" * 50)
     print("내 정보")
     print("=" * 50)
-    print(f"\n죽은 횟수 : {profile.get('death_count', 0)}\n\n도전과제")
+    print(f"\n현재 소지 광기 : {profile.get('lunacy', 0)} 광기")
+    print(f"죽은 횟수 : {profile.get('death_count', 0)}\n\n도전과제")
 
     achievements = profile.get("achievements", [])
     if not achievements:
@@ -3835,6 +3951,7 @@ def library_menu():
         print("2. 명예의 전당 (클리어 기록)")
         print("3. 도감")
         print("4. 크레딧")
+        print("5. 확장팩 관리")
         print("0. 돌아가기")
 
         cmd = input("\n> ").strip()
@@ -3850,6 +3967,8 @@ def library_menu():
             print("개발자: 30102 권순형 (2026년 코딩 크래프트 동아리 제출용)")
             print("(본 게임은 '프로젝트 문'의 '도시' 세계관을 바탕으로 하는 2차 창작물입니다.)\n" + "=" * 50)
             pause()
+        elif cmd == "5":
+            manage_expansion_packs()
         elif cmd == "0":
             break
 
@@ -3985,6 +4104,200 @@ def start_game_menu():
             return None
 
 
+def manage_expansion_packs():
+    while True:
+        clear_screen()
+        packs = get_expansion_pack_list()
+        purchased = game.profile.get("purchased_packs", [])
+        enabled = set(game.profile.get("enabled_packs", []))
+
+        print("=" * 50)
+        print("서재 - 확장팩 관리")
+        print("=" * 50)
+        if not purchased:
+            print("소장 중인 확장팩이 없습니다.")
+            print("상점에서 광기를 사용하여 새로운 확장팩을 해금할 수 있습니다.")
+            print("=" * 50)
+            pause()
+            break
+
+        print("활성화된 확장팩의 카드, 적, 인카운터가 게임에 즉시 적용됩니다.\n" + "-" * 50)
+        for i, p_id in enumerate(purchased, 1):
+            p = packs.get(p_id, {"name": p_id, "desc": "", "tags": []})
+            status_str = "[ON] 활성화됨" if p_id in enabled else "[OFF] 비활성화됨"
+            print(f"{i}. {p['name']} ({', '.join(p.get('tags', []))}) - {status_str}")
+
+        print("0. 돌아가기\n" + "=" * 50)
+        print("[번호] 선택하여 켜기/끄기 토글")
+
+        try:
+            cmd = input("\n> ").strip()
+            if cmd == "0":
+                break
+            idx = int(cmd) - 1
+            if 0 <= idx < len(purchased):
+                target_id = purchased[idx]
+                target_pack = packs.get(target_id, {"name": target_id})
+                if target_id in enabled:
+                    enabled.remove(target_id)
+                    print(f"\n[{target_pack['name']}] 비활성화되었습니다.")
+                else:
+                    enabled.add(target_id)
+                    print(f"\n[{target_pack['name']}] 활성화되었습니다.")
+                game.profile["enabled_packs"] = list(enabled)
+                save_profile(game.profile)
+                pause()
+        except (ValueError, IndexError):
+            continue
+
+
+def show_pack_detail_cli(pack):
+    while True:
+        clear_screen()
+        lunacy = game.profile.get("lunacy", 0)
+        purchased = set(game.profile.get("purchased_packs", []))
+        is_owned = pack["id"] in purchased
+
+        print("=" * 50)
+        print(f"확장팩 : {pack['name']}")
+        print(f"태그   : {', '.join(pack.get('tags', []))}")
+        print(f"가격   : {pack['price']} 광기 (보유: {lunacy} 광기)")
+        print("-" * 50)
+        print(f"설명:\n{pack.get('desc', '설명이 없습니다.')}")
+        print("=" * 50)
+
+        if is_owned:
+            print("✓ 이미 구매하여 보유 중인 확장팩입니다. (서재에서 활성화 가능)")
+            print("0. 돌아가기")
+            input("\n> ")
+            break
+        else:
+            print("1. 구매하기")
+            print("0. 돌아가기")
+            cmd = input("\n> ").strip()
+            if cmd == "1":
+                if lunacy < pack["price"]:
+                    print(f"\n광기가 부족합니다! (필요: {pack['price']}, 보유: {lunacy})")
+                    pause()
+                else:
+                    game.profile["lunacy"] = lunacy - pack["price"]
+                    p_list = game.profile.setdefault("purchased_packs", [])
+                    if pack["id"] not in p_list:
+                        p_list.append(pack["id"])
+                    e_list = game.profile.setdefault("enabled_packs", [])
+                    if pack["id"] not in e_list:
+                        e_list.append(pack["id"])
+                    save_profile(game.profile)
+                    print(f"\n[{pack['name']}] 확장팩을 구매했습니다! 서재에서 켜고 끌 수 있습니다.")
+                    pause()
+                    break
+            elif cmd == "0":
+                break
+
+
+def browse_packs_cli(title, pack_list):
+    while True:
+        clear_screen()
+        lunacy = game.profile.get("lunacy", 0)
+        purchased = set(game.profile.get("purchased_packs", []))
+        print("=" * 50)
+        print(f"상점 - {title}")
+        print("=" * 50)
+        print(f"현재 소지 광기 : {lunacy} 광기\n" + "-" * 50)
+
+        if not pack_list:
+            print("표시할 확장팩이 없습니다.")
+            print("=" * 50)
+            pause()
+            break
+
+        for i, p in enumerate(pack_list, 1):
+            is_owned = p["id"] in purchased
+            status_str = "[보유 중]" if is_owned else f"{p['price']} 광기"
+            tag_str = f"[{', '.join(p.get('tags', []))}]" if p.get("tags") else ""
+            print(f"{i}. {p['name']} {tag_str} - {status_str}")
+
+        print("0. 돌아가기\n" + "=" * 50)
+        print("[번호] 확장팩 상세 정보 확인 및 구매")
+
+        try:
+            cmd = input("\n> ").strip()
+            if cmd == "0":
+                break
+            idx = int(cmd) - 1
+            if 0 <= idx < len(pack_list):
+                pack = pack_list[idx]
+                show_pack_detail_cli(pack)
+        except (ValueError, IndexError):
+            continue
+
+
+def search_packs_cli(all_packs):
+    clear_screen()
+    print("=" * 50)
+    print("확장팩 검색")
+    print("=" * 50)
+    query = input("검색할 확장팩 이름 또는 태그를 입력하세요 (빈칸: 취소): ").strip().lower()
+    if not query:
+        return
+    matched = [
+        p for p in all_packs
+        if query in p["name"].lower()
+        or query in p.get("desc", "").lower()
+        or any(query in t.lower() for t in p.get("tags", []))
+    ]
+    browse_packs_cli(f"검색 결과: '{query}'", matched)
+
+
+def show_shop_menu():
+    import time
+    while True:
+        clear_screen()
+        packs = get_expansion_pack_list()
+        lunacy = game.profile.get("lunacy", 0)
+        print("=" * 50)
+        print("상점 - 도시의 시시콜콜한 이야기와 철학들")
+        print("=" * 50)
+        print(f"현재 소지 광기 : {lunacy} 광기\n" + "-" * 50)
+        print("1. 통상 확장팩")
+        print("2. 리워드 확장팩 (잠김)")
+        print("3. 오늘의 핫딜!")
+        print("4. 확장팩 검색 (이름/태그)")
+        print("0. 돌아가기\n" + "=" * 50)
+
+        cmd = input("\n> ").strip()
+        if cmd == "1":
+            common_packs = [p for p in packs.values() if p.get("shop", "common") == "common"]
+            browse_packs_cli("통상 확장팩", common_packs)
+        elif cmd == "2":
+            clear_screen()
+            print("=" * 50)
+            print("🔒 리워드 확장팩은 잠겨 있습니다.")
+            print("도전과제를 클리어하면 상점에서 해금되는 확장팩 칸입니다.")
+            print("(현재 도전과제 기능 준비 중으로 추후 공개됩니다)")
+            print("=" * 50)
+            pause()
+        elif cmd == "3":
+            hot_pool = [p for p in packs.values() if p.get("shop") == "hot_deal"]
+            now_ms = int(time.time() * 1000)
+            last_reroll = game.profile.get("hot_deal_last_reroll", 0)
+            stored_hot = game.profile.get("hot_deal_packs", [])
+            if not stored_hot or now_ms - last_reroll >= 24 * 60 * 60 * 1000:
+                shuffled = hot_pool.copy()
+                random.shuffle(shuffled)
+                stored_hot = [p["id"] for p in shuffled[:4]]
+                game.profile["hot_deal_packs"] = stored_hot
+                game.profile["hot_deal_last_reroll"] = now_ms
+                save_profile(game.profile)
+
+            deal_packs = [packs[p_id] for p_id in stored_hot if p_id in packs]
+            browse_packs_cli("오늘의 핫딜! (24시간마다 갱신)", deal_packs)
+        elif cmd == "4":
+            search_packs_cli(list(packs.values()))
+        elif cmd == "0":
+            break
+
+
 def show_main_menu():
     play_bgm("title_theme.mp3", loop=-1, fade_ms=1000)
     while True:
@@ -4008,8 +4321,7 @@ def show_main_menu():
             elif choice == "2":
                 library_menu()
             elif choice == "3":
-                print("\n상점 준비중")
-                pause()
+                show_shop_menu()
             elif choice == "4":
                 show_profile()
             elif choice == "5":

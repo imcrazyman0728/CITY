@@ -608,11 +608,16 @@ export async function game_loop() {
   return await show_ending();
 }
 
-// 엔딩 처리: 사망이면 묘비, 아니면 클리어 기록
+// 엔딩 처리: 사망이면 묘비, 아니면 클리어 기록 (광기: 레벨당 5 획득)
 export async function show_ending() {
   const char = game.player_char;
   const dead = !!char && (char.hp <= 0 || char.sanity <= 0);
-  const will = await ui().ending({ name: game.ending_name, dead });
+  const lunacy_gain = char ? Math.max(1, char.level ?? 1) * 5 : 0;
+  if (char && lunacy_gain > 0) {
+    game.profile.lunacy = (game.profile.lunacy ?? 0) + lunacy_gain;
+    save_profile();
+  }
+  const will = await ui().ending({ name: game.ending_name, dead, lunacy_gain });
   if (!char) return { dead: false };
   if (dead) {
     game.profile.death_count = (game.profile.death_count ?? 0) + 1;
