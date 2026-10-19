@@ -89,13 +89,14 @@ class BattleView {
     this.orbs = h("div", { class: "light", title: "빛(비용)" });
     this.lightText = h("span", { class: "light-text" });
     this.hint = h("div", { class: "dock-hint" });
+    this.commandBtn = h("button", { class: "btn btn-sm btn-ghost", hidden: true, onclick: () => this.open_command_modal() }, "명령");
     this.playBtn = h("button", { class: "btn btn-sm", hidden: true, onclick: () => this.use_selected_on_play() }, "즉시 발동");
     this.endBtn = h("button", { class: "btn btn-primary", onclick: () => this.end_turn() }, "턴 종료");
     this.logToggle = h("button", { class: "btn btn-sm btn-ghost log-toggle", onclick: () => this.logEl.classList.toggle("open") }, "기록");
     this.playzone = h("div", { class: "playzone" }, "여기에 놓아 즉시 발동");
     this.hand = h("div", { class: "hand", role: "list", "aria-label": "손패" });
     this.dock = h("div", { class: "dock" },
-      h("div", { class: "dock-bar" }, this.orbs, this.lightText, this.hint, this.playzone, this.playBtn, this.logToggle,
+      h("div", { class: "dock-bar" }, this.orbs, this.lightText, this.hint, this.playzone, this.commandBtn, this.playBtn, this.logToggle,
         h("button", { class: "btn btn-sm btn-ghost", onclick: openSettings }, "설정"), this.endBtn),
       this.hand);
 
@@ -233,12 +234,70 @@ class BattleView {
     const sel = this.selected;
     this.playBtn.hidden = !(sel && sel.type === "on_play");
     this.endBtn.disabled = this.busy;
+
+    const commandableAllies = this.allies.filter((al) => al !== this.battle.player && this.is_controllable(al));
+    const canCommand = commandableAllies.length > 0 && this.battle.phase === "plan" && !this.busy;
+    this.commandBtn.hidden = !canCommand;
+    if (canCommand) {
+      if (this.active !== this.battle.player) {
+        this.commandBtn.classList.add("btn-primary");
+        this.commandBtn.classList.remove("btn-ghost");
+        this.commandBtn.textContent = `명령 (${this.active.name})`;
+        this.commandBtn.title = "현재 조작 중인 아군입니다. 클릭하여 다른 아군 또는 나에게 조작권을 넘깁니다.";
+      } else {
+        this.commandBtn.classList.remove("btn-primary");
+        this.commandBtn.classList.add("btn-ghost");
+        this.commandBtn.textContent = "명령";
+        this.commandBtn.title = "명령이 가능한 아군에게 조작 주도권을 넘깁니다.";
+      }
+    }
+
     let text = "카드를 끌어 슬롯에 놓거나, 카드를 클릭한 뒤 슬롯을 클릭하세요.";
     if (u.hp <= 0) text = "전투 불능 상태입니다.";
     else if (u.is_staggered) text = "흐트러진 상태라 이번 턴에는 행동할 수 없습니다.";
     else if (this.targeting) text = "공격할 적의 슬롯을 클릭하세요. (Esc: 취소)";
     else if (sel) text = sel.type === "on_play" ? "즉시 발동 카드입니다. 버튼이나 발동 영역을 사용하세요." : `[${sel.name}]을(를) 놓을 슬롯을 클릭하세요.`;
     this.hint.textContent = this.busy ? "" : text;
+  }
+
+  open_command_modal() {
+    if (this.busy || this.battle.phase !== "plan") return;
+    const controllables = this.allies.filter((al) => this.is_controllable(al));
+    if (controllables.length <= 1) return;
+
+    if (controllables.length === 2) {
+      const nextUnit = controllables.find((al) => al !== this.active) || controllables[0];
+      this.pick_active(nextUnit);
+      toast(`[조작 전환] ${nextUnit.name}에게 명령합니다.`);
+      return;
+    }
+
+    const m = modal(h("div", {},
+      h("h2", {}, "명령 — 조작 주도권 선택"),
+      h("p", { class: "muted" }, "조작 주도권을 넘길 아군을 선택하세요:"),
+      h("div", { class: "btn-col", style: { display: "flex", flexDirection: "column", gap: "8px", marginTop: "12px" } },
+        controllables.map((al) => {
+          const isCur = al === this.active;
+          const disabled = al.hp <= 0 || al.is_staggered || E.unit_cannot_equip(al);
+          let stateText = "";
+          if (al.hp <= 0) stateText = " (전투 불능)";
+          else if (al.is_staggered) stateText = " (흐트러짐)";
+          else if (E.unit_cannot_equip(al)) stateText = " (패닉)";
+
+          return h("button", {
+            class: `btn ${isCur ? "btn-primary" : ""}`,
+            disabled,
+            onclick: () => {
+              m.close();
+              this.pick_active(al);
+            },
+          }, `${al.name}${stateText}${isCur ? " [현재 조작 중]" : ""}`);
+        })
+      ),
+      h("div", { class: "modal-actions", style: { marginTop: "16px" } },
+        h("button", { class: "btn btn-ghost", onclick: () => m.close() }, "취소")
+      )
+    ));
   }
 
   refresh() {
@@ -411,6 +470,18 @@ class BattleView {
       if (ev.type === "log") this.add_log(ev.text, ev.cls);
       else if (ev.type === "sfx") ctx.audio.sfx(ev.name, ev.delay);
       else if (ev.type === "pause") this.apply_snap(ev.snap);
+      else if (ev.type === "unit_summoned") {
+        const u = ev.unit;
+        if (!this.els.has(u.uid)) {
+          if (ev.side === "ally") {
+            if (!this.allies.includes(u)) this.allies.push(u);
+            this.allySide.append(this.make_unit(u, "ally"));
+          } else {
+            if (!this.all_enemies.includes(u)) this.all_enemies.push(u);
+            this.enemySide.append(this.make_unit(u, "enemy"));
+          }
+        }
+      }
     }
   }
 
@@ -518,6 +589,18 @@ class BattleView {
       } else if (ev.type === "pause") {
         this.apply_snap(ev.snap);
         if (k > 0 && !quick) await sleep(620 * k);
+      } else if (ev.type === "unit_summoned") {
+        const u = ev.unit;
+        if (!this.els.has(u.uid)) {
+          if (ev.side === "ally") {
+            if (!this.allies.includes(u)) this.allies.push(u);
+            this.allySide.append(this.make_unit(u, "ally"));
+          } else {
+            if (!this.all_enemies.includes(u)) this.all_enemies.push(u);
+            this.enemySide.append(this.make_unit(u, "enemy"));
+          }
+          this.refresh();
+        }
       }
       first = false;
     }

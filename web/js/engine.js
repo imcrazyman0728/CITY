@@ -141,10 +141,12 @@ export class Card {
     this.grade = data.grade ?? "paperback";
     this.dice = data.dice;
     this.on_use_dialogue = data.on_use_dialogue ?? "";
+    this.flavor_text = data.flavor_text ?? data.flavor ?? "";
     this.on_use_effect = data.on_use_effect ?? [];
     this.mode_change = data.mode_change ?? {};
   }
 }
+
 
 export function get_card_data_internal(card_id) { return game.data.cards[card_id] ?? null; }
 
@@ -420,6 +422,9 @@ export class Unit {
     this.is_low_morale = false;
     this.panicked_turns_remaining = 0;
     this.card_dice_power_modifier = 0;
+    this.ai_type = s.ai_type ?? s.type ?? data.ai_type ?? data.type ?? "random";
+    this.pattern = (s.pattern ?? data.pattern ?? []).slice();
+    this.pattern_index = 0;
   }
 
   change_hp(amount) {
@@ -486,11 +491,12 @@ export class PlayerChar extends Unit {
 }
 
 export class Ally extends Unit {
-  constructor(data, ai_type = "random", pattern = null) {
+  constructor(data, ai_type = null, pattern = null) {
     super(data);
     this.id = data.id ?? "ally";
-    this.ai_type = ai_type;
-    this.pattern = pattern ?? [];
+    const s = data.status ?? {};
+    this.ai_type = ai_type ?? s.ai_type ?? s.type ?? data.ai_type ?? data.type ?? "random";
+    this.pattern = (pattern ?? s.pattern ?? data.pattern ?? []).slice();
     this.pattern_index = 0;
     this.faction = "player";
   }
@@ -504,7 +510,111 @@ export class Enemy extends Unit {
     this.faction = "enemy";
     this.appear = s.appear ?? "";
     this.dialogue_lines = s.dialogue_lines ?? {};
+    this.ai_type = s.ai_type ?? s.type ?? data.ai_type ?? data.type ?? "random";
+    this.pattern = (s.pattern ?? data.pattern ?? []).slice();
+    this.pattern_index = 0;
   }
+}
+
+export function init_summoned_unit(u) {
+  u.passive_vars = {};
+  u.statuses = {};
+  u.active_panic_effects = [];
+  u.panicked_turns_remaining = 0;
+  u.draw_pile = build_deck_list(u.deck);
+  u.hand = [];
+  u.equipped = Array(u.card_slot).fill(null);
+  u.slot_speeds = Array.from({ length: u.card_slot }, () => randint(u.speed.min, u.speed.max));
+  u.targets = Array(u.card_slot).fill(null);
+  u.discard_pile = [];
+  u.current_cost = u.max_cost;
+  draw_cards(u, 3);
+  apply_panic_effects(u);
+}
+
+export function summon_unit(summon_type, param, caster = null) {
+  // 1. 시전자 진영 판별 (플레이어 진영 여부)
+  let caster_is_player_side = true;
+  if (caster) {
+    if (game.battle) {
+      if (game.battle.enemies.includes(caster)) caster_is_player_side = false;
+      else if (game.battle.allies.includes(caster)) caster_is_player_side = true;
+      else caster_is_player_side = (caster.faction !== "enemy");
+    } else {
+      caster_is_player_side = (caster.faction !== "enemy");
+    }
+  }
+
+  // 2. 소환 대상 진영 (시전자 기준)
+  const target_is_player_side = (summon_type === "summon_ally")
+    ? caster_is_player_side
+    : !caster_is_player_side;
+
+  // 3. 파라미터 파싱
+  const unit_id = typeof param === "string" ? param : (param?.id ?? "");
+  const default_ai = target_is_player_side ? "controllable" : "random";
+  let ai_type = (typeof param === "object" && param.ai_type) ? param.ai_type : default_ai;
+  const pattern = (typeof param === "object" && param.pattern) ? param.pattern : null;
+
+  // 적 진영에 controllable 속성을 가진 유닛이 소환된다면 random 속성으로 변경
+  if (!target_is_player_side && ai_type === "controllable") {
+    ai_type = "random";
+  }
+
+  let new_unit;
+  if (target_is_player_side) {
+    let data = load_ally_data(unit_id);
+    if (!data) {
+      try { data = load_enemy(unit_id); } catch (e) {}
+    }
+    if (!data) {
+      say(`[오류] 소환할 아군 데이터를 찾을 수 없습니다: ${unit_id}`);
+      return null;
+    }
+    new_unit = new Ally(data, ai_type, pattern);
+    new_unit.faction = "player";
+  } else {
+    let data;
+    try {
+      data = load_enemy(unit_id);
+    } catch (e) {
+      data = load_ally_data(unit_id);
+    }
+    if (!data) {
+      say(`[오류] 소환할 적군 데이터를 찾을 수 없습니다: ${unit_id}`);
+      return null;
+    }
+    new_unit = new Enemy(data);
+    new_unit.ai_type = ai_type;
+    new_unit.pattern = pattern ?? [];
+    new_unit.pattern_index = 0;
+    new_unit.faction = "enemy";
+  }
+
+  init_summoned_unit(new_unit);
+
+  if (game.battle) {
+    if (target_is_player_side) {
+      game.battle.allies.push(new_unit);
+    } else {
+      game.battle.enemies.push(new_unit);
+      game.enemies = game.battle.enemies;
+    }
+    game.cur_units = [...game.battle.allies, ...game.battle.enemies];
+  } else {
+    if (target_is_player_side) game.allies.push(new_unit);
+    else game.enemies.push(new_unit);
+  }
+
+  const sideName = target_is_player_side ? "아군 진영" : "적 진영";
+  say(`[소환] ${sideName}에 [${new_unit.name}]이(가) 나타났습니다!`, "mode");
+  game.events.push({
+    type: "unit_summoned",
+    unit: new_unit,
+    side: target_is_player_side ? "ally" : "enemy",
+  });
+  pause_mark();
+  return new_unit;
 }
 
 // ==================================================
@@ -515,6 +625,16 @@ export function apply_on_use_effects(unit, card, target = null) {
 
   for (const effect of card.on_use_effect) {
     if (!effect) continue;
+
+    if ("summon_ally" in effect) {
+      const list = Array.isArray(effect.summon_ally) ? effect.summon_ally : [effect.summon_ally];
+      for (const item of list) summon_unit("summon_ally", item, unit);
+    }
+
+    if ("summon_enemy" in effect) {
+      const list = Array.isArray(effect.summon_enemy) ? effect.summon_enemy : [effect.summon_enemy];
+      for (const item of list) summon_unit("summon_enemy", item, unit);
+    }
 
     if ("draw_cards" in effect) {
       draw_cards(unit, effect.draw_cards);
@@ -1279,8 +1399,64 @@ export function resolve_turn(allies, enemies) {
 // ==================================================
 // AI 카드 선택
 // ==================================================
-export function enemy_select_cards(unit, opponents) {
+export function select_cards_pattern(unit, opponents) {
   if (unit.hp <= 0 || unit.is_staggered || unit_cannot_equip(unit) || !opponents.length) return;
+  const live = opponents.filter((o) => o.hp > 0);
+  if (!live.length) return;
+
+  const pattern = unit.pattern ?? [];
+  if (!pattern.length) {
+    enemy_select_cards_random(unit, opponents);
+    return;
+  }
+
+  const step = pattern[unit.pattern_index % pattern.length];
+  const cards_list = Array.isArray(step) ? step : [step];
+
+  let slot_idx = 0;
+  for (const entry of cards_list) {
+    let card_id, target_idx = null;
+    if (entry && typeof entry === "object") {
+      card_id = entry.card_id ?? entry.id;
+      target_idx = entry.target_idx ?? null;
+    } else {
+      card_id = String(entry);
+    }
+    if (!card_id) continue;
+
+    const card = load_card(card_id);
+    if (card.type === "on_play") {
+      unit.current_cost = Math.max(0, unit.current_cost - card.cost);
+      const h_idx = unit.hand.findIndex((h) => (h.id ?? h) === card.id);
+      if (h_idx >= 0) unit.hand.splice(h_idx, 1);
+      unit.discard_pile.push(card.id);
+      play_card_dialogue(unit, card);
+      apply_on_use_effects(unit, card);
+      continue;
+    }
+
+    if (slot_idx >= unit.card_slot) continue;
+
+    unit.equipped[slot_idx] = card;
+    unit.current_cost = Math.max(0, unit.current_cost - card.cost);
+
+    const h_idx = unit.hand.findIndex((h) => (h.id ?? h) === card.id);
+    if (h_idx >= 0) unit.hand.splice(h_idx, 1);
+
+    let target_unit;
+    if (target_idx !== null && target_idx >= 0 && target_idx < live.length) {
+      target_unit = live[target_idx];
+    } else {
+      target_unit = rand_choice(live);
+    }
+    unit.targets[slot_idx] = [target_unit, randint(0, target_unit.card_slot - 1)];
+    slot_idx += 1;
+  }
+
+  unit.pattern_index = (unit.pattern_index + 1) % pattern.length;
+}
+
+export function enemy_select_cards_random(unit, opponents) {
   const live = opponents.filter((o) => o.hp > 0);
   if (!live.length) return;
 
@@ -1309,22 +1485,25 @@ export function enemy_select_cards(unit, opponents) {
   }
 }
 
+export function enemy_select_cards(unit, opponents) {
+  if (unit.hp <= 0 || unit.is_staggered || unit_cannot_equip(unit) || !opponents.length) return;
+  const ai_type = unit.ai_type ?? "random";
+  if (ai_type === "pattern") {
+    select_cards_pattern(unit, opponents);
+    return;
+  }
+  enemy_select_cards_random(unit, opponents);
+}
+
 export function ally_select_cards(ally, enemies) {
   if (ally.hp <= 0 || ally.is_staggered || unit_cannot_equip(ally) || !enemies.length) return;
   const ai_type = ally.ai_type ?? "random";
-  if (ai_type === "random") enemy_select_cards(ally, enemies);
-  else if (ai_type === "pattern") {
-    if (!ally.pattern.length) return;
-    const p = ally.pattern[ally.pattern_index];
-    const card = load_card(p.card_id);
-    if (card.cost <= ally.current_cost) {
-      ally.equipped[0] = card;
-      const target_unit = enemies[Math.min(p.target_idx ?? 0, enemies.length - 1)];
-      ally.targets[0] = [target_unit, randint(0, target_unit.card_slot - 1)];
-      ally.current_cost -= card.cost;
-    }
-    ally.pattern_index = (ally.pattern_index + 1) % ally.pattern.length;
+  if (ai_type === "controllable") return;
+  if (ai_type === "pattern") {
+    select_cards_pattern(ally, enemies);
+    return;
   }
+  if (ai_type === "random") enemy_select_cards_random(ally, enemies);
 }
 
 export function get_battle_flavor_text(player, enemies) {
@@ -1349,6 +1528,7 @@ export class Battle {
     this.allies = [this.player, ...game.allies];
     this.enemies = enemy_ids.map((id) => new Enemy(load_enemy(id)));
     game.enemies = this.enemies;
+    game.battle = this;
     game.fallen_enemy_count = 0;
     this.defeated = [];
     this.turn = 0;
@@ -1395,7 +1575,7 @@ export class Battle {
       draw_cards(u, 1);
     }
     for (const en of this.enemies) enemy_select_cards(en, this.allies);
-    for (const al of game.allies) if (al !== this.player) ally_select_cards(al, this.enemies);
+    for (const al of this.allies) if (al !== this.player) ally_select_cards(al, this.enemies);
     this.phase = "plan";
     pause_mark();
   }
@@ -1520,6 +1700,7 @@ export class Battle {
 
   finish() {
     game.in_battle = false;
+    game.battle = null;
     game.cur_units = [];
   }
 }

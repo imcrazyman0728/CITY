@@ -16,8 +16,10 @@
   * "on_play" : 즉시 발동 카드 (주사위 대결 없이 효과만 바로 적용)
 - "grade" : (string) 카드의 등급
   * "paperback" (보급) / "hardcover" (고급) / "limited" (한정) / "objet_d'art" (예술)
-- "on_use_dialogue" : (string) 카드 사용 시 출력될 대사
+- "on_use_dialogue" : (string) 카드 사용 시 출력될 대사 (전투 기록 로그에만 출력됨)
   * 예: "{card_user}의 일격!" ({card_user}는 시전자 이름으로 자동 치환됨)
+- "flavor_text" : (string) 카드의 배경 설명 / 플레이버 텍스트 (카드 정보창 하단에 표시되며, 없을 시 비어 있음)
+  * 패시브 및 상태이상 JSON 파일에서도 동일하게 "flavor_text" 필드를 지원합니다.
 
 --------------------------------------------------------------------------------
 2. 사용시 효과 (on_use_effect)
@@ -34,6 +36,15 @@
   * dict 형식 예: { "kind": "slash", "value": 2 } ("slash", "block" 등 특정 주사위만 지정 가능)
 - "mode_change" : (dict) 카드 사용 시 덱/패의 카드를 다른 카드로 변환 (모드 전환).
   * 예: { "mode_change": { "마왕": "boss_slash_enhanced" } }
+- "summon_ally" : (string 또는 dict 또는 list) 아군 소환 (시전자 기준 같은 편 진영에 소환).
+  * 예: { "summon_ally": "assistant" } 또는 { "summon_ally": { "id": "assistant", "ai_type": "controllable" } }
+  * 플레이어가 시전 시 플레이어 진영에 소환(기본 ai_type: "controllable")되며, 적이 시전 시 적 진영에 소환됩니다.
+  * 단, 적 진영에 소환될 때 ai_type이 "controllable"이면 자동으로 "random"으로 변환됩니다.
+  * "ai_type": "pattern" 지정 시 "pattern": [["카드 1", "카드 2"], ["카드 3"]] 처럼 턴별 카드 사용 순환 패턴 지정 가능
+- "summon_enemy" : (string 또는 dict 또는 list) 적군 소환 (시전자 기준 상대편 진영에 소환).
+  * 예: { "summon_enemy": "carnival_alpha" }
+  * 플레이어가 시전 시 적 진영에 소환(ai_type: "random")되고, 적이 시전 시 플레이어 진영에 소환됩니다.
+  * 적/아군 JSON 자체에서도 "ai_type": "pattern" 및 "pattern": [["카드 1", "카드 2"], ["카드 3"]] 설정 가능
 
 --------------------------------------------------------------------------------
 3. 주사위 정보 (dice)

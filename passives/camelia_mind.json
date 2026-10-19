@@ -1,7 +1,8 @@
 {
     "id": "camelia_mind",
-    "name": "불완전하지만 확고한 의지",
+    "name": "불완전하나 확고한 의지",
     "desc": "턴 시작 시 정신력 10 회복.",
+    "flavor_text" : "아직은 모르겠어. 무엇이 옳고, 무엇이 그른지는.",
     "effects": [
         {
             "trigger": "on_turn_start",

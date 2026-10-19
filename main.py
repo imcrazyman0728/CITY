@@ -402,6 +402,95 @@ def trigger_status_modify(unit, hook, value, context):
 
     return new_value
 
+
+def init_summoned_unit(u):
+    u.passive_vars = {}
+    u.statuses = {}
+    u.active_panic_effects = []
+    u.panicked_turns_remaining = 0
+    u.draw_pile = build_deck_list(u.deck)
+    u.hand = []
+    u.equipped = [None] * u.card_slot
+    u.slot_speeds = [random.randint(u.speed["min"], u.speed["max"]) for _ in range(u.card_slot)]
+    u.targets = [None] * u.card_slot
+    u.discard_pile = []
+    u.current_cost = u.max_cost
+    draw_cards(u, 3)
+    apply_panic_effects(u)
+
+
+def summon_unit(summon_type, param, caster=None):
+    # 1. 시전자(caster)의 진영 판별
+    if caster is None:
+        caster_is_player_side = True
+    elif hasattr(game, "allies_in_battle") and game.allies_in_battle and caster in game.allies_in_battle:
+        caster_is_player_side = True
+    elif caster in game.enemies:
+        caster_is_player_side = False
+    elif getattr(caster, "faction", "player") == "enemy":
+        caster_is_player_side = False
+    else:
+        caster_is_player_side = True
+
+    # 2. 소환 대상 진영 (시전자 기준)
+    if summon_type == "summon_ally":
+        target_is_player_side = caster_is_player_side
+    else:
+        target_is_player_side = not caster_is_player_side
+
+    # 3. 파라미터 파싱
+    unit_id = param if isinstance(param, str) else param.get("id", "")
+    default_ai = "controllable" if target_is_player_side else "random"
+    ai_type = param.get("ai_type", default_ai) if isinstance(param, dict) else default_ai
+    pattern = param.get("pattern", []) if isinstance(param, dict) else []
+
+    # 적 진영에 controllable 속성을 가진 유닛이 소환된다면 random 속성으로 변경
+    if not target_is_player_side and ai_type == "controllable":
+        ai_type = "random"
+
+    # 4. 데이터 로드 및 유닛 생성
+    if target_is_player_side:
+        data = load_ally_data(unit_id)
+        if not data:
+            try:
+                data = load_enemy(unit_id)
+            except Exception:
+                pass
+        if not data:
+            print(f"\n[오류] 소환할 아군 데이터를 찾을 수 없습니다: {unit_id}")
+            return None
+        new_unit = Ally(data, ai_type=ai_type, pattern=pattern)
+        new_unit.faction = "player"
+    else:
+        try:
+            data = load_enemy(unit_id)
+        except Exception:
+            data = load_ally_data(unit_id)
+        if not data:
+            print(f"\n[오류] 소환할 적군 데이터를 찾을 수 없습니다: {unit_id}")
+            return None
+        new_unit = Enemy(data)
+        new_unit.ai_type = ai_type
+        new_unit.pattern = pattern
+        new_unit.pattern_index = 0
+        new_unit.faction = "enemy"
+
+    init_summoned_unit(new_unit)
+
+    # 5. 전장 배치
+    if target_is_player_side:
+        if hasattr(game, "allies_in_battle") and game.allies_in_battle is not None:
+            game.allies_in_battle.append(new_unit)
+        else:
+            game.allies.append(new_unit)
+    else:
+        game.enemies.append(new_unit)
+
+    side_name = "아군 진영" if target_is_player_side else "적 진영"
+    print(f"\n[소환] {side_name}에 [{new_unit.name}]이(가) 나타났습니다!")
+    return new_unit
+
+
 def apply_on_use_effects(unit, card, target=None):
     if not card or not card.on_use_effect:
         return
@@ -409,6 +498,20 @@ def apply_on_use_effects(unit, card, target=None):
     for effect in card.on_use_effect:
         if not effect:
             continue
+
+        if "summon_ally" in effect:
+            summons = effect["summon_ally"]
+            if not isinstance(summons, list):
+                summons = [summons]
+            for s_item in summons:
+                summon_unit("summon_ally", s_item, caster=unit)
+
+        if "summon_enemy" in effect:
+            summons = effect["summon_enemy"]
+            if not isinstance(summons, list):
+                summons = [summons]
+            for s_item in summons:
+                summon_unit("summon_enemy", s_item, caster=unit)
 
         if "draw_cards" in effect:
             amount = effect["draw_cards"]
@@ -755,7 +858,9 @@ class Unit:
         self.is_panicked = False
         self.is_low_morale = False
         self.panicked_turns_remaining = 0
-        self.card_dice_power_modifier = 0  # 해당 카드 한정 위력 보정치
+        self.ai_type = status.get("ai_type") or status.get("type") or (data.get("ai_type") if isinstance(data, dict) else None) or (data.get("type") if isinstance(data, dict) else None) or "random"
+        self.pattern = status.get("pattern") or (data.get("pattern") if isinstance(data, dict) else None) or []
+        self.pattern_index = 0
 
     def change_hp(self, amount):
         old_hp = self.hp
@@ -838,11 +943,11 @@ class PlayerChar(Unit):
 
 
 class Ally(Unit):
-    def __init__(self, data, ai_type="random", pattern=None):
+    def __init__(self, data, ai_type=None, pattern=None):
         super().__init__(data)
         self.id = data.get("id", "ally")
-        self.ai_type = ai_type  # "random", "pattern", "controllable"
-        self.pattern = pattern or []
+        self.ai_type = ai_type if ai_type is not None else getattr(self, "ai_type", "random")
+        self.pattern = pattern if pattern is not None else getattr(self, "pattern", [])
         self.pattern_index = 0
         self.faction = "player"
 
@@ -851,10 +956,13 @@ class Enemy(Unit):
     def __init__(self, data):
         super().__init__(data)
         self.id = data.get("id", "enemy")
-        status = data.get("status", {})
+        status = data.get("status", {}) if isinstance(data, dict) else {}
         self.faction = "enemy"
         self.appear = status.get("appear", "")
         self.dialogue_lines = status.get("dialogue_lines", {})
+        self.ai_type = status.get("ai_type") or status.get("type") or (data.get("ai_type") if isinstance(data, dict) else None) or (data.get("type") if isinstance(data, dict) else None) or getattr(self, "ai_type", "random")
+        self.pattern = status.get("pattern") or (data.get("pattern") if isinstance(data, dict) else None) or getattr(self, "pattern", [])
+        self.pattern_index = 0
 
 
 # ==================================================
@@ -1642,6 +1750,28 @@ def show_passive_info(p_id):
     print(info["name"])
     print("-" * 50)
     print(info.get("desc", "설명 정보가 없습니다."))
+    flavor = info.get("flavor_text") or info.get("flavor")
+    if flavor:
+        print(f"\n\"{flavor}\"")
+    print("=" * 50)
+    pause()
+
+
+def show_status_info(s_id):
+    info = load_status_data(s_id)
+    if not info:
+        print(f"\n상태이상 정보를 찾을 수 없습니다: {s_id}")
+        pause()
+        return
+
+    clear_screen()
+    print("=" * 50)
+    print(f"상태이상: {info.get('name', s_id)}")
+    print("-" * 50)
+    print(info.get("desc", "설명 정보가 없습니다."))
+    flavor = info.get("flavor_text") or info.get("flavor")
+    if flavor:
+        print(f"\n\"{flavor}\"")
     print("=" * 50)
     pause()
 
@@ -1712,6 +1842,7 @@ def unit_detail_menu(unit):
         print("1. 카드 정보 확인 (패/장착)")
         print("2. 패시브 정보 확인")
         print("3. 패닉 정보 확인")
+        print("4. 상태이상 정보 확인")
         print("0. 뒤로")
         print("=" * 50)
 
@@ -1737,6 +1868,22 @@ def unit_detail_menu(unit):
                 pass
         elif cmd == "3":
             show_unit_panic_info_battle(unit)
+        elif cmd == "4":
+            if not unit.statuses:
+                print("\n부여된 상태이상이 없습니다.")
+                pause()
+                continue
+            st_list = list(unit.statuses.items())
+            for i, (s_id, st_val) in enumerate(st_list, start=1):
+                data = load_status_data(s_id)
+                name = data["name"] if data else s_id
+                print(f"{i}. {name} (위력 {st_val['amount']}, 횟수 {st_val['count']})")
+            try:
+                s_idx = int(input("\n상태이상 번호 (0:취소) > ")) - 1
+                if s_idx >= 0:
+                    show_status_info(st_list[s_idx][0])
+            except (ValueError, IndexError):
+                pass
 
 
 def show_unit_cards_battle(unit):
@@ -1839,6 +1986,29 @@ def format_on_use_effect_kor(effect):
             val = params.get("value", 0)
             parts.append(f"{dest_str}의 {s_name} {check_str}이 {th} 이상이면 이 카드의 모든 주사위 위력 {val:+}")
 
+    if "summon_ally" in effect:
+        summons = effect["summon_ally"]
+        if not isinstance(summons, list):
+            summons = [summons]
+        for item in summons:
+            s_id = item if isinstance(item, str) else item.get("id", "")
+            d = load_ally_data(s_id)
+            name = d.get("status", {}).get("name", d.get("name", s_id)) if d else s_id
+            parts.append(f"아군 [{name}] 소환")
+
+    if "summon_enemy" in effect:
+        summons = effect["summon_enemy"]
+        if not isinstance(summons, list):
+            summons = [summons]
+        for item in summons:
+            s_id = item if isinstance(item, str) else item.get("id", "")
+            try:
+                d = load_enemy(s_id)
+                name = d.get("status", {}).get("name", d.get("name", s_id)) if d else s_id
+            except Exception:
+                name = s_id
+            parts.append(f"적군 [{name}] 소환")
+
     return " / ".join(parts) if parts else str(effect)
 
 
@@ -1902,8 +2072,9 @@ def show_card_info_battle(card):
                 if (isinstance(effect_entry, dict) and "hand_scaling" in effect_entry) or effect_entry == "hand_scaling":
                     print("   └ 이 주사위의 위력은 손패의 카드 수 만큼 증가.")
 
-    if card.on_use_dialogue:
-        print(f"\n[사용 대사]\n{card.on_use_dialogue}")
+    flavor = getattr(card, "flavor_text", "")
+    if flavor:
+        print(f"\n{flavor}")
     print("=" * 60)
     pause()
 
@@ -2064,6 +2235,7 @@ def start_battle(enemy_ids):
     defeated_enemies = []
     player = game.player_char
     allies = [player] + game.allies
+    game.allies_in_battle = allies
 
     battle_bgm = game.enemies[0].dialogue_lines.get("bgm", game.basic_battle_theme)
     if battle_bgm:
@@ -2105,8 +2277,8 @@ def start_battle(enemy_ids):
 
         for en in game.enemies:
             enemy_select_cards(en, allies)
-        for al in game.allies:
-            if al != player:
+        for al in allies:
+            if al != player and getattr(al, "ai_type", "") != "controllable":
                 ally_select_cards(al, game.enemies)
 
         player_select_cards(allies, game.enemies, current_msg)
@@ -2137,6 +2309,7 @@ def start_battle(enemy_ids):
             total_exp = sum(e.exp for e in defeated_enemies)
             if total_exp > 0:
                 player.gain_exp(total_exp)
+            game.allies_in_battle = None
             pause()
             return
 
@@ -2144,6 +2317,7 @@ def start_battle(enemy_ids):
             print("\n[사망] 플레이어 진영이 궤멸되었습니다...")
             game.ending_name = "육체적 사망"
             game.ended = True
+            game.allies_in_battle = None
             stop_bgm(fade_ms=1000)
             pause()
             return
@@ -2157,31 +2331,73 @@ def start_battle(enemy_ids):
                     u.discard_pile.append(card.id)
 
 
-def ally_select_cards(ally, enemies):
-    if ally.hp <= 0 or ally.is_staggered or unit_cannot_equip(ally) or not enemies:
-        return
-
-    ai_type = getattr(ally, "ai_type", "random")
-    if ai_type == "random":
-        enemy_select_cards(ally, enemies)
-    elif ai_type == "pattern":
-        if not ally.pattern:
-            return
-        p = ally.pattern[ally.pattern_index]
-        card = load_card(p.get("card_id"))
-        if card.cost <= ally.current_cost:
-            ally.equipped[0] = card
-            target_unit = enemies[min(p.get("target_idx", 0), len(enemies) - 1)]
-            target_slot = random.randint(0, target_unit.card_slot - 1)
-            ally.targets[0] = (target_unit, target_slot)
-            ally.current_cost -= card.cost
-        ally.pattern_index = (ally.pattern_index + 1) % len(ally.pattern)
-
-
-def enemy_select_cards(unit, opponents):
+def select_cards_pattern(unit, opponents):
     if unit.hp <= 0 or unit.is_staggered or unit_cannot_equip(unit) or not opponents:
         return
 
+    live_opponents = [o for o in opponents if o.hp > 0]
+    if not live_opponents:
+        return
+
+    pattern = getattr(unit, "pattern", [])
+    if not pattern:
+        enemy_select_cards_random(unit, opponents)
+        return
+
+    step = pattern[unit.pattern_index % len(pattern)]
+    cards_list = step if isinstance(step, list) else [step]
+
+    slot_idx = 0
+    for entry in cards_list:
+        if isinstance(entry, dict):
+            card_id = entry.get("card_id") or entry.get("id")
+            target_idx = entry.get("target_idx")
+        else:
+            card_id = str(entry)
+            target_idx = None
+
+        if not card_id:
+            continue
+
+        card = load_card(card_id)
+
+        # 즉시 발동(on_play) 카드 처리
+        if card.type == "on_play":
+            unit.current_cost = max(0, unit.current_cost - card.cost)
+            for h in list(unit.hand):
+                if getattr(h, "id", h) == card.id:
+                    unit.hand.remove(h)
+                    break
+            unit.discard_pile.append(card.id)
+            play_card_dialogue(unit, card)
+            apply_on_use_effects(unit, card)
+            continue
+
+        # 슬롯이 꽉 찼으면 더 이상 일반 카드를 장착할 수 없음
+        if slot_idx >= unit.card_slot:
+            continue
+
+        unit.equipped[slot_idx] = card
+        unit.current_cost = max(0, unit.current_cost - card.cost)
+
+        for h in list(unit.hand):
+            if getattr(h, "id", h) == card.id:
+                unit.hand.remove(h)
+                break
+
+        if target_idx is not None and 0 <= target_idx < len(live_opponents):
+            target_unit = live_opponents[target_idx]
+        else:
+            target_unit = random.choice(live_opponents)
+
+        target_slot = random.randint(0, target_unit.card_slot - 1)
+        unit.targets[slot_idx] = (target_unit, target_slot)
+        slot_idx += 1
+
+    unit.pattern_index = (unit.pattern_index + 1) % len(pattern)
+
+
+def enemy_select_cards_random(unit, opponents):
     live_opponents = [o for o in opponents if o.hp > 0]
     if not live_opponents:
         return
@@ -2208,6 +2424,32 @@ def enemy_select_cards(unit, opponents):
         target_unit = random.choice(live_opponents)
         target_slot = random.randint(0, target_unit.card_slot - 1)
         unit.targets[i] = (target_unit, target_slot)
+
+
+def enemy_select_cards(unit, opponents):
+    if unit.hp <= 0 or unit.is_staggered or unit_cannot_equip(unit) or not opponents:
+        return
+
+    ai_type = getattr(unit, "ai_type", "random")
+    if ai_type == "pattern":
+        select_cards_pattern(unit, opponents)
+        return
+
+    enemy_select_cards_random(unit, opponents)
+
+
+def ally_select_cards(ally, enemies):
+    if ally.hp <= 0 or ally.is_staggered or unit_cannot_equip(ally) or not enemies:
+        return
+
+    ai_type = getattr(ally, "ai_type", "random")
+    if ai_type == "controllable":
+        return
+    if ai_type == "pattern":
+        select_cards_pattern(ally, enemies)
+        return
+    if ai_type == "random":
+        enemy_select_cards_random(ally, enemies)
 
 
 # ==================================================
@@ -3791,6 +4033,7 @@ class Card:
         self.grade = data.get("grade", "paperback")
         self.dice = data["dice"]
         self.on_use_dialogue = data.get("on_use_dialogue", "")
+        self.flavor_text = data.get("flavor_text", "") or data.get("flavor", "")
         self.on_use_effect = data.get("on_use_effect", [])
         self.mode_change = data.get("mode_change", {})
 

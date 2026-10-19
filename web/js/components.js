@@ -59,6 +59,7 @@ export function statusSheet(s, state = null) {
       h("div", { class: "sheet-sub" }, meta),
     ),
     h("p", { class: "sheet-desc" }, s.desc || s.effects?.[0]?.desc || "설명이 없습니다."),
+    s.flavor_text ? h("p", { class: "sheet-quote" }, s.flavor_text) : null,
   );
 }
 
@@ -78,7 +79,7 @@ export function cardSheet(card) {
           h("span", { class: "die-range" }, `${x.min}~${x.max}`)),
         x.notes.length ? h("ul", { class: "sheet-notes" }, x.notes.map((n) => h("li", {}, n))) : null,
       ))),
-    d.dialogue ? h("p", { class: "sheet-quote" }, d.dialogue) : null,
+    d.flavor_text ? h("p", { class: "sheet-quote" }, d.flavor_text) : null,
   );
 
   const statuses = d.statuses ?? [];
@@ -160,7 +161,8 @@ export function passiveSheet(p) {
   return h("div", { class: "sheet" },
     h("div", { class: "sheet-name" }, p.name),
     h("div", { class: "sheet-sub" }, "패시브"),
-    h("p", { class: "sheet-desc" }, p.desc ?? "설명이 없습니다."));
+    h("p", { class: "sheet-desc" }, p.desc ?? "설명이 없습니다."),
+    p.flavor_text ? h("p", { class: "sheet-quote" }, p.flavor_text) : null);
 }
 // 전투 화면의 유닛 패널에 붙는 칩. 마우스를 올리거나 탭(포커스)하면 설명이 뜬다.
 export function passiveChips(ids) {
@@ -173,7 +175,13 @@ export function passiveChips(ids) {
 export function passiveList(ids) {
   const list = realPassives(ids);
   if (!list.length) return h("p", { class: "muted" }, "없음");
-  return h("ul", { class: "info-list" }, list.map(({ data }) => h("li", {}, h("strong", {}, data.name), data.desc ? ` — ${data.desc}` : "")));
+  return h("ul", { class: "info-list" }, list.map(({ data }) =>
+    h("li", {},
+      h("strong", {}, data.name),
+      data.desc ? ` — ${data.desc}` : "",
+      data.flavor_text ? h("div", { class: "sheet-quote", style: "margin: 4px 0 0 0;" }, data.flavor_text) : null
+    )
+  ));
 }
 export function panicInfo(type) {
   if (!type) return h("p", { class: "muted" }, "없음");

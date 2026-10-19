@@ -30,6 +30,22 @@ function on_use_lines(effect) {
     if (p.status_id) conds.push(`${status_name(p.status_id)} ${(p.check ?? "amount") === "amount" ? "위력" : "횟수"} ${p.threshold ?? 0} 이상`);
     out.push(`${who}이(가) ${conds.join(", ") || "조건 없음"}이면 이 카드의 모든 주사위 위력 ${val >= 0 ? "+" : ""}${val}`);
   }
+  if ("summon_ally" in effect) {
+    const list = Array.isArray(effect.summon_ally) ? effect.summon_ally : [effect.summon_ally];
+    for (const item of list) {
+      const id = typeof item === "string" ? item : item.id;
+      const d = E.load_ally_data(id);
+      out.push(`아군 [${d?.name ?? id}] 소환`);
+    }
+  }
+  if ("summon_enemy" in effect) {
+    const list = Array.isArray(effect.summon_enemy) ? effect.summon_enemy : [effect.summon_enemy];
+    for (const item of list) {
+      const id = typeof item === "string" ? item : item.id;
+      const d = E.load_enemy(id);
+      out.push(`적군 [${d?.name ?? id}] 소환`);
+    }
+  }
   return out;
 }
 
@@ -113,5 +129,7 @@ export function describe_card(card) {
     uses, dice,
     statuses: card_status_effects(card),
     dialogue: card.on_use_dialogue ? card.on_use_dialogue.split("{card_user}").join("나").replace(/\u001b\[\d+m/g, "") : "",
+    flavor_text: card.flavor_text || "",
   };
 }
+

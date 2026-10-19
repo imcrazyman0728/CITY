@@ -15,6 +15,8 @@
 
     "on_use_dialogue" : "{card_user}는 상대의 머리를 자비 없이 베어낸다!",
 
+    "flavor_text" : "더이상 싸우지 못하는 것들을 위한 일말의 자비.",
+
     "on_use_effect" :[
 
         {
