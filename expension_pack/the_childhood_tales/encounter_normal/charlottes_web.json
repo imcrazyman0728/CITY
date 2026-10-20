@@ -1,0 +1,38 @@
+{
+  "id": "4sin",
+
+  "start": "begin",
+
+  "nodes": {
+
+    "begin": {
+
+      "text": "길을 가다가 사신을 만났다. \n 죽여드릴까요?",
+
+      "choices": [
+
+        {
+          "text": "네!",
+
+          "effects": {
+
+            "battle" : "4sin"
+
+          },
+
+
+
+          "end": true
+        },
+
+        {
+          "text": "지나간다",
+
+
+
+          "end": true
+        }
+      ]
+    }
+  }
+}

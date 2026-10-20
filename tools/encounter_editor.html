@@ -1,0 +1,2444 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CITY 인카운터 노드 편집기 (Encounter Node Editor)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --bg-grid: #121622;
+      --panel: #161a26;
+      --panel-raised: #1e2334;
+      --panel-hover: #262c42;
+      --border: #2b3145;
+      --border-focus: #5b6892;
+      --text: #e6e9f2;
+      --text-dim: #8c95ae;
+      --text-muted: #5e667e;
+      --scarlet: #c8283f;
+      --scarlet-glow: rgba(200, 40, 63, 0.35);
+      --brass: #c6a15b;
+      --brass-glow: rgba(198, 161, 91, 0.25);
+      --san: #5c7cfa;
+      --emerald: #2fb344;
+      --amber: #f59f00;
+      --font-sans: 'IBM Plex Sans KR', sans-serif;
+      --font-serif: 'Gowun Batang', serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-sans); }
+
+    /* 헤더 툴바 */
+    header.editor-header {
+      height: 56px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+      position: relative;
+      user-select: none;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-badge {
+      background: var(--scarlet);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0;
+    }
+
+    .meta-inputs {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .meta-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .meta-label { color: var(--brass); font-weight: 600; }
+    .meta-group input, .meta-group select {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      outline: none;
+    }
+    .meta-group input { width: 130px; }
+    .meta-group select { cursor: pointer; max-width: 130px; }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.btn {
+      appearance: none;
+      background: var(--panel-raised);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    button.btn:hover {
+      background: var(--panel-hover);
+      border-color: var(--border-focus);
+    }
+    button.btn-primary {
+      background: var(--scarlet);
+      border-color: var(--scarlet);
+      color: #fff;
+    }
+    button.btn-primary:hover {
+      background: #df314b;
+      box-shadow: 0 0 10px var(--scarlet-glow);
+    }
+    button.btn-brass {
+      background: rgba(198, 161, 91, 0.15);
+      border-color: var(--brass);
+      color: var(--brass);
+    }
+    button.btn-brass:hover {
+      background: var(--brass);
+      color: #000;
+    }
+    button.btn-cyan {
+      background: rgba(92, 124, 250, 0.15);
+      border-color: var(--san);
+      color: var(--san);
+    }
+    button.btn-cyan:hover {
+      background: var(--san);
+      color: #fff;
+    }
+    button.btn-sm { padding: 4px 8px; font-size: 12px; }
+
+    /* 캔버스 영역 */
+    #viewport {
+      position: absolute;
+      top: 56px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(var(--bg-grid) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px, 10px 10px;
+      background-position: 0 0, 0 0;
+    }
+    #viewport.panning { cursor: grabbing; }
+
+    #canvas-world {
+      position: absolute;
+      transform-origin: 0 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* SVG 연결선 레이어 */
+    #svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100000px;
+      height: 100000px;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .edge-line {
+      fill: none;
+      stroke: var(--brass);
+      stroke-width: 2.5px;
+      stroke-linecap: round;
+      pointer-events: stroke;
+      cursor: pointer;
+      transition: stroke-width 0.15s, stroke 0.15s;
+    }
+    .edge-line:hover {
+      stroke: #fff !important;
+      stroke-width: 4.5px !important;
+    }
+    .edge-battle {
+      stroke: var(--scarlet) !important;
+    }
+    .edge-chance {
+      stroke: var(--amber) !important;
+      stroke-dasharray: 6, 4;
+    }
+    .edge-live {
+      fill: none;
+      stroke: var(--san);
+      stroke-width: 3px;
+      stroke-dasharray: 8, 4;
+      animation: dash 1s linear infinite;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -24; }
+    }
+
+    /* 노드 컨테이너 */
+    #nodes-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: auto;
+      z-index: 20;
+    }
+
+    /* 노드 카드 */
+    .node-card {
+      position: absolute;
+      width: 340px;
+      background: var(--panel);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      user-select: text;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .node-card.selected {
+      border-color: var(--brass);
+      box-shadow: 0 0 0 2px var(--brass-glow), 0 12px 36px rgba(0, 0, 0, 0.7);
+    }
+    .node-card.is-start {
+      border-color: var(--brass);
+    }
+    .node-card.snap-target {
+      border-color: var(--emerald) !important;
+      box-shadow: 0 0 0 3px rgba(47, 179, 68, 0.4) !important;
+    }
+
+    .node-header {
+      background: var(--panel-raised);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 7px 7px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: move;
+      user-select: none;
+    }
+    .start-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--brass);
+      color: #000;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .start-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .start-toggle-btn:hover {
+      border-color: var(--brass);
+      color: var(--brass);
+    }
+
+    .node-id-input {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      flex: 1;
+      outline: none;
+    }
+    .node-id-input:focus {
+      background: var(--bg);
+      border-color: var(--san);
+    }
+
+    .node-tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--panel-hover); color: var(--text); }
+    .icon-btn.danger:hover { background: rgba(200, 40, 63, 0.2); color: var(--scarlet); }
+
+    /* 노드 본문 */
+    .node-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .node-text-area {
+      width: 100%;
+      min-height: 80px;
+      max-height: 220px;
+      resize: vertical;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-size: 13.5px;
+      line-height: 1.5;
+      padding: 8px 10px;
+      outline: none;
+    }
+    .node-text-area:focus { border-color: var(--border-focus); }
+
+    /* 선택지 목록 */
+    .choices-sec-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .choices-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-item {
+      background: var(--panel-raised);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+    .choice-item:hover { border-color: var(--border-focus); }
+
+    .choice-top-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .choice-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 16px;
+    }
+    .choice-text-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 4px 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+    .choice-text-input:focus { border-color: var(--san); }
+
+    .choice-target-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .target-label {
+      color: var(--text-dim);
+      font-size: 11.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .target-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      outline: none;
+      max-width: 160px;
+    }
+
+    /* 포트 (연결점) */
+    .port-out {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--brass);
+      border: 2px solid var(--panel);
+      cursor: crosshair;
+      position: absolute;
+      right: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 30;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+      transition: transform 0.15s, background 0.15s;
+    }
+    .port-out:hover {
+      transform: translateY(-50%) scale(1.35);
+      background: #fff;
+    }
+    .port-out.is-end {
+      background: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* 뱃지 */
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .badge-battle { background: rgba(200, 40, 63, 0.2); color: #ff6b7e; border: 1px solid rgba(200, 40, 63, 0.4); }
+    .badge-hp { background: rgba(255, 107, 107, 0.15); color: #ff8787; }
+    .badge-san { background: rgba(92, 124, 250, 0.15); color: #91a7ff; }
+    .badge-item { background: rgba(198, 161, 91, 0.15); color: #ffd43b; }
+    .badge-card { background: rgba(47, 179, 68, 0.15); color: #69db7c; }
+    .badge-req { background: rgba(245, 159, 0, 0.15); color: #ffa94d; }
+
+    .node-footer {
+      border-top: 1px solid var(--border);
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.15);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      border-radius: 0 0 7px 7px;
+    }
+
+    /* 모달 & 드로어 (상세 인스펙터) */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 500;
+      display: flex;
+      justify-content: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .drawer-panel {
+      width: 480px;
+      max-width: 90vw;
+      height: 100%;
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.7);
+    }
+    .drawer-overlay.active .drawer-panel { transform: translateX(0); }
+
+    .drawer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .drawer-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--bg);
+    }
+
+    /* 폼 섹션 */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brass);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .form-hint { font-size: 11.5px; color: var(--text-dim); }
+    .form-control {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+    .form-control:focus { border-color: var(--san); }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .chip {
+      background: var(--panel-raised);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip:hover { border-color: var(--brass); color: var(--brass); }
+
+    /* 시뮬레이터 모달 */
+    .sim-modal-card {
+      width: 600px;
+      max-width: 95vw;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+    .sim-stats-bar {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .sim-stat { display: flex; align-items: center; gap: 6px; }
+    .sim-content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 240px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .sim-story-text {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.7;
+      color: #e0e4f0;
+      white-space: pre-wrap;
+    }
+    .sim-choices-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .sim-choice-btn {
+      appearance: none;
+      background: var(--panel-raised);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 6px;
+      text-align: left;
+      font-size: 14.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .sim-choice-btn:hover:not(:disabled) {
+      border-color: var(--scarlet);
+      background: rgba(200, 40, 63, 0.15);
+      color: #fff;
+    }
+    .sim-choice-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      border-style: dashed;
+    }
+    .sim-history-log {
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* 플로팅 툴바 & 상태 */
+    .floating-hud {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(22, 26, 38, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+      user-select: none;
+    }
+    .hud-stat { display: flex; align-items: center; gap: 6px; }
+    .hud-stat strong { color: var(--text); }
+
+    /* 토스트 알림 */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--panel-raised);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      transform: translateY(10px);
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-success { border-color: var(--emerald); color: #8ce99a; }
+    .toast-error { border-color: var(--scarlet); color: #ffa8a8; }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 툴바 -->
+  <header class="editor-header">
+    <div class="brand-wrap">
+      <div class="brand-title">
+        <span>도시 인카운터 편집기</span>
+        <span class="brand-badge">NODE v1.0</span>
+      </div>
+
+      <div class="meta-inputs">
+        <div class="meta-group" title="인카운터 고유 ID (파일명의 기준이 됩니다)">
+          <span class="meta-label">ID:</span>
+          <input type="text" id="enc-id-input" value="new_encounter" placeholder="encounter_id">
+        </div>
+        <div class="meta-group" title="인카운터가 시작되는 첫 번째 노드">
+          <span class="meta-label">시작:</span>
+          <select id="enc-start-select"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-add-node">
+        <span>+ 새 노드</span>
+      </button>
+      <button class="btn" id="btn-auto-layout" title="노드들을 흐름 순서에 맞게 자동으로 깔끔하게 정렬합니다 (단축키: Ctrl+Shift+A)">
+        <span>⚡ 자동 정렬</span>
+      </button>
+      <button class="btn" id="btn-fit-view" title="모든 노드가 한눈에 들어오도록 줌을 맞춥니다">
+        <span>🔍 화면 맞춤</span>
+      </button>
+      <button class="btn btn-cyan" id="btn-playtest" title="게임 속 인카운터와 동일하게 직접 클릭해보며 테스트합니다">
+        <span>▶ 테스트 플레이</span>
+      </button>
+
+      <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;"></div>
+
+      <button class="btn" id="btn-import" title="기존 JSON 파일을 불러옵니다">
+        <span>📂 불러오기</span>
+      </button>
+      <button class="btn btn-brass" id="btn-export" title="JSON 파일로 다운로드하거나 저장합니다">
+        <span>💾 저장 / 내보내기</span>
+      </button>
+      <button class="btn" id="btn-sample" title="미리 준비된 예시 인카운터를 불러옵니다">
+        <span>💡 예제</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 뷰포트 & 캔버스 -->
+  <div id="viewport">
+    <div id="canvas-world">
+      <svg id="svg-layer">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--brass)" />
+          </marker>
+          <marker id="arrow-battle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--scarlet)" />
+          </marker>
+          <marker id="arrow-chance" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--amber)" />
+          </marker>
+        </defs>
+        <g id="edges-group"></g>
+        <path id="live-edge" class="edge-live" d="" style="display: none;"></path>
+      </svg>
+      <div id="nodes-container"></div>
+    </div>
+  </div>
+
+  <!-- 하단 플로팅 HUD -->
+  <div class="floating-hud">
+    <div class="hud-stat">
+      <span>노드:</span>
+      <strong id="hud-node-count">0</strong>
+    </div>
+    <div class="hud-stat">
+      <span>선택지:</span>
+      <strong id="hud-choice-count">0</strong>
+    </div>
+    <div class="hud-stat" id="hud-validation-stat">
+      <span style="color: var(--emerald);">✓ 모든 연결 정상</span>
+    </div>
+    <div style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">
+      휠: 줌 | 드래그: 이동 | 빈곳 더블클릭: 새 노드 생성
+    </div>
+  </div>
+
+  <!-- 선택지 상세 설정 드로어 (Inspector Drawer) -->
+  <div class="drawer-overlay" id="choice-drawer">
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div class="drawer-title">선택지 상세 설정 (Choice Inspector)</div>
+        <button class="icon-btn" id="drawer-close-btn" style="font-size: 18px;">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 1. 기본 설정 -->
+        <div class="form-group">
+          <label class="form-label">선택지 텍스트</label>
+          <textarea class="form-control" id="drawer-choice-text" rows="2" placeholder="예: 무기를 뽑고 맞서 싸운다."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">다음 이동 대상</label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <select class="form-control" id="drawer-target-node" style="flex: 1;"></select>
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none;">
+              <input type="checkbox" id="drawer-is-end">
+              <span style="color: var(--scarlet); font-weight: 600;">인카운터 종료 (end)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. 요구 조건 (Requirements) -->
+        <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+          <label class="form-label">🔒 요구 조건 (Requirements)</label>
+          <div class="form-hint">조건을 만족할 때만 플레이어가 이 선택지를 누를 수 있습니다.</div>
+
+          <div style="margin-top: 8px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 4px;">아이템 / 능력치 요구:</div>
+            <div id="drawer-req-items-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addReqItem('ahn', 10000)">+ 안(Ahn)</span>
+              <span class="chip" onclick="addReqItem('strength_wrath', 1)">+ 힘[분노]</span>
+              <span class="chip" onclick="addReqItem('strength_lust', 1)">+ 힘[색욕]</span>
+              <span class="chip" onclick="addReqItem('strength_sloth', 1)">+ 힘[나태]</span>
+              <span class="chip" onclick="addReqItem('strength_gluttony', 1)">+ 힘[탐욕]</span>
+              <span class="chip" onclick="addReqItem('strength_gloom', 1)">+ 힘[우울]</span>
+              <span class="chip" onclick="addReqItem('strength_pride', 1)">+ 힘[오만]</span>
+              <span class="chip" onclick="addReqItem('strength_invidia', 1)">+ 힘[질투]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 효과 (Effects) -->
+        <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+          <label class="form-label">✨ 선택 시 효과 (Effects)</label>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
+            <div>
+              <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">체력 변화 (hp):</span>
+              <input type="number" class="form-control" id="drawer-eff-hp" placeholder="0 (예: -10, +15)">
+            </div>
+            <div>
+              <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">정신력 변화 (sanity):</span>
+              <input type="number" class="form-control" id="drawer-eff-sanity" placeholder="0 (예: -5, +20)">
+            </div>
+          </div>
+
+          <!-- 전투 발생 -->
+          <div style="margin-top: 12px;">
+            <div style="font-size: 12px; font-weight: 600; color: #ff6b7e;">⚔️ 전투 발생 (Battle):</div>
+            <div class="form-hint">전투가 발생하면 승리 시 지정된 '다음 이동 대상' 노드로 이어집니다.</div>
+            <input type="text" class="form-control" id="drawer-eff-battle" placeholder="적 ID (쉼표로 구분, 예: rat, rat)">
+            <div class="preset-chips">
+              <span class="chip" onclick="appendBattleEnemy('rat')">+ 쥐 (rat)</span>
+              <span class="chip" onclick="appendBattleEnemy('head_auditor')">+ 금기 감시관</span>
+              <span class="chip" onclick="appendBattleEnemy('overheated_core')">+ 과열된 연산체</span>
+              <span class="chip" onclick="appendBattleEnemy('carnival_alpha')">+ 카니발</span>
+            </div>
+          </div>
+
+          <!-- 아이템 지급/차감 -->
+          <div style="margin-top: 12px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--brass);">💰 아이템 지급 (give_items):</div>
+            <div id="drawer-give-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addGiveItem('ahn', 25000)">+ 25,000 안 지급</span>
+              <span class="chip" onclick="addGiveItem('strength_wrath', 1)">+ 분노 스탯 1</span>
+              <span class="chip" onclick="addGiveItem('strength_pride', 1)">+ 오만 스탯 1</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--amber);">💸 아이템 차감 (remove_items):</div>
+            <div id="drawer-remove-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addRemoveItem('ahn', 5000)">- 5,000 안 차감</span>
+              <span class="chip" onclick="addRemoveItem('ahn', 30000)">- 30,000 안 차감</span>
+            </div>
+          </div>
+
+          <!-- 카드 관련 -->
+          <div style="margin-top: 12px;">
+            <div style="font-size: 12px; font-weight: 600; color: var(--emerald);">📜 카드 관련 효과:</div>
+            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+              <input type="text" class="form-control" id="drawer-eff-card" placeholder="지급할 카드 ID (give_card)">
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer;">
+                <input type="checkbox" id="drawer-eff-dup-card">
+                <span>보유 카드 1장 복제 선택권 제공 (choice_duplicate_card)</span>
+              </label>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer;">
+                <input type="checkbox" id="drawer-eff-del-card">
+                <span>보유 카드 1장 삭제 선택권 제공 (choice_remove_card)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-footer">
+        <button class="btn btn-primary" id="drawer-save-btn">적용하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시뮬레이터 모달 (테스트 플레이) -->
+  <div class="drawer-overlay" id="sim-modal" style="justify-content: center; align-items: center;">
+    <div class="sim-modal-card">
+      <div class="drawer-header" style="background: var(--panel-raised);">
+        <div class="drawer-title" style="display: flex; align-items: center; gap: 8px;">
+          <span>인카운터 시뮬레이션 플레이</span>
+          <span class="badge badge-card" id="sim-current-node-badge">begin</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-sm" id="sim-restart-btn">↺ 처음부터</button>
+          <button class="icon-btn" id="sim-close-btn" style="font-size: 18px;">✕</button>
+        </div>
+      </div>
+
+      <div class="sim-stats-bar">
+        <div class="sim-stat">
+          <span style="color: #ff6b7e;">체력:</span>
+          <strong id="sim-stat-hp">50</strong>
+        </div>
+        <div class="sim-stat">
+          <span style="color: var(--san);">정신력:</span>
+          <strong id="sim-stat-sanity">0</strong>
+        </div>
+        <div class="sim-stat">
+          <span style="color: var(--brass);">안(Ahn):</span>
+          <strong id="sim-stat-ahn">30,000</strong>
+        </div>
+      </div>
+
+      <div class="sim-content">
+        <div class="sim-story-text" id="sim-story-text"></div>
+        <div id="sim-event-alert" style="display: none; padding: 10px 14px; border-radius: 6px; font-weight: 700; font-size: 13.5px;"></div>
+        <div class="sim-choices-box" id="sim-choices-box"></div>
+      </div>
+
+      <div class="sim-history-log" id="sim-history-log">
+        진행 경로: <span id="sim-breadcrumbs"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON 내보내기 / 불러오기 모달 -->
+  <div class="drawer-overlay" id="json-modal" style="justify-content: center; align-items: center;">
+    <div class="sim-modal-card" style="width: 720px; height: 80vh;">
+      <div class="drawer-header" style="background: var(--panel-raised);">
+        <div class="drawer-title" id="json-modal-title">JSON 입출력</div>
+        <button class="icon-btn" id="json-modal-close" style="font-size: 18px;">✕</button>
+      </div>
+
+      <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
+        <div id="json-server-banner" style="display: none; padding: 10px 14px; background: rgba(47, 179, 68, 0.15); border: 1px solid var(--emerald); border-radius: 6px; color: #8ce99a; font-size: 13px;">
+          ✓ 로컬 파이썬 서버에 연결됨! <span id="json-server-path-info"></span>
+        </div>
+        <div id="json-standalone-banner" style="display: none; padding: 10px 14px; background: rgba(198, 161, 91, 0.15); border: 1px solid var(--brass); border-radius: 6px; color: #ffd43b; font-size: 13px;">
+          💡 브라우저 단독 모드입니다. 파일을 다운로드하거나 JSON을 복사할 수 있습니다.
+        </div>
+
+        <textarea id="json-editor-area" style="flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; color: var(--text); font-family: var(--font-mono); font-size: 13px; outline: none; resize: none;"></textarea>
+      </div>
+
+      <div class="drawer-footer" style="background: var(--panel-raised);">
+        <button class="btn" id="json-copy-btn">📋 클립보드 복사</button>
+        <button class="btn" id="json-download-btn">💾 파일 다운로드 (.json)</button>
+        <button class="btn btn-primary" id="json-server-save-btn" style="display: none;">⚡ 프로젝트에 저장 & 게임 번들 빌드</button>
+        <button class="btn btn-brass" id="json-apply-btn">에디터에 적용</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 프로젝트 파일 브라우저 모달 -->
+  <div class="drawer-overlay" id="project-browser-modal" style="justify-content: center; align-items: center;">
+    <div class="sim-modal-card" style="width: 640px; height: 75vh;">
+      <div class="drawer-header" style="background: var(--panel-raised);">
+        <div class="drawer-title">프로젝트 인카운터 탐색기</div>
+        <button class="icon-btn" onclick="document.getElementById('project-browser-modal').classList.remove('active')" style="font-size: 18px;">✕</button>
+      </div>
+
+      <div style="padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px;">
+        <input type="text" class="form-control" id="project-browser-search" placeholder="인카운터 이름 또는 경로 검색..." style="flex: 1;" oninput="renderProjectBrowser(this.value)">
+        <button class="btn" onclick="filePicker.click(); document.getElementById('project-browser-modal').classList.remove('active');">💻 PC에서 직접 파일 선택</button>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px;" id="project-browser-list"></div>
+    </div>
+  </div>
+
+  <!-- 예제 인카운터 모달 -->
+  <div class="drawer-overlay" id="sample-modal" style="justify-content: center; align-items: center;">
+    <div class="sim-modal-card" style="width: 480px;">
+      <div class="drawer-header" style="background: var(--panel-raised);">
+        <div class="drawer-title">예제 인카운터 불러오기</div>
+        <button class="icon-btn" id="sample-modal-close" style="font-size: 18px;">✕</button>
+      </div>
+      <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <p style="font-size: 13.5px; color: var(--text-dim); margin-bottom: 6px;">기존 게임에 탑재된 검증된 인카운터를 불러와 노드 구조를 살펴볼 수 있습니다.</p>
+        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('fallen_fixer')">
+          <span style="font-size: 16px;">⚰️</span>
+          <div style="text-align: left;">
+            <div style="font-weight: 700;">이름 모를 해결사의 시체 (fallen_fixer)</div>
+            <div style="font-size: 12px; color: var(--text-muted);">애도, 시체 뒤지기 분기 (카드 복제, 아이템 획득)</div>
+          </div>
+        </button>
+        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('street_rats')">
+          <span style="font-size: 16px;">⚔️</span>
+          <div style="text-align: left;">
+            <div style="font-weight: 700;">골목길의 쥐 두 마리 (street_rats)</div>
+            <div style="font-size: 12px; color: var(--text-muted);">전투 분기, 스탯 요구치 위협, 푼돈 주고 지나치기</div>
+          </div>
+        </button>
+        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('ai_head_auditor')">
+          <span style="font-size: 16px;">🤖</span>
+          <div style="text-align: left;">
+            <div style="font-weight: 700;">금기 감시관과의 조우 (ai_head_auditor)</div>
+            <div style="font-size: 12px; color: var(--text-muted);">머리의 AI 윤리 개정안 감시관 전투 및 뇌물 분기</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <input type="file" id="file-picker" accept=".json" style="display: none;">
+
+  <script>
+    // ==================================================
+    // 전역 상태 (Global State)
+    // ==================================================
+    let encData = {
+      id: "new_encounter",
+      start: "begin",
+      nodes: {
+        begin: {
+          text: "새로운 인카운터의 시작 지문입니다.\n이곳에 상황 묘사와 대사를 작성하세요.",
+          choices: [
+            { text: "상황을 자세히 살핀다.", next: "look_around" },
+            { text: "지나친다.", end: true }
+          ]
+        },
+        look_around: {
+          text: "주변을 둘러보니 이상한 물건이 떨어져 있습니다.",
+          choices: [
+            { text: "물건을 챙긴다.", effects: { give_items: { ahn: 10000 } }, end: true }
+          ]
+        }
+      }
+    };
+
+    // 노드 좌표 맵 (id -> { x, y })
+    let nodePositions = {};
+    let panX = 100, panY = 80, zoom = 1.0;
+    let isPanning = false, panStartX = 0, panStartY = 0;
+    let draggingNodeId = null, dragOffsetX = 0, dragOffsetY = 0;
+    let activeWire = null; // { sourceNodeId, choiceIndex, startX, startY }
+    let currentEditingChoice = null; // { nodeId, choiceIndex }
+
+    // DOM 참조
+    const viewport = document.getElementById("viewport");
+    const canvasWorld = document.getElementById("canvas-world");
+    const svgLayer = document.getElementById("svg-layer");
+    const edgesGroup = document.getElementById("edges-group");
+    const liveEdge = document.getElementById("live-edge");
+    const nodesContainer = document.getElementById("nodes-container");
+    const encIdInput = document.getElementById("enc-id-input");
+    const encStartSelect = document.getElementById("enc-start-select");
+    const toastContainer = document.getElementById("toast-container");
+
+    // ==================================================
+    // 캔버스 팬 & 줌 (Pan & Zoom)
+    // ==================================================
+    function updateTransform() {
+      canvasWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+      viewport.style.backgroundPosition = `${panX}px ${panY}px, ${panX}px ${panY}px`;
+    }
+
+    viewport.addEventListener("mousedown", (e) => {
+      if (e.target === viewport || e.target === svgLayer || e.target.id === "canvas-world") {
+        isPanning = true;
+        panStartX = e.clientX - panX;
+        panStartY = e.clientY - panY;
+        viewport.classList.add("panning");
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (isPanning) {
+        panX = e.clientX - panStartX;
+        panY = e.clientY - panStartY;
+        updateTransform();
+      } else if (draggingNodeId) {
+        const x = (e.clientX - panX) / zoom - dragOffsetX;
+        const y = (e.clientY - panY) / zoom - dragOffsetY;
+        nodePositions[draggingNodeId] = { x: Math.round(x), y: Math.round(y) };
+        const card = document.getElementById(`node-${draggingNodeId}`);
+        if (card) {
+          card.style.left = `${nodePositions[draggingNodeId].x}px`;
+          card.style.top = `${nodePositions[draggingNodeId].y}px`;
+        }
+        renderEdges();
+      } else if (activeWire) {
+        const mouseX = (e.clientX - panX) / zoom;
+        const mouseY = (e.clientY - panY) / zoom;
+        updateLiveEdge(activeWire.startX, activeWire.startY, mouseX, mouseY);
+
+        // 스냅 타겟 하이라이트
+        document.querySelectorAll(".node-card").forEach((card) => {
+          const nid = card.getAttribute("data-node-id");
+          const rect = card.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            card.classList.add("snap-target");
+          } else {
+            card.classList.remove("snap-target");
+          }
+        });
+      }
+    });
+
+    window.addEventListener("mouseup", (e) => {
+      if (isPanning) {
+        isPanning = false;
+        viewport.classList.remove("panning");
+      }
+      if (draggingNodeId) {
+        draggingNodeId = null;
+      }
+      if (activeWire) {
+        // 드롭된 위치의 노드 확인
+        let dropTargetNodeId = null;
+        document.querySelectorAll(".node-card").forEach((card) => {
+          const rect = card.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            dropTargetNodeId = card.getAttribute("data-node-id");
+          }
+          card.classList.remove("snap-target");
+        });
+
+        if (dropTargetNodeId && dropTargetNodeId !== activeWire.sourceNodeId) {
+          const choice = encData.nodes[activeWire.sourceNodeId].choices[activeWire.choiceIndex];
+          choice.next = dropTargetNodeId;
+          delete choice.end;
+          toast(`연결 완료: [${activeWire.sourceNodeId}] -> [${dropTargetNodeId}]`);
+          renderAll();
+        }
+
+        activeWire = null;
+        liveEdge.style.display = "none";
+      }
+    });
+
+    viewport.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomFactor = 1.12;
+      const oldZoom = zoom;
+      if (e.deltaY < 0) {
+        zoom = Math.min(2.5, zoom * zoomFactor);
+      } else {
+        zoom = Math.max(0.25, zoom / zoomFactor);
+      }
+      const mouseX = e.clientX - viewport.offsetLeft;
+      const mouseY = e.clientY - viewport.offsetTop;
+      panX = mouseX - (mouseX - panX) * (zoom / oldZoom);
+      panY = mouseY - (mouseY - panY) * (zoom / oldZoom);
+      updateTransform();
+    }, { passive: false });
+
+    // 빈 공간 더블클릭 시 새 노드 생성
+    viewport.addEventListener("dblclick", (e) => {
+      if (e.target === viewport || e.target === svgLayer || e.target.id === "canvas-world") {
+        const worldX = Math.round((e.clientX - panX) / zoom);
+        const worldY = Math.round((e.clientY - panY) / zoom);
+        createNodeAt(worldX, worldY);
+      }
+    });
+
+    // ==================================================
+    // 렌더링 엔진 (Nodes & Edges)
+    // ==================================================
+    function renderAll() {
+      renderNodes();
+      renderEdges();
+      updateMetaControls();
+      updateHUD();
+    }
+
+    function renderNodes() {
+      nodesContainer.innerHTML = "";
+      const nodeIds = Object.keys(encData.nodes || {});
+
+      nodeIds.forEach((nid) => {
+        const node = encData.nodes[nid];
+        if (!nodePositions[nid]) {
+          nodePositions[nid] = { x: 100, y: 100 };
+        }
+
+        const isStart = (encData.start === nid);
+        const card = document.createElement("div");
+        card.className = `node-card ${isStart ? "is-start" : ""}`;
+        card.id = `node-${nid}`;
+        card.setAttribute("data-node-id", nid);
+        card.style.left = `${nodePositions[nid].x}px`;
+        card.style.top = `${nodePositions[nid].y}px`;
+
+        // 헤더
+        const header = document.createElement("div");
+        header.className = "node-header";
+
+        if (isStart) {
+          const sb = document.createElement("span");
+          sb.className = "start-badge";
+          sb.innerHTML = "★ 시작";
+          header.appendChild(sb);
+        } else {
+          const stb = document.createElement("button");
+          stb.className = "start-toggle-btn";
+          stb.textContent = "시작 지정";
+          stb.title = "이 노드를 첫 시작 노드로 설정합니다";
+          stb.onclick = (e) => { e.stopPropagation(); setStartNode(nid); };
+          header.appendChild(stb);
+        }
+
+        const idInput = document.createElement("input");
+        idInput.type = "text";
+        idInput.className = "node-id-input";
+        idInput.value = nid;
+        idInput.title = "노드 ID 변경 시 연결된 분기들이 자동으로 갱신됩니다";
+        idInput.onchange = (e) => renameNode(nid, e.target.value.trim());
+        header.appendChild(idInput);
+
+        const tools = document.createElement("div");
+        tools.className = "node-tools";
+
+        const dupBtn = document.createElement("button");
+        dupBtn.className = "icon-btn";
+        dupBtn.innerHTML = "📋";
+        dupBtn.title = "노드 복제";
+        dupBtn.onclick = (e) => { e.stopPropagation(); duplicateNode(nid); };
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "icon-btn danger";
+        delBtn.innerHTML = "🗑️";
+        delBtn.title = "노드 삭제";
+        delBtn.onclick = (e) => { e.stopPropagation(); deleteNode(nid); };
+
+        tools.appendChild(dupBtn);
+        tools.appendChild(delBtn);
+        header.appendChild(tools);
+
+        // 헤더 드래그
+        header.onmousedown = (e) => {
+          if (e.target === idInput || e.target.closest("button")) return;
+          draggingNodeId = nid;
+          const pos = nodePositions[nid];
+          dragOffsetX = (e.clientX - panX) / zoom - pos.x;
+          dragOffsetY = (e.clientY - panY) / zoom - pos.y;
+          document.querySelectorAll(".node-card").forEach(c => c.classList.remove("selected"));
+          card.classList.add("selected");
+        };
+
+        // 본문
+        const body = document.createElement("div");
+        body.className = "node-body";
+
+        const textArea = document.createElement("textarea");
+        textArea.className = "node-text-area";
+        textArea.placeholder = "이 분기에서 출력될 서사를 작성하세요...";
+        textArea.value = node.text || "";
+        textArea.oninput = (e) => { node.text = e.target.value; };
+        body.appendChild(textArea);
+
+        // 선택지 섹션
+        const choicesTitle = document.createElement("div");
+        choicesTitle.className = "choices-sec-title";
+        choicesTitle.innerHTML = `<span>선택지 (${(node.choices || []).length})</span>`;
+        const addChoiceBtn = document.createElement("button");
+        addChoiceBtn.className = "btn btn-sm";
+        addChoiceBtn.textContent = "+ 선택지";
+        addChoiceBtn.onclick = () => addChoice(nid);
+        choicesTitle.appendChild(addChoiceBtn);
+        body.appendChild(choicesTitle);
+
+        const choicesList = document.createElement("div");
+        choicesList.className = "choices-list";
+
+        (node.choices || []).forEach((c, idx) => {
+          const item = document.createElement("div");
+          item.className = "choice-item";
+          item.id = `choice-${nid}-${idx}`;
+
+          // 상단 행
+          const topRow = document.createElement("div");
+          topRow.className = "choice-top-row";
+
+          const cNum = document.createElement("span");
+          cNum.className = "choice-num";
+          cNum.textContent = `${idx + 1}.`;
+
+          const cText = document.createElement("input");
+          cText.type = "text";
+          cText.className = "choice-text-input";
+          cText.value = c.text || "";
+          cText.placeholder = "선택지 문구 입력...";
+          cText.oninput = (e) => { c.text = e.target.value; };
+
+          const cEditBtn = document.createElement("button");
+          cEditBtn.className = "icon-btn";
+          cEditBtn.innerHTML = "⚙️";
+          cEditBtn.title = "조건/효과 상세 설정 (Inspector)";
+          cEditBtn.onclick = () => openChoiceDrawer(nid, idx);
+
+          const cDelBtn = document.createElement("button");
+          cDelBtn.className = "icon-btn danger";
+          cDelBtn.innerHTML = "✕";
+          cDelBtn.title = "선택지 삭제";
+          cDelBtn.onclick = () => deleteChoice(nid, idx);
+
+          topRow.appendChild(cNum);
+          topRow.appendChild(cText);
+          topRow.appendChild(cEditBtn);
+          topRow.appendChild(cDelBtn);
+          item.appendChild(topRow);
+
+          // 타겟 대상 행
+          const targetRow = document.createElement("div");
+          targetRow.className = "choice-target-row";
+
+          const tLabel = document.createElement("div");
+          tLabel.className = "target-label";
+          tLabel.innerHTML = c.end ? "🏁 <span style='color: var(--scarlet); font-weight: 600;'>종료 (END)</span>" : "➔ 다음:";
+
+          const tSelect = document.createElement("select");
+          tSelect.className = "target-select";
+
+          const optEnd = document.createElement("option");
+          optEnd.value = "__END__";
+          optEnd.textContent = "[인카운터 종료 (END)]";
+          if (c.end) optEnd.selected = true;
+          tSelect.appendChild(optEnd);
+
+          nodeIds.forEach((targetId) => {
+            const opt = document.createElement("option");
+            opt.value = targetId;
+            opt.textContent = targetId;
+            if (!c.end && c.next === targetId) opt.selected = true;
+            tSelect.appendChild(opt);
+          });
+
+          tSelect.onchange = (e) => {
+            if (e.target.value === "__END__") {
+              c.end = true;
+              delete c.next;
+            } else {
+              delete c.end;
+              c.next = e.target.value;
+            }
+            renderAll();
+          };
+
+          targetRow.appendChild(tLabel);
+          targetRow.appendChild(tSelect);
+          item.appendChild(targetRow);
+
+          // 뱃지 행
+          const badgesRow = document.createElement("div");
+          badgesRow.className = "badges-row";
+          if (c.effects?.battle) {
+            const b = document.createElement("span");
+            b.className = "badge badge-battle";
+            b.textContent = `⚔️ 전투: ${Array.isArray(c.effects.battle) ? c.effects.battle.join(",") : c.effects.battle}`;
+            badgesRow.appendChild(b);
+          }
+          if (c.effects?.hp) {
+            const b = document.createElement("span");
+            b.className = "badge badge-hp";
+            b.textContent = `체력 ${c.effects.hp > 0 ? "+" : ""}${c.effects.hp}`;
+            badgesRow.appendChild(b);
+          }
+          if (c.effects?.sanity) {
+            const b = document.createElement("span");
+            b.className = "badge badge-san";
+            b.textContent = `정신력 ${c.effects.sanity > 0 ? "+" : ""}${c.effects.sanity}`;
+            badgesRow.appendChild(b);
+          }
+          if (c.effects?.give_items) {
+            const b = document.createElement("span");
+            b.className = "badge badge-item";
+            const items = Object.entries(c.effects.give_items).map(([k, v]) => `${k}:${v}`).join(", ");
+            b.textContent = `💰 ${items}`;
+            badgesRow.appendChild(b);
+          }
+          if (c.effects?.give_card || c.effects?.choice_duplicate_card) {
+            const b = document.createElement("span");
+            b.className = "badge badge-card";
+            b.textContent = `📜 ${c.effects.give_card || "카드복제"}`;
+            badgesRow.appendChild(b);
+          }
+          if (c.requirements) {
+            const b = document.createElement("span");
+            b.className = "badge badge-req";
+            b.textContent = "🔒 조건있음";
+            badgesRow.appendChild(b);
+          }
+          if (badgesRow.children.length > 0) item.appendChild(badgesRow);
+
+          // 연결 출력 포트 (오른쪽 도트)
+          const port = document.createElement("div");
+          port.className = `port-out ${c.end ? "is-end" : ""}`;
+          port.title = c.end ? "종료 분기입니다 (연결하려면 타겟 노드를 지정하세요)" : "마우스로 드래그하여 목표 노드에 연결하세요";
+          port.onmousedown = (e) => {
+            e.stopPropagation();
+            if (c.end) return;
+            const pRect = port.getBoundingClientRect();
+            activeWire = {
+              sourceNodeId: nid,
+              choiceIndex: idx,
+              startX: (pRect.left + pRect.width / 2 - panX) / zoom,
+              startY: (pRect.top + pRect.height / 2 - panY) / zoom
+            };
+            liveEdge.style.display = "block";
+          };
+          item.appendChild(port);
+
+          choicesList.appendChild(item);
+        });
+
+        body.appendChild(choicesList);
+        card.appendChild(header);
+        card.appendChild(body);
+
+        // 하단 빠른 액션 바
+        const footer = document.createElement("div");
+        footer.className = "node-footer";
+        const quickBranchBtn = document.createElement("button");
+        quickBranchBtn.className = "btn btn-sm btn-brass";
+        quickBranchBtn.textContent = "+ 새 분기 노드 생성";
+        quickBranchBtn.title = "선택지를 추가하고 우측에 새 노드를 자동 생성해 즉시 연결합니다";
+        quickBranchBtn.onclick = () => createQuickBranch(nid);
+        footer.appendChild(quickBranchBtn);
+        card.appendChild(footer);
+
+        nodesContainer.appendChild(card);
+      });
+    }
+
+    // SVG 곡선 렌더링
+    function renderEdges() {
+      edgesGroup.innerHTML = "";
+      const nodeIds = Object.keys(encData.nodes || {});
+
+      nodeIds.forEach((sourceId) => {
+        const node = encData.nodes[sourceId];
+        (node.choices || []).forEach((c, cIdx) => {
+          if (!c.end && c.next && encData.nodes[c.next]) {
+            const targetId = c.next;
+            const sourceCard = document.getElementById(`node-${sourceId}`);
+            const targetCard = document.getElementById(`node-${targetId}`);
+            const choiceItem = document.getElementById(`choice-${sourceId}-${cIdx}`);
+
+            if (sourceCard && targetCard && choiceItem) {
+              const port = choiceItem.querySelector(".port-out");
+              const pRect = port.getBoundingClientRect();
+              const tRect = targetCard.getBoundingClientRect();
+
+              const x1 = (pRect.left + pRect.width / 2 - panX) / zoom;
+              const y1 = (pRect.top + pRect.height / 2 - panY) / zoom;
+              const x2 = (tRect.left - panX) / zoom;
+              const y2 = (tRect.top + 45 - panY) / zoom;
+
+              const dx = Math.max(50, Math.abs(x2 - x1) * 0.5);
+              const pathData = `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+
+              const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+              path.setAttribute("d", pathData);
+              const isBattle = !!c.effects?.battle;
+              path.setAttribute("class", `edge-line ${isBattle ? "edge-battle" : ""}`);
+              path.setAttribute("marker-end", isBattle ? "url(#arrow-battle)" : "url(#arrow)");
+
+              path.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm(`[${sourceId}]의 선택지에서 [${targetId}]로의 연결을 끊으시겠습니까?`)) {
+                  delete c.next;
+                  c.end = true;
+                  renderAll();
+                }
+              };
+
+              edgesGroup.appendChild(path);
+            }
+          }
+        });
+      });
+    }
+
+    function updateLiveEdge(x1, y1, x2, y2) {
+      const dx = Math.max(50, Math.abs(x2 - x1) * 0.5);
+      liveEdge.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+    }
+
+    function updateMetaControls() {
+      encIdInput.value = encData.id || "new_encounter";
+      encStartSelect.innerHTML = "";
+      const nodeIds = Object.keys(encData.nodes || {});
+      nodeIds.forEach((nid) => {
+        const opt = document.createElement("option");
+        opt.value = nid;
+        opt.textContent = nid;
+        if (nid === encData.start) opt.selected = true;
+        encStartSelect.appendChild(opt);
+      });
+    }
+
+    function updateHUD() {
+      const nodeIds = Object.keys(encData.nodes || {});
+      let choiceCount = 0;
+      let brokenLinks = 0;
+
+      nodeIds.forEach((nid) => {
+        (encData.nodes[nid].choices || []).forEach((c) => {
+          choiceCount++;
+          if (!c.end && c.next && !encData.nodes[c.next]) {
+            brokenLinks++;
+          }
+        });
+      });
+
+      document.getElementById("hud-node-count").textContent = nodeIds.length;
+      document.getElementById("hud-choice-count").textContent = choiceCount;
+
+      const vStat = document.getElementById("hud-validation-stat");
+      if (brokenLinks > 0) {
+        vStat.innerHTML = `<span style="color: var(--scarlet); font-weight: 700;">⚠️ 깨진 분기 ${brokenLinks}개 감지</span>`;
+      } else {
+        vStat.innerHTML = `<span style="color: var(--emerald);">✓ 모든 연결 정상</span>`;
+      }
+    }
+
+    // ==================================================
+    // 노드 조작 메서드
+    // ==================================================
+    function createNodeAt(x, y, customId = null) {
+      const baseId = customId || "node";
+      let newId = baseId;
+      let counter = 1;
+      while (encData.nodes[newId]) {
+        newId = `${baseId}_${counter++}`;
+      }
+
+      encData.nodes[newId] = {
+        text: "새로운 노드의 지문입니다.",
+        choices: [
+          { text: "다음으로 진행한다.", end: true }
+        ]
+      };
+      nodePositions[newId] = { x, y };
+
+      if (Object.keys(encData.nodes).length === 1) {
+        encData.start = newId;
+      }
+      renderAll();
+      toast(`새 노드 생성: [${newId}]`);
+      return newId;
+    }
+
+    function createQuickBranch(sourceId) {
+      const srcPos = nodePositions[sourceId] || { x: 100, y: 100 };
+      const newX = srcPos.x + 420;
+      const newY = srcPos.y + (encData.nodes[sourceId].choices?.length || 0) * 80;
+      const newId = createNodeAt(newX, newY, `${sourceId}_next`);
+
+      encData.nodes[sourceId].choices.push({
+        text: "새로운 분기로 이동한다.",
+        next: newId
+      });
+      renderAll();
+    }
+
+    function duplicateNode(sourceId) {
+      const src = encData.nodes[sourceId];
+      if (!src) return;
+      const pos = nodePositions[sourceId] || { x: 100, y: 100 };
+      const newId = createNodeAt(pos.x + 40, pos.y + 40, `${sourceId}_copy`);
+      encData.nodes[newId] = JSON.parse(JSON.stringify(src));
+      renderAll();
+      toast(`노드 복제: [${sourceId}] -> [${newId}]`);
+    }
+
+    function deleteNode(nid) {
+      const count = Object.keys(encData.nodes).length;
+      if (count <= 1) {
+        alert("최소 1개의 노드는 존재해야 합니다.");
+        return;
+      }
+      if (!confirm(`노드 [${nid}]를 삭제하시겠습니까? 연결된 분기들은 종료 상태로 변경됩니다.`)) return;
+
+      delete encData.nodes[nid];
+      delete nodePositions[nid];
+
+      // 다른 노드들의 타겟 참조 정리
+      Object.values(encData.nodes).forEach((node) => {
+        (node.choices || []).forEach((c) => {
+          if (c.next === nid) {
+            delete c.next;
+            c.end = true;
+          }
+        });
+      });
+
+      if (encData.start === nid) {
+        encData.start = Object.keys(encData.nodes)[0];
+      }
+      renderAll();
+      toast(`노드 삭제됨: [${nid}]`);
+    }
+
+    function renameNode(oldId, newId) {
+      if (!newId || oldId === newId) return;
+      if (encData.nodes[newId]) {
+        alert(`이미 존재하는 노드 ID입니다: ${newId}`);
+        renderAll();
+        return;
+      }
+
+      encData.nodes[newId] = encData.nodes[oldId];
+      delete encData.nodes[oldId];
+
+      nodePositions[newId] = nodePositions[oldId];
+      delete nodePositions[oldId];
+
+      if (encData.start === oldId) encData.start = newId;
+
+      // 참조 갱신
+      Object.values(encData.nodes).forEach((node) => {
+        (node.choices || []).forEach((c) => {
+          if (c.next === oldId) c.next = newId;
+        });
+      });
+
+      toast(`노드 ID 변경: [${oldId}] -> [${newId}]`);
+      renderAll();
+    }
+
+    function setStartNode(nid) {
+      encData.start = nid;
+      renderAll();
+      toast(`시작 노드 설정: [${nid}]`);
+    }
+
+    function addChoice(nid) {
+      encData.nodes[nid].choices.push({
+        text: "새로운 선택지",
+        end: true
+      });
+      renderAll();
+    }
+
+    function deleteChoice(nid, idx) {
+      encData.nodes[nid].choices.splice(idx, 1);
+      renderAll();
+    }
+
+    // ==================================================
+    // 자동 정렬 알고리즘 (Hierarchical BFS Auto-Layout)
+    // ==================================================
+    function autoLayout() {
+      const nodeIds = Object.keys(encData.nodes || {});
+      if (nodeIds.length === 0) return;
+
+      const levels = {};
+      const visited = new Set();
+      const queue = [{ id: encData.start || nodeIds[0], level: 0 }];
+      levels[queue[0].id] = 0;
+      visited.add(queue[0].id);
+
+      while (queue.length > 0) {
+        const { id, level } = queue.shift();
+        const node = encData.nodes[id];
+        if (!node) continue;
+
+        (node.choices || []).forEach((c) => {
+          if (!c.end && c.next && encData.nodes[c.next]) {
+            const nextId = c.next;
+            const targetLevel = level + 1;
+            if (!visited.has(nextId)) {
+              visited.add(nextId);
+              levels[nextId] = targetLevel;
+              queue.push({ id: nextId, level: targetLevel });
+            } else if (levels[nextId] < targetLevel) {
+              levels[nextId] = targetLevel;
+            }
+          }
+        });
+      }
+
+      // 닿지 않는 외딴 노드들은 마지막 레벨에 배치
+      let maxLevel = Math.max(...Object.values(levels), 0);
+      nodeIds.forEach((nid) => {
+        if (levels[nid] === undefined) {
+          levels[nid] = ++maxLevel;
+        }
+      });
+
+      // 레벨별 노드 그룹화
+      const columns = {};
+      nodeIds.forEach((nid) => {
+        const lvl = levels[nid];
+        columns[lvl] = columns[lvl] || [];
+        columns[lvl].push(nid);
+      });
+
+      // 좌표 계산
+      const colWidth = 460;
+      const rowHeight = 360;
+
+      Object.entries(columns).forEach(([lvlStr, ids]) => {
+        const col = parseInt(lvlStr, 10);
+        ids.forEach((nid, row) => {
+          nodePositions[nid] = {
+            x: col * colWidth + 80,
+            y: row * rowHeight + 80
+          };
+        });
+      });
+
+      renderAll();
+      fitView();
+      toast("노드 자동 정렬 완료!");
+    }
+
+    // 화면 맞춤 (Fit to View)
+    function fitView() {
+      const nodeIds = Object.keys(encData.nodes || {});
+      if (nodeIds.length === 0) return;
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      nodeIds.forEach((nid) => {
+        const pos = nodePositions[nid];
+        if (pos) {
+          minX = Math.min(minX, pos.x);
+          minY = Math.min(minY, pos.y);
+          maxX = Math.max(maxX, pos.x + 360);
+          maxY = Math.max(maxY, pos.y + 360);
+        }
+      });
+
+      const width = maxX - minX + 160;
+      const height = maxY - minY + 160;
+      const vpWidth = viewport.clientWidth;
+      const vpHeight = viewport.clientHeight;
+
+      zoom = Math.min(1.2, Math.max(0.35, Math.min(vpWidth / width, vpHeight / height)));
+      panX = (vpWidth - width * zoom) / 2 - minX * zoom + 80 * zoom;
+      panY = (vpHeight - height * zoom) / 2 - minY * zoom + 80 * zoom;
+      updateTransform();
+    }
+
+    // ==================================================
+    // 선택지 상세 인스펙터 드로어 (Choice Inspector)
+    // ==================================================
+    const choiceDrawer = document.getElementById("choice-drawer");
+    const drawerChoiceText = document.getElementById("drawer-choice-text");
+    const drawerTargetNode = document.getElementById("drawer-target-node");
+    const drawerIsEnd = document.getElementById("drawer-is-end");
+    const drawerEffHp = document.getElementById("drawer-eff-hp");
+    const drawerEffSanity = document.getElementById("drawer-eff-sanity");
+    const drawerEffBattle = document.getElementById("drawer-eff-battle");
+    const drawerEffCard = document.getElementById("drawer-eff-card");
+    const drawerEffDupCard = document.getElementById("drawer-eff-dup-card");
+    const drawerEffDelCard = document.getElementById("drawer-eff-del-card");
+
+    let drawerReqItems = {};
+    let drawerGiveItems = {};
+    let drawerRemoveItems = {};
+
+    function openChoiceDrawer(nid, idx) {
+      currentEditingChoice = { nodeId: nid, choiceIndex: idx };
+      const choice = encData.nodes[nid].choices[idx];
+
+      drawerChoiceText.value = choice.text || "";
+      drawerIsEnd.checked = !!choice.end;
+
+      // 타겟 셀렉트 목록 채우기
+      drawerTargetNode.innerHTML = "";
+      Object.keys(encData.nodes).forEach((tId) => {
+        const opt = document.createElement("option");
+        opt.value = tId;
+        opt.textContent = tId;
+        if (!choice.end && choice.next === tId) opt.selected = true;
+        drawerTargetNode.appendChild(opt);
+      });
+      drawerTargetNode.disabled = !!choice.end;
+
+      drawerIsEnd.onchange = (e) => {
+        drawerTargetNode.disabled = e.target.checked;
+      };
+
+      // 효과 파싱
+      drawerEffHp.value = choice.effects?.hp || "";
+      drawerEffSanity.value = choice.effects?.sanity || "";
+      const b = choice.effects?.battle;
+      drawerEffBattle.value = Array.isArray(b) ? b.join(", ") : (b || "");
+      drawerEffCard.value = choice.effects?.give_card || "";
+      drawerEffDupCard.checked = !!choice.effects?.choice_duplicate_card;
+      drawerEffDelCard.checked = !!choice.effects?.choice_remove_card;
+
+      drawerReqItems = JSON.parse(JSON.stringify(choice.requirements?.items || {}));
+      drawerGiveItems = JSON.parse(JSON.stringify(choice.effects?.give_items || {}));
+      drawerRemoveItems = JSON.parse(JSON.stringify(choice.effects?.remove_items || {}));
+
+      renderDrawerKeyValueLists();
+      choiceDrawer.classList.add("active");
+    }
+
+    function renderDrawerKeyValueLists() {
+      // Req Items
+      const reqWrap = document.getElementById("drawer-req-items-list");
+      reqWrap.innerHTML = "";
+      Object.entries(drawerReqItems).forEach(([k, v]) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.gap = "6px";
+        row.innerHTML = `
+          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerReqItems['${k}']=undefined; drawerReqItems[this.value]=${v}; renderDrawerKeyValueLists();">
+          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerReqItems['${k}']=parseInt(this.value,10)||0;">
+          <button class="btn btn-sm" onclick="delete drawerReqItems['${k}']; renderDrawerKeyValueLists();">✕</button>
+        `;
+        reqWrap.appendChild(row);
+      });
+
+      // Give Items
+      const giveWrap = document.getElementById("drawer-give-items-list");
+      giveWrap.innerHTML = "";
+      Object.entries(drawerGiveItems).forEach(([k, v]) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.gap = "6px";
+        row.innerHTML = `
+          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerGiveItems['${k}']=undefined; drawerGiveItems[this.value]=${v}; renderDrawerKeyValueLists();">
+          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerGiveItems['${k}']=parseInt(this.value,10)||0;">
+          <button class="btn btn-sm" onclick="delete drawerGiveItems['${k}']; renderDrawerKeyValueLists();">✕</button>
+        `;
+        giveWrap.appendChild(row);
+      });
+
+      // Remove Items
+      const remWrap = document.getElementById("drawer-remove-items-list");
+      remWrap.innerHTML = "";
+      Object.entries(drawerRemoveItems).forEach(([k, v]) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.gap = "6px";
+        row.innerHTML = `
+          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerRemoveItems['${k}']=undefined; drawerRemoveItems[this.value]=${v}; renderDrawerKeyValueLists();">
+          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerRemoveItems['${k}']=parseInt(this.value,10)||0;">
+          <button class="btn btn-sm" onclick="delete drawerRemoveItems['${k}']; renderDrawerKeyValueLists();">✕</button>
+        `;
+        remWrap.appendChild(row);
+      });
+    }
+
+    function addReqItem(k, v) { drawerReqItems[k] = v; renderDrawerKeyValueLists(); }
+    function addGiveItem(k, v) { drawerGiveItems[k] = v; renderDrawerKeyValueLists(); }
+    function addRemoveItem(k, v) { drawerRemoveItems[k] = v; renderDrawerKeyValueLists(); }
+    function appendBattleEnemy(enemyId) {
+      const cur = drawerEffBattle.value.trim();
+      drawerEffBattle.value = cur ? `${cur}, ${enemyId}` : enemyId;
+    }
+
+    document.getElementById("drawer-close-btn").onclick = () => choiceDrawer.classList.remove("active");
+
+    document.getElementById("drawer-save-btn").onclick = () => {
+      if (!currentEditingChoice) return;
+      const { nodeId, choiceIndex } = currentEditingChoice;
+      const choice = encData.nodes[nodeId].choices[choiceIndex];
+
+      choice.text = drawerChoiceText.value;
+      if (drawerIsEnd.checked) {
+        choice.end = true;
+        delete choice.next;
+      } else {
+        delete choice.end;
+        choice.next = drawerTargetNode.value;
+      }
+
+      // 효과 조립
+      const eff = {};
+      const hp = parseInt(drawerEffHp.value, 10);
+      if (!isNaN(hp) && hp !== 0) eff.hp = hp;
+
+      const san = parseInt(drawerEffSanity.value, 10);
+      if (!isNaN(san) && san !== 0) eff.sanity = san;
+
+      const battleVal = drawerEffBattle.value.trim();
+      if (battleVal) {
+        const parts = battleVal.split(",").map(s => s.trim()).filter(Boolean);
+        eff.battle = parts.length === 1 ? parts[0] : parts;
+      }
+
+      if (Object.keys(drawerGiveItems).length > 0) eff.give_items = { ...drawerGiveItems };
+      if (Object.keys(drawerRemoveItems).length > 0) eff.remove_items = { ...drawerRemoveItems };
+
+      const cardVal = drawerEffCard.value.trim();
+      if (cardVal) eff.give_card = cardVal;
+      if (drawerEffDupCard.checked) eff.choice_duplicate_card = true;
+      if (drawerEffDelCard.checked) eff.choice_remove_card = true;
+
+      if (Object.keys(eff).length > 0) choice.effects = eff;
+      else delete choice.effects;
+
+      // 요구 조건 조립
+      if (Object.keys(drawerReqItems).length > 0) {
+        choice.requirements = { items: { ...drawerReqItems } };
+      } else {
+        delete choice.requirements;
+      }
+
+      choiceDrawer.classList.remove("active");
+      renderAll();
+      toast("선택지 설정 저장 완료!");
+    };
+
+    // ==================================================
+    // 시뮬레이터 (Playtest Mode)
+    // ==================================================
+    const simModal = document.getElementById("sim-modal");
+    let simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
+    let simCurrentNode = null;
+    let simHistory = [];
+
+    document.getElementById("btn-playtest").onclick = () => {
+      simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
+      simHistory = [];
+      simCurrentNode = encData.start || Object.keys(encData.nodes)[0];
+      simModal.classList.add("active");
+      renderSimStep();
+    };
+
+    document.getElementById("sim-close-btn").onclick = () => simModal.classList.remove("active");
+    document.getElementById("sim-restart-btn").onclick = () => {
+      simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
+      simHistory = [];
+      simCurrentNode = encData.start || Object.keys(encData.nodes)[0];
+      renderSimStep();
+    };
+
+    function renderSimStep() {
+      const node = encData.nodes[simCurrentNode];
+      document.getElementById("sim-current-node-badge").textContent = simCurrentNode;
+      document.getElementById("sim-stat-hp").textContent = simState.hp;
+      document.getElementById("sim-stat-sanity").textContent = simState.sanity;
+      document.getElementById("sim-stat-ahn").textContent = simState.ahn.toLocaleString();
+
+      const textEl = document.getElementById("sim-story-text");
+      const choicesBox = document.getElementById("sim-choices-box");
+      const alertEl = document.getElementById("sim-event-alert");
+      alertEl.style.display = "none";
+      choicesBox.innerHTML = "";
+
+      if (!node) {
+        textEl.textContent = `[오류]: 노드 [${simCurrentNode}]를 찾을 수 없습니다!`;
+        return;
+      }
+
+      textEl.textContent = node.text || "(지문 내용이 없습니다)";
+      simHistory.push(simCurrentNode);
+      document.getElementById("sim-breadcrumbs").textContent = simHistory.join(" ➔ ");
+
+      (node.choices || []).forEach((c, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "sim-choice-btn";
+
+        // 요구 조건 체크
+        let met = true;
+        let unmetReason = "";
+        if (c.requirements?.items) {
+          Object.entries(c.requirements.items).forEach(([k, v]) => {
+            if (k === "ahn" && simState.ahn < v) {
+              met = false;
+              unmetReason = `(안 ${v.toLocaleString()} 필요, 보유: ${simState.ahn.toLocaleString()})`;
+            }
+          });
+        }
+
+        btn.disabled = !met;
+        btn.innerHTML = `
+          <div style="font-weight: 600;">${idx + 1}. ${c.text || "(문구 없음)"} ${unmetReason ? `<span style="color: #ff6b7e; font-size: 12px;">${unmetReason}</span>` : ""}</div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">➔ 이동: ${c.end ? "인카운터 종료" : c.next || "미지정"}</div>
+        `;
+
+        btn.onclick = () => {
+          // 효과 적용
+          if (c.effects) {
+            if (c.effects.hp) simState.hp += c.effects.hp;
+            if (c.effects.sanity) simState.sanity += c.effects.sanity;
+            if (c.effects.give_items?.ahn) simState.ahn += c.effects.give_items.ahn;
+            if (c.effects.remove_items?.ahn) simState.ahn = Math.max(0, simState.ahn - c.effects.remove_items.ahn);
+
+            if (c.effects.battle) {
+              alertEl.style.display = "block";
+              alertEl.style.background = "rgba(200, 40, 63, 0.25)";
+              alertEl.style.border = "1px solid var(--scarlet)";
+              alertEl.style.color = "#ff8787";
+              alertEl.textContent = `⚔️ [전투 발생!]: ${JSON.stringify(c.effects.battle)}와의 전투에서 승리했습니다.`;
+            }
+          }
+
+          if (c.end) {
+            choicesBox.innerHTML = `
+              <div style="padding: 16px; background: rgba(47, 179, 68, 0.15); border: 1px solid var(--emerald); border-radius: 6px; text-align: center; color: #8ce99a; font-weight: 700;">
+                🏁 인카운터가 성공적으로 종료되었습니다!
+              </div>
+            `;
+            return;
+          }
+
+          if (c.next) {
+            simCurrentNode = c.next;
+            renderSimStep();
+          }
+        };
+
+        choicesBox.appendChild(btn);
+      });
+    }
+
+    // ==================================================
+    // JSON 입출력 & 저장 시스템
+    // ==================================================
+    const jsonModal = document.getElementById("json-modal");
+    const jsonEditorArea = document.getElementById("json-editor-area");
+    const filePicker = document.getElementById("file-picker");
+
+    let isServerConnected = false;
+    let currentLoadedPath = null;
+
+    // 로컬 파이썬 서버 연결 확인
+    async function checkServerConnection() {
+      try {
+        const res = await fetch("/api/list");
+        if (res.ok) {
+          isServerConnected = true;
+          document.getElementById("json-server-banner").style.display = "block";
+          document.getElementById("json-standalone-banner").style.display = "none";
+        }
+      } catch (e) {
+        isServerConnected = false;
+        document.getElementById("json-server-banner").style.display = "none";
+        document.getElementById("json-standalone-banner").style.display = "block";
+      }
+    }
+    checkServerConnection();
+
+    document.getElementById("btn-export").onclick = () => {
+      encData.id = encIdInput.value.trim() || encData.id;
+      jsonEditorArea.value = JSON.stringify(encData, null, 2);
+      document.getElementById("json-modal-title").textContent = `JSON 내보내기 / 저장 (${encData.id}.json)`;
+
+      const saveBtn = document.getElementById("json-server-save-btn");
+      const pathInfo = document.getElementById("json-server-path-info");
+      if (isServerConnected) {
+        saveBtn.style.display = "inline-flex";
+        const savePath = currentLoadedPath || `encounter_normal/common/${encData.id}.json`;
+        pathInfo.textContent = `저장 대상: [${savePath}]`;
+        saveBtn.textContent = `⚡ [${savePath}] 저장 & 번들 빌드`;
+      } else {
+        saveBtn.style.display = "none";
+      }
+
+      jsonModal.classList.add("active");
+    };
+
+    document.getElementById("json-modal-close").onclick = () => jsonModal.classList.remove("active");
+
+    document.getElementById("json-copy-btn").onclick = () => {
+      navigator.clipboard.writeText(jsonEditorArea.value).then(() => {
+        toast("클립보드에 복사되었습니다!");
+      });
+    };
+
+    document.getElementById("json-download-btn").onclick = () => {
+      const text = jsonEditorArea.value;
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${encData.id || "encounter"}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("JSON 파일이 다운로드되었습니다.");
+    };
+
+    document.getElementById("json-server-save-btn").onclick = async () => {
+      try {
+        const parsed = JSON.parse(jsonEditorArea.value);
+        if (!parsed.nodes) throw new Error("JSON에 'nodes' 객체가 필요합니다.");
+        const savePath = currentLoadedPath || `encounter_normal/common/${parsed.id || encData.id}.json`;
+
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: savePath, data: parsed, rebuild: true })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          currentLoadedPath = savePath;
+          loadEncounterData(parsed);
+          jsonModal.classList.remove("active");
+          toast(`✓ 파일 저장 및 게임 번들 빌드 성공! (${savePath})`, "success");
+        } else {
+          alert(`저장 실패: ${result.error}`);
+        }
+      } catch (err) {
+        alert(`저장 오류: ${err.message}`);
+      }
+    };
+
+    document.getElementById("json-apply-btn").onclick = () => {
+      try {
+        const parsed = JSON.parse(jsonEditorArea.value);
+        if (!parsed.nodes) throw new Error("JSON에 'nodes' 객체가 필요합니다.");
+        loadEncounterData(parsed);
+        jsonModal.classList.remove("active");
+        toast("인카운터 데이터가 성공적으로 반영되었습니다!", "success");
+      } catch (err) {
+        alert(`JSON 파싱 오류: ${err.message}`);
+      }
+    };
+
+    // ==================================================
+    // 드래그 앤 드롭 파일 로드 지원
+    // ==================================================
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      viewport.style.filter = "brightness(1.15)";
+    });
+    window.addEventListener("dragleave", () => {
+      viewport.style.filter = "none";
+    });
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      viewport.style.filter = "none";
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith(".json")) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const parsed = JSON.parse(evt.target.result);
+            loadEncounterData(parsed);
+            currentLoadedPath = null;
+            toast(`드롭된 파일 불러오기 성공: ${file.name}`, "success");
+          } catch (err) {
+            alert(`파일 로드 오류: ${err.message}`);
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById("btn-import").onclick = async () => {
+      if (isServerConnected) {
+        openProjectBrowser();
+      } else {
+        filePicker.click();
+      }
+    };
+
+    // 프로젝트 인카운터 탐색기
+    let projectEncountersList = [];
+    async function openProjectBrowser() {
+      try {
+        const res = await fetch("/api/list");
+        const json = await res.json();
+        if (json.ok && json.encounters) {
+          projectEncountersList = json.encounters;
+          renderProjectBrowser();
+          document.getElementById("project-browser-modal").classList.add("active");
+        } else {
+          filePicker.click();
+        }
+      } catch (e) {
+        filePicker.click();
+      }
+    }
+
+    function renderProjectBrowser(filter = "") {
+      const listEl = document.getElementById("project-browser-list");
+      listEl.innerHTML = "";
+      const q = filter.trim().toLowerCase();
+      const filtered = projectEncountersList.filter(enc =>
+        enc.path.toLowerCase().includes(q) || enc.id.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">검색 결과가 없습니다.</div>`;
+        return;
+      }
+
+      filtered.forEach((enc) => {
+        const item = document.createElement("div");
+        item.style.padding = "10px 14px";
+        item.style.background = "var(--panel-raised)";
+        item.style.border = "1px solid var(--border)";
+        item.style.borderRadius = "6px";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.cursor = "pointer";
+        item.style.transition = "all .15s";
+
+        item.onmouseenter = () => { item.style.borderColor = "var(--brass)"; item.style.background = "var(--panel-hover)"; };
+        item.onmouseleave = () => { item.style.borderColor = "var(--border)"; item.style.background = "var(--panel-raised)"; };
+
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 700; color: var(--text);">${enc.id} <span style="font-size: 11.5px; color: var(--brass); font-weight: normal;">(노드 ${enc.node_count}개)</span></div>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">${enc.path}</div>
+          </div>
+          <button class="btn btn-sm btn-brass">열기 ➔</button>
+        `;
+
+        item.onclick = async () => {
+          try {
+            const res = await fetch(`/api/load?path=${encodeURIComponent(enc.path)}`);
+            const loaded = await res.json();
+            if (loaded.ok && loaded.data) {
+              currentLoadedPath = enc.path;
+              loadEncounterData(loaded.data);
+              document.getElementById("project-browser-modal").classList.remove("active");
+              toast(`[${enc.id}] 로드 완료! (경로: ${enc.path})`, "success");
+            }
+          } catch (e) {
+            alert(`불러오기 실패: ${e.message}`);
+          }
+        };
+
+        listEl.appendChild(item);
+      });
+    }
+
+    filePicker.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          loadEncounterData(parsed);
+          currentLoadedPath = null;
+          toast(`파일 불러오기 완료: ${file.name}`);
+        } catch (err) {
+          alert(`파일 로드 오류: ${err.message}`);
+        }
+      };
+      reader.readAsText(file);
+      filePicker.value = "";
+    };
+
+    function loadEncounterData(data) {
+      encData = data;
+      encData.id = encData.id || "encounter";
+      encData.start = encData.start || Object.keys(encData.nodes || {})[0] || "begin";
+      nodePositions = {};
+      autoLayout();
+    }
+
+    // ==================================================
+    // 예제 불러오기 모달
+    // ==================================================
+    const sampleModal = document.getElementById("sample-modal");
+    document.getElementById("btn-sample").onclick = () => sampleModal.classList.add("active");
+    document.getElementById("sample-modal-close").onclick = () => sampleModal.classList.remove("active");
+
+    const PRESET_SAMPLES = {
+      fallen_fixer: {
+        id: "fallen_fixer",
+        start: "begin",
+        nodes: {
+          begin: {
+            text: "악취 나는 쓰레기장 한구석, 피투성이가 된 가죽 외투를 입은 무명 해결사의 시체가 벽에 기대어 있어.\n품에는 찢겨진 의뢰서와 차갑게 식은 무기가 쥐어져 있어.\n도시에서 매일같이 벌어지는, 이름조차 남기지 못하고 사라진 자의 비극이야.",
+            choices: [
+              { text: "시신을 정중히 수습해주고 잠시 묵념한다. (정신력 +15, 카드 복제)", effects: { sanity: 15, choice_duplicate_card: true }, next: "pray_fixer" },
+              { text: "그래도 산 사람은 살아야지! 시체를 뒤진다. (40,000 안)", effects: { sanity: -10, give_items: { ahn: 40000 } }, next: "loot_fixer" },
+              { text: "지나간다.", end: true }
+            ]
+          },
+          pray_fixer: {
+            text: "이름 없는 해결사에게 짧은 애도를 표했어.\n그가 남긴 마지막 투지가 네 가슴에 전해져 기술 하나를 확고히 마음에 새겼어.",
+            choices: [{ text: "당신의 몫까지 살아남을게요.", end: true }]
+          },
+          loot_fixer: {
+            text: "피 묻은 지갑은 꽤나 두둑하네.",
+            choices: [{ text: "죽은 사람이 나랑 뭔 상관? 이런 거라도 챙겨야지.", end: true }]
+          }
+        }
+      },
+      street_rats: {
+        id: "street_rats",
+        start: "begin",
+        nodes: {
+          begin: {
+            text: "더러운 헝겊을 머리에 두르고 파이프를 쥔 '쥐' 두 명이 길을 가로막았어.\n\"어이, 이 구역 통행세를 내야지! 가진 돈 다 털어놓든가, 아님 내장까지 털리든가!\"",
+            choices: [
+              { text: "\"내장을 털리는 건 너희 쪽일 텐데?\" 무기를 뽑는다.", effects: { battle: ["rat", "rat"] }, next: "win_rats" },
+              { text: "파이프를 주먹으로 부러뜨린다. (힘 [분노] 2 필요)", requirements: { items: { strength_wrath: 2 } }, next: "scare_rats" },
+              { text: "약간의 푼돈을 던져주고 지나간다. (3,000 안)", requirements: { items: { ahn: 3000 } }, effects: { remove_items: { ahn: 3000 } }, end: true }
+            ]
+          },
+          win_rats: {
+            text: "싸움 끝에 쥐들을 전부 제압했어. 낡은 주머니 속에서 돈을 챙겼어.",
+            choices: [{ text: "전리품을 챙긴다. (25,000 안 획득)", effects: { give_items: { ahn: 25000 } }, end: true }]
+          },
+          scare_rats: {
+            text: "\"죄, 죄송합니다 형님! 잘못 봤습니다!\"\n쥐들은 자신들이 삥 뜯은 돈까지 바치며 도망쳤어.",
+            choices: [{ text: "돈을 주워 담는다. (35,000 안 획득)", effects: { give_items: { ahn: 35000 } }, end: true }]
+          }
+        }
+      },
+      ai_head_auditor: {
+        id: "ai_head_auditor",
+        start: "begin",
+        nodes: {
+          begin: {
+            text: "골목 모퉁이를 돌자, 검은 코트의 기계 수거관이 당신을 가로막았어.\n\"머리의 'AI 윤리 개정안' 위반 감시관 튜링이다. 네 소지품에서 미승인 연산 칩의 신호가 감지되었다. 압수 수거한다.\"",
+            choices: [
+              { text: "\"누구 맘대로? 고철로 분해해주마.\" (전투 돌입)", effects: { battle: ["head_auditor"] }, next: "win_auditor" },
+              { text: "배수관 틈새로 도주한다. (체력 -5, 정신력 -5)", effects: { hp: -5, sanity: -5 }, next: "flee_auditor" },
+              { text: "뇌물을 찔러준다. (30,000 안 소모)", requirements: { items: { ahn: 30000 } }, effects: { remove_items: { ahn: 30000 } }, next: "bribe_auditor" }
+            ]
+          },
+          win_auditor: {
+            text: "감시관이 스파크를 튀기며 쓰러졌어. 품속에서 전투 디스크를 회수했어.",
+            choices: [{ text: "전리품을 챙긴다. (35,000 안, [튜링의 판결] 카드 획득)", effects: { give_items: { ahn: 35000 }, give_card: "turing_verdict" }, end: true }]
+          },
+          flee_auditor: {
+            text: "배수관 사이를 굴러 간신히 감시관을 따돌렸어.",
+            choices: [{ text: "휴, 살았네.", end: true }]
+          },
+          bribe_auditor: {
+            text: "감시관의 센서 불빛이 푸른색으로 바뀌었어.\n\"사소한 신호 오작동으로 처리하겠다. 조용히 살아가도록.\"",
+            choices: [{ text: "역시 돈으로 안 되는 건 없지.", end: true }]
+          }
+        }
+      }
+    };
+
+    function loadPresetSample(key) {
+      const sample = PRESET_SAMPLES[key];
+      if (sample) {
+        loadEncounterData(JSON.parse(JSON.stringify(sample)));
+        sampleModal.classList.remove("active");
+        toast(`예제 불러오기 완료: [${sample.id}]`);
+      }
+    }
+
+    // ==================================================
+    // 단축키 & 툴바 연동
+    // ==================================================
+    document.getElementById("btn-add-node").onclick = () => {
+      const vpWidth = viewport.clientWidth;
+      const vpHeight = viewport.clientHeight;
+      const x = Math.round((vpWidth / 2 - panX) / zoom);
+      const y = Math.round((vpHeight / 2 - panY) / zoom);
+      createNodeAt(x, y);
+    };
+
+    document.getElementById("btn-auto-layout").onclick = autoLayout;
+    document.getElementById("btn-fit-view").onclick = fitView;
+
+    encIdInput.onchange = (e) => {
+      encData.id = e.target.value.trim() || "encounter";
+      toast(`인카운터 ID 변경: ${encData.id}`);
+    };
+
+    encStartSelect.onchange = (e) => {
+      encData.start = e.target.value;
+      renderAll();
+      toast(`시작 노드 변경: ${encData.start}`);
+    };
+
+    window.addEventListener("keydown", (e) => {
+      // Ctrl + S (저장)
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("btn-export").click();
+      }
+      // Ctrl + Shift + A (자동 정렬)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "a" || e.key === "A")) {
+        e.preventDefault();
+        autoLayout();
+      }
+    });
+
+    // 토스트 알림 헬퍼
+    function toast(msg, type = "normal") {
+      const t = document.createElement("div");
+      t.className = `toast toast-${type}`;
+      t.textContent = msg;
+      toastContainer.appendChild(t);
+      setTimeout(() => t.classList.add("show"), 10);
+      setTimeout(() => {
+        t.classList.remove("show");
+        setTimeout(() => t.remove(), 250);
+      }, 2600);
+    }
+
+    // 초기화 실행
+    autoLayout();
+  </script>
+</body>
+</html>
