@@ -72,34 +72,35 @@ export function openShop() {
         filteredPacks = filteredPacks.filter((pk) => (pk.tags ?? []).includes(selectedTag));
       }
 
-      // 1. 좌측 사이드바 구성
-      const sidebar = h("div", { class: "shop-sidebar" },
-        h("h1", { class: "shop-title" }, "상점"),
-        h("p", { class: "shop-sub" }, "도시의 시시콜콜한 이야기와 철학들"),
-        h("div", { class: "shop-currency-card" },
-          h("div", { class: "shop-currency-label" }, "현재 소지 광기"),
-          h("div", { class: "shop-currency-val" },
-            h("span", {}, String(p.lunacy ?? 0)),
-            h("span", { class: "shop-currency-unit" }, "광기"))),
-        h("div", { class: "shop-sidebar-foot" },
-          h("button", { class: "btn btn-ghost", style: { width: "100%", justifyContent: "center" }, onclick: () => resolve() }, "← 뒤로가기")));
+      // 1. 좌측 영역 (Left Column)
+      const leftCol = h("div", { class: "shop-left-col" },
+        h("div", { class: "shop-brand-block" },
+          h("h1", { class: "shop-title" }, "상점"),
+          h("p", { class: "shop-sub" }, "도시의 시시콜콜한 이야기와 철학들")),
+        h("div", { class: "shop-currency-block" },
+          h("div", { class: "shop-currency-title" }, "현재 소지 광기"),
+          h("div", { class: "shop-currency-value" },
+            h("span", { class: "currency-num" }, String(p.lunacy ?? 0)),
+            h("span", { class: "currency-unit" }, "광기"))),
+        h("div", { class: "shop-back-block" },
+          h("button", { class: "shop-back-btn", onclick: () => resolve() }, "뒤로가기")));
 
-      // 2. 우측 상단 탭 구성
+      // 2. 우측 탭 구성 (Right Tabs)
       const tabItems = [
         ["common", "통상 확장팩"],
-        ["reward", "리워드 확장팩 (잠김)"],
+        ["reward", "리워드 확장팩"],
         ["hot_deal", "오늘의 핫딜!"],
       ];
 
-      const tabsRow = h("div", { class: "tabs shop-tabs", role: "tablist" }, tabItems.map(([id, label]) =>
+      const tabsRow = h("div", { class: "shop-tabs-row", role: "tablist" }, tabItems.map(([id, label]) =>
         h("button", {
-          class: `tab ${id === "reward" ? "tab-locked" : ""}`,
+          class: `shop-tab-btn ${id === currentTab ? "active" : ""} ${id === "reward" ? "tab-locked" : ""}`,
           role: "tab",
           "aria-selected": String(id === currentTab),
           onclick: () => { currentTab = id; draw(); }
         }, label)));
 
-      // 3. 검색 및 태그 바 구성
+      // 3. 검색 및 태그 바 구성 (Search & Tag)
       const searchInput = h("input", {
         type: "text",
         class: "shop-search-input",
@@ -109,33 +110,35 @@ export function openShop() {
       });
 
       const tagToggleBtn = h("button", {
-        class: `btn ${showTags || selectedTag !== "전체" ? "btn-primary" : "btn-ghost"} btn-sm`,
-        style: { whiteSpace: "nowrap" },
+        class: `shop-tag-btn ${showTags || selectedTag !== "전체" ? "active" : ""}`,
         onclick: () => { showTags = !showTags; draw(); }
-      }, selectedTag === "전체" ? "태그 ▾" : `태그: ${selectedTag} ▾`);
+      }, selectedTag === "전체" ? "태그" : `태그: ${selectedTag} ✕`);
 
-      const filterBar = h("div", { class: "shop-filter-bar" }, searchInput, tagToggleBtn);
+      const searchRow = h("div", { class: "shop-search-row" }, searchInput, tagToggleBtn);
 
       // 태그 선택 영역
       let tagChipsWrap = null;
       if (showTags) {
         tagChipsWrap = h("div", { class: "shop-tags-container" }, allTags.map((t) =>
           h("button", {
-            class: "shop-tag-pill",
-            "aria-selected": String(t === selectedTag),
-            onclick: () => { selectedTag = t; draw(); }
+            class: `shop-tag-pill ${t === selectedTag ? "active" : ""}`,
+            onclick: () => {
+              if (selectedTag === t && t !== "전체") selectedTag = "전체";
+              else selectedTag = t;
+              draw();
+            }
           }, t)));
       }
 
-      // 4. 확장팩 목록 그리드 구성
-      const gridWrap = h("div", { class: "shop-grid-wrap" });
+      // 4. 확장팩 목록 그리드 구성 (Cards & Slide Bar Area)
+      const contentArea = h("div", { class: "shop-content-area" });
 
       function renderGridContent() {
-        clear(gridWrap);
+        clear(contentArea);
 
         // 리워드 탭 잠금 표시
         if (currentTab === "reward") {
-          gridWrap.append(h("div", { class: "shop-locked-notice" },
+          contentArea.append(h("div", { class: "shop-locked-notice" },
             h("div", { style: { fontSize: "40px", marginBottom: "12px" } }, "🔒"),
             h("h2", { style: { margin: "0 0 8px" } }, "리워드 확장팩은 잠겨 있습니다"),
             h("p", { class: "muted", style: { margin: 0 } }, "도전과제를 클리어하면 상점에서 해금되는 확장팩 칸입니다."),
@@ -150,24 +153,24 @@ export function openShop() {
           const remainMs = Math.max(0, ONE_DAY_MS - (now - last));
           const hours = Math.floor(remainMs / (60 * 60 * 1000));
           const mins = Math.floor((remainMs % (60 * 60 * 1000)) / (60 * 1000));
-          gridWrap.append(h("div", { class: "shop-hotdeal-banner" },
+          contentArea.append(h("div", { class: "shop-hotdeal-banner" },
             h("span", {}, "🔥 오늘의 핫딜은 24시간마다 새로운 4개의 확장팩으로 갱신됩니다!"),
             h("span", { class: "muted", style: { fontSize: "12.5px" } }, `다음 리롤까지 약 ${hours}시간 ${mins}분 남음`)));
         }
 
         if (!filteredPacks.length) {
-          gridWrap.append(h("div", { class: "empty-note", style: { padding: "48px 16px", textAlign: "center" } },
+          contentArea.append(h("div", { class: "empty-note", style: { padding: "48px 16px", textAlign: "center" } },
             currentTab === "hot_deal" ? "현재 등록된 핫딜 확장팩이 없습니다." : "해당하는 확장팩을 찾을 수 없습니다."));
           return;
         }
 
-        const grid = h("div", { class: "shop-grid" }, filteredPacks.map((pack) => {
+        const grid = h("div", { class: "shop-cards-grid" }, filteredPacks.map((pack) => {
           const isOwned = (p.purchased_packs ?? []).includes(pack.id);
 
-          // 이미지 영역
+          // 이미지 영역 (없다면 빈 공간 표시)
           const imgArea = pack.image
             ? h("img", { src: pack.image, alt: pack.name, class: "shop-card-img" })
-            : h("div", { class: "shop-card-noimg" }, "이미지 없음");
+            : h("div", { class: "shop-card-noimg" });
 
           // 태그 영역
           const tagsRow = h("div", { class: "shop-card-tags" },
@@ -186,14 +189,13 @@ export function openShop() {
             onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") open_pack_modal(pack, () => draw()); }
           },
             h("div", { class: "shop-card-img-box" }, imgArea),
-            h("div", { class: "shop-card-body" },
-              tagsRow,
-              h("div", { class: "shop-card-foot" },
-                h("div", { class: "shop-card-name" }, pack.name),
-                priceBadge)));
+            tagsRow,
+            h("div", { class: "shop-card-foot" },
+              h("div", { class: "shop-card-name" }, pack.name),
+              priceBadge));
         }));
 
-        gridWrap.append(grid);
+        contentArea.append(grid);
       }
 
       function drawGridOnly() {
@@ -213,14 +215,16 @@ export function openShop() {
 
       renderGridContent();
 
-      // 메인 컨텐츠 영역 조립
-      const mainContent = h("div", { class: "shop-main" },
-        h("div", { class: "shop-header-row" }, tabsRow),
-        filterBar,
+      // 메인 컨텐츠 영역 조립 (우측 열)
+      const rightCol = h("div", { class: "shop-right-col" },
+        tabsRow,
+        searchRow,
         tagChipsWrap,
-        gridWrap);
+        contentArea);
 
-      const root = h("div", { class: "screen shop-screen" }, sidebar, mainContent);
+      // 전체 컨테이너 조립 (좌측 열 + 우측 열)
+      const root = h("div", { class: "screen shop-screen" },
+        h("div", { class: "shop-container" }, leftCol, rightCol));
       mount(root, "shop");
     };
 
