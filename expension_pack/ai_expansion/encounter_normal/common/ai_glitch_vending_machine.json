@@ -1,0 +1,56 @@
+{
+  "id": "ai_glitch_vending_machine",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "뒷골목 외딴 벽면에 홀로그램이 깜빡거리는 자판기 한 대가 놓여 있어.\n화면에는 조잡하게 그려진 인공지능 마스코트가 웃으며 깜빡여.\n\"환영합니다 도시 주민님! 단돈 5,000안에 머리의 감시를 피한 100% 순수 사념 강화 음료 '블루스크린 드링크'를 자판합니다!\"",
+      "choices": [
+        {
+          "text": "5,000 안을 넣고 음료를 뽑는다. (5,000 안 소모)",
+          "requirements": {
+            "items": { "ahn": 5000 }
+          },
+          "effects": {
+            "remove_items": { "ahn": 5000 },
+            "hp": 15,
+            "sanity": 15,
+            "give_card": "ai_optimization"
+          },
+          "next": "drink_bought"
+        },
+        {
+          "text": "돈을 낼 필요가 있나? 발로 강하게 걷어차 배출구를 턴다.",
+          "effects": {
+            "hp": -5,
+            "sanity": -5,
+            "give_items": { "ahn": 12000 }
+          },
+          "next": "kick_machine"
+        },
+        {
+          "text": "저런 조잡한 사기 기계에 낚일 순 없다. 지나친다.",
+          "end": true
+        }
+      ]
+    },
+    "drink_bought": {
+      "text": "덜컹거리며 나온 캔을 따서 들이켰어.\n찌릿한 전기 맛과 함께 머릿속 잡념이 싹 가시고 명료한 집중력이 차올라!",
+      "choices": [
+        {
+          "text": "오... 생각보다 훌륭한 맛인데?",
+          "end": true
+        }
+      ]
+    },
+    "kick_machine": {
+      "text": "쾅! 걷어차자 날카로운 파편에 발목을 베였지만, 자판기 동전 투입구가 터지며 쏟아진 돈을 주웠어.",
+      "choices": [
+        {
+          "text": "아야... 그래도 돈은 챙겼다.",
+          "end": true
+        }
+      ]
+    }
+  }
+}
+

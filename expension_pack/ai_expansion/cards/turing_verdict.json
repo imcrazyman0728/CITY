@@ -1,0 +1,31 @@
+{
+  "id": "turing_verdict",
+  "name": "튜링의 판결",
+  "grade": "hardcover",
+  "type": "melee",
+  "cost": 2,
+  "on_use_dialogue": "{card_user}: \"연산 종료. 너는 인간의 자격을 상실했다.\"",
+  "flavor_text": "머리의 AI 윤리 개정안은 명확하다. 금기를 범한 자에게 남은 것은 단죄뿐이다.",
+  "on_use_effect": [],
+  "dice": [
+    {
+      "type": "defense",
+      "damage_type": "block",
+      "min": 3,
+      "max": 7,
+      "dice_effect": [
+        { "clash_recover_cost": 1 }
+      ]
+    },
+    {
+      "type": "attack",
+      "damage_type": "pierce",
+      "min": 4,
+      "max": 9,
+      "dice_effect": [
+        { "sanity_damage": 3 }
+      ]
+    }
+  ]
+}
+

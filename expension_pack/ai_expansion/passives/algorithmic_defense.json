@@ -1,0 +1,14 @@
+{
+  "id": "algorithmic_defense",
+  "name": "알고리즘 방어",
+  "desc": "철저한 궤적 예측. 매 턴 시작 시 정신력을 4 회복합니다.",
+  "flavor_text": "인간의 사선은 43만 개의 분기 중 하나에 불과하다.",
+  "effects": [
+    {
+      "trigger": "on_turn_start",
+      "action": "recover_sanity",
+      "value": 4
+    }
+  ]
+}
+

@@ -1,0 +1,33 @@
+{
+  "id": "spark_venting",
+  "name": "스파크 방출",
+  "grade": "paperback",
+  "type": "melee",
+  "cost": 1,
+  "on_use_dialogue": "{card_user}: \"치익... 과열 압력을 배출합니다.\"",
+  "flavor_text": "냉각 밸브를 개방하자 뿜어져 나오는 붉은 화염과 증기.",
+  "on_use_effect": [],
+  "dice": [
+    {
+      "type": "defense",
+      "damage_type": "block",
+      "min": 2,
+      "max": 6,
+      "dice_effect": [null]
+    },
+    {
+      "type": "attack",
+      "damage_type": "blunt",
+      "min": 3,
+      "max": 6,
+      "dice_effect": [
+        {
+          "apply_effects": [
+            { "burn": { "amount": 2, "count": 1 } }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

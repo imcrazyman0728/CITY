@@ -1,0 +1,17 @@
+{
+  "id": "heat_exhaustion",
+  "name": "방열 폭주",
+  "desc": "공격 적중 시 대상에게 화상 2(횟수 1)를 부여합니다.",
+  "flavor_text": "배기구를 통해 뿜어져 나오는 초고열 증기가 살갗을 태운다.",
+  "effects": [
+    {
+      "trigger": "on_hit",
+      "condition": { "kind": "attack" },
+      "action": "apply_status",
+      "status_id": "burn",
+      "amount": 2,
+      "count": 1
+    }
+  ]
+}
+

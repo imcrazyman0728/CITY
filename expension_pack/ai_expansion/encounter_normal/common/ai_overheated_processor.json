@@ -1,0 +1,56 @@
+{
+  "id": "ai_overheated_processor",
+  "start": "begin",
+  "nodes": {
+    "begin": {
+      "text": "폐쇄된 구 로보토미 사 하청 공장의 지하실.\n붉은 증기가 가득 찬 방 한가운데서 거대한 연산 코어가 시뻘겋게 달아오른 채 진동하고 있어.\n주변의 고철과 파이프들이 자석처럼 끌어당겨져 이족보행의 거구로 뭉쳐지더니, 찢어지는 경보음을 울리며 당신을 노려본다!\n\"에러... 연산 루프 과열... 모든 생체 신호를... 소거한다!\"",
+      "choices": [
+        {
+          "text": "\"저런 위험한 고철을 방치할 순 없지.\" 무기를 뽑는다.",
+          "effects": {
+            "battle": ["overheated_core"]
+          },
+          "next": "win_processor"
+        },
+        {
+          "text": "벽면의 비상 냉각 밸브를 온몸으로 비틀어 돌린다! (힘 [분노] 2 필요)",
+          "requirements": {
+            "items": { "strength_wrath": 2 }
+          },
+          "next": "cool_down"
+        },
+        {
+          "text": "저 폭발 직전의 기계와 싸울 생각은 없다. 즉시 달아난다.",
+          "end": true
+        }
+      ]
+    },
+    "win_processor": {
+      "text": "굉음과 함께 연산체가 산산조각 났어!\n불타는 파편 속에서 아직 손상되지 않은 초고열 에너지 코어와 전투 카드를 회수했어.",
+      "choices": [
+        {
+          "text": "이 열기, 잘만 쓰면 제법 쏠쏠하겠어. (40,000 안, [폭주 연산] 카드 획득)",
+          "effects": {
+            "give_items": { "ahn": 40000 },
+            "give_card": "runaway_calculation"
+          },
+          "end": true
+        }
+      ]
+    },
+    "cool_down": {
+      "text": "치이이익-! 얼어붙을 듯 차가운 액체 질소가 뿜어져 나오며 붉게 달아오른 기계가 하얗게 얼어붙어 멈춰 섰어.\n무사히 안전 정지된 코어에서 고급 최적화 칩셋을 떼어냈어.",
+      "choices": [
+        {
+          "text": "침착하게 대응하길 잘했어. ([인공신경 최적화] 카드 획득, 정신력 +15)",
+          "effects": {
+            "give_card": "ai_optimization",
+            "sanity": 15
+          },
+          "end": true
+        }
+      ]
+    }
+  }
+}
+
