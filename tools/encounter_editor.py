@@ -36,6 +36,35 @@ class EditorHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(HTML_FILE.read_bytes())
             return
 
+        if parsed.path == "/api/assets":
+            def get_ids(pat):
+                res = []
+                for p in glob.glob(str(ROOT / pat), recursive=True):
+                    res.append(Path(p).stem)
+                return sorted(list(set(res)))
+
+            def get_files(pat):
+                res = []
+                for p in glob.glob(str(ROOT / pat), recursive=True):
+                    res.append(os.path.basename(p))
+                return sorted(list(set(res)))
+
+            assets = {
+                "cards": get_ids("cards/*.json") + get_ids("expension_pack/**/cards/*.json") + get_ids("expansion_pack/**/cards/*.json"),
+                "enemies": get_ids("enemy/**/*.json") + get_ids("expension_pack/**/enemy/**/*.json") + get_ids("expansion_pack/**/enemy/**/*.json"),
+                "passives": get_ids("passives/*.json") + get_ids("expension_pack/**/passives/*.json") + get_ids("expansion_pack/**/passives/*.json"),
+                "gadgets": get_ids("gadgets/*.json"),
+                "schedule": get_ids("encounter_normal/schedule/**/*.json") + get_ids("expension_pack/**/encounter_normal/schedule/**/*.json"),
+                "players": get_ids("player/char/*.json"),
+                "mus": get_files("mus/*"),
+                "sfx": get_files("sfx/*"),
+            }
+            # Remove duplicates
+            for k in assets:
+                assets[k] = sorted(list(set(assets[k])))
+            self.send_json({"ok": True, "assets": assets})
+            return
+
         if parsed.path == "/api/list":
             encounters = []
             patterns = [

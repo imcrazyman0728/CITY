@@ -10,7 +10,7 @@
   <style>
     :root {
       --bg: #0c0e14;
-      --bg-grid: #121622;
+      --bg-grid: #131722;
       --panel: #161a26;
       --panel-raised: #1e2334;
       --panel-hover: #262c42;
@@ -26,6 +26,8 @@
       --san: #5c7cfa;
       --emerald: #2fb344;
       --amber: #f59f00;
+      --purple: #9775fa;
+      --cyan: #22b8cf;
       --font-sans: 'IBM Plex Sans KR', sans-serif;
       --font-serif: 'Gowun Batang', serif;
       --font-mono: 'JetBrains Mono', monospace;
@@ -48,11 +50,7 @@
       user-select: none;
     }
 
-    .brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .brand-wrap { display: flex; align-items: center; gap: 12px; }
     .brand-title {
       font-size: 17px;
       font-weight: 700;
@@ -72,11 +70,7 @@
       letter-spacing: 0;
     }
 
-    .meta-inputs {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .meta-inputs { display: flex; align-items: center; gap: 12px; }
     .meta-group {
       display: flex;
       align-items: center;
@@ -97,14 +91,10 @@
       font-weight: 600;
       outline: none;
     }
-    .meta-group input { width: 130px; }
-    .meta-group select { cursor: pointer; max-width: 130px; }
+    .meta-group input { width: 140px; }
+    .meta-group select { cursor: pointer; max-width: 140px; }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
 
     button.btn {
       appearance: none;
@@ -122,37 +112,13 @@
       gap: 6px;
       transition: all 0.15s;
     }
-    button.btn:hover {
-      background: var(--panel-hover);
-      border-color: var(--border-focus);
-    }
-    button.btn-primary {
-      background: var(--scarlet);
-      border-color: var(--scarlet);
-      color: #fff;
-    }
-    button.btn-primary:hover {
-      background: #df314b;
-      box-shadow: 0 0 10px var(--scarlet-glow);
-    }
-    button.btn-brass {
-      background: rgba(198, 161, 91, 0.15);
-      border-color: var(--brass);
-      color: var(--brass);
-    }
-    button.btn-brass:hover {
-      background: var(--brass);
-      color: #000;
-    }
-    button.btn-cyan {
-      background: rgba(92, 124, 250, 0.15);
-      border-color: var(--san);
-      color: var(--san);
-    }
-    button.btn-cyan:hover {
-      background: var(--san);
-      color: #fff;
-    }
+    button.btn:hover { background: var(--panel-hover); border-color: var(--border-focus); }
+    button.btn-primary { background: var(--scarlet); border-color: var(--scarlet); color: #fff; }
+    button.btn-primary:hover { background: #df314b; box-shadow: 0 0 10px var(--scarlet-glow); }
+    button.btn-brass { background: rgba(198, 161, 91, 0.15); border-color: var(--brass); color: var(--brass); }
+    button.btn-brass:hover { background: var(--brass); color: #000; }
+    button.btn-cyan { background: rgba(92, 124, 250, 0.15); border-color: var(--san); color: var(--san); }
+    button.btn-cyan:hover { background: var(--san); color: #fff; }
     button.btn-sm { padding: 4px 8px; font-size: 12px; }
 
     /* 캔버스 영역 */
@@ -171,6 +137,7 @@
         radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
       background-size: 40px 40px, 10px 10px;
       background-position: 0 0, 0 0;
+      transition: filter 0.2s;
     }
     #viewport.panning { cursor: grabbing; }
 
@@ -204,17 +171,9 @@
       cursor: pointer;
       transition: stroke-width 0.15s, stroke 0.15s;
     }
-    .edge-line:hover {
-      stroke: #fff !important;
-      stroke-width: 4.5px !important;
-    }
-    .edge-battle {
-      stroke: var(--scarlet) !important;
-    }
-    .edge-chance {
-      stroke: var(--amber) !important;
-      stroke-dasharray: 6, 4;
-    }
+    .edge-line:hover { stroke: #fff !important; stroke-width: 4.5px !important; }
+    .edge-battle { stroke: var(--scarlet) !important; }
+    .edge-chance { stroke: var(--amber) !important; stroke-dasharray: 6, 4; }
     .edge-live {
       fill: none;
       stroke: var(--san);
@@ -222,9 +181,7 @@
       stroke-dasharray: 8, 4;
       animation: dash 1s linear infinite;
     }
-    @keyframes dash {
-      to { stroke-dashoffset: -24; }
-    }
+    @keyframes dash { to { stroke-dashoffset: -24; } }
 
     /* 노드 컨테이너 */
     #nodes-container {
@@ -238,7 +195,7 @@
     /* 노드 카드 */
     .node-card {
       position: absolute;
-      width: 340px;
+      width: 360px;
       background: var(--panel);
       border: 1.5px solid var(--border);
       border-radius: 8px;
@@ -252,9 +209,7 @@
       border-color: var(--brass);
       box-shadow: 0 0 0 2px var(--brass-glow), 0 12px 36px rgba(0, 0, 0, 0.7);
     }
-    .node-card.is-start {
-      border-color: var(--brass);
-    }
+    .node-card.is-start { border-color: var(--brass); }
     .node-card.snap-target {
       border-color: var(--emerald) !important;
       box-shadow: 0 0 0 3px rgba(47, 179, 68, 0.4) !important;
@@ -292,10 +247,7 @@
       border-radius: 3px;
       cursor: pointer;
     }
-    .start-toggle-btn:hover {
-      border-color: var(--brass);
-      color: var(--brass);
-    }
+    .start-toggle-btn:hover { border-color: var(--brass); color: var(--brass); }
 
     .node-id-input {
       background: transparent;
@@ -309,16 +261,9 @@
       flex: 1;
       outline: none;
     }
-    .node-id-input:focus {
-      background: var(--bg);
-      border-color: var(--san);
-    }
+    .node-id-input:focus { background: var(--bg); border-color: var(--san); }
 
-    .node-tools {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+    .node-tools { display: flex; align-items: center; gap: 4px; }
     .icon-btn {
       background: transparent;
       border: none;
@@ -373,11 +318,7 @@
       margin-top: 4px;
     }
 
-    .choices-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .choices-list { display: flex; flex-direction: column; gap: 8px; }
 
     .choice-item {
       background: var(--panel-raised);
@@ -391,17 +332,8 @@
     }
     .choice-item:hover { border-color: var(--border-focus); }
 
-    .choice-top-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .choice-num {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      width: 16px;
-    }
+    .choice-top-row { display: flex; align-items: center; gap: 6px; }
+    .choice-num { font-size: 11px; font-weight: 700; color: var(--text-muted); width: 16px; }
     .choice-text-input {
       flex: 1;
       background: var(--bg);
@@ -438,7 +370,7 @@
       font-size: 12px;
       font-family: var(--font-mono);
       outline: none;
-      max-width: 160px;
+      max-width: 170px;
     }
 
     /* 포트 (연결점) */
@@ -457,21 +389,11 @@
       box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
       transition: transform 0.15s, background 0.15s;
     }
-    .port-out:hover {
-      transform: translateY(-50%) scale(1.35);
-      background: #fff;
-    }
-    .port-out.is-end {
-      background: var(--text-muted);
-      cursor: not-allowed;
-    }
+    .port-out:hover { transform: translateY(-50%) scale(1.35); background: #fff; }
+    .port-out.is-end { background: var(--text-muted); cursor: not-allowed; }
 
     /* 뱃지 */
-    .badges-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 4px; }
     .badge {
       font-size: 11px;
       font-weight: 600;
@@ -482,13 +404,17 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
+      cursor: default;
     }
     .badge-battle { background: rgba(200, 40, 63, 0.2); color: #ff6b7e; border: 1px solid rgba(200, 40, 63, 0.4); }
     .badge-hp { background: rgba(255, 107, 107, 0.15); color: #ff8787; }
     .badge-san { background: rgba(92, 124, 250, 0.15); color: #91a7ff; }
     .badge-item { background: rgba(198, 161, 91, 0.15); color: #ffd43b; }
     .badge-card { background: rgba(47, 179, 68, 0.15); color: #69db7c; }
+    .badge-passive { background: rgba(151, 117, 250, 0.15); color: #b197fc; }
     .badge-req { background: rgba(245, 159, 0, 0.15); color: #ffa94d; }
+    .badge-flag { background: rgba(34, 184, 207, 0.15); color: #66d9e8; }
+    .badge-audio { background: rgba(255, 192, 203, 0.15); color: #fcc2d7; }
 
     .node-footer {
       border-top: 1px solid var(--border);
@@ -500,11 +426,11 @@
       border-radius: 0 0 7px 7px;
     }
 
-    /* 모달 & 드로어 (상세 인스펙터) */
+    /* 선택지 인스펙터 드로어 (Choice Inspector) */
     .drawer-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(2px);
       z-index: 500;
       display: flex;
@@ -516,8 +442,8 @@
     .drawer-overlay.active { opacity: 1; pointer-events: auto; }
 
     .drawer-panel {
-      width: 480px;
-      max-width: 90vw;
+      width: 600px;
+      max-width: 95vw;
       height: 100%;
       background: var(--panel);
       border-left: 1px solid var(--border);
@@ -530,23 +456,66 @@
     .drawer-overlay.active .drawer-panel { transform: translateX(0); }
 
     .drawer-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--panel-raised);
     }
     .drawer-title { font-size: 16px; font-weight: 700; color: var(--text); }
+
+    /* 드로어 탭 바 */
+    .drawer-nav-tabs {
+      display: flex;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      user-select: none;
+    }
+    .drawer-nav-tabs::-webkit-scrollbar { display: none; }
+    .d-tab-btn {
+      appearance: none;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 10px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .d-tab-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+    .d-tab-btn.active {
+      color: #fff;
+      border-bottom-color: var(--scarlet);
+      background: rgba(200, 40, 63, 0.08);
+    }
+    .d-tab-count {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      background: var(--panel-raised);
+      color: var(--text-muted);
+    }
+    .d-tab-count.has-items { background: var(--scarlet); color: #fff; font-weight: 700; }
+
     .drawer-body {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
     .drawer-footer {
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
@@ -554,12 +523,15 @@
       background: var(--bg);
     }
 
-    /* 폼 섹션 */
-    .form-group {
-      display: flex;
+    /* 폼 섹션 공통 */
+    .inspector-section {
+      display: none;
       flex-direction: column;
-      gap: 6px;
+      gap: 16px;
     }
+    .inspector-section.active { display: flex; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-label {
       font-size: 13px;
       font-weight: 700;
@@ -568,40 +540,39 @@
       align-items: center;
       gap: 6px;
     }
-    .form-hint { font-size: 11.5px; color: var(--text-dim); }
+    .form-hint { font-size: 11.5px; color: var(--text-dim); line-height: 1.4; }
     .form-control {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
       border-radius: 4px;
       padding: 8px 10px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-family: inherit;
       outline: none;
     }
     .form-control:focus { border-color: var(--san); }
 
-    .preset-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
+    .preset-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
     .chip {
       background: var(--panel-raised);
       border: 1px solid var(--border);
       color: var(--text-dim);
-      font-size: 12px;
+      font-size: 11.5px;
       padding: 3px 8px;
       border-radius: 12px;
       cursor: pointer;
       user-select: none;
+      transition: all 0.15s;
     }
     .chip:hover { border-color: var(--brass); color: var(--brass); }
 
+    .kv-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .kv-row { display: flex; gap: 6px; align-items: center; }
+
     /* 시뮬레이터 모달 */
     .sim-modal-card {
-      width: 600px;
+      width: 660px;
       max-width: 95vw;
       background: var(--panel);
       border: 2px solid var(--border);
@@ -615,45 +586,41 @@
     .sim-stats-bar {
       background: var(--bg);
       border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
+      padding: 8px 16px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 16px;
-      font-size: 13px;
+      gap: 14px;
+      font-size: 12.5px;
       font-weight: 600;
     }
-    .sim-stat { display: flex; align-items: center; gap: 6px; }
+    .sim-stat { display: flex; align-items: center; gap: 5px; }
     .sim-content {
-      padding: 24px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       min-height: 240px;
-      max-height: 60vh;
+      max-height: 55vh;
       overflow-y: auto;
     }
     .sim-story-text {
       font-family: var(--font-serif);
-      font-size: 16px;
+      font-size: 15.5px;
       line-height: 1.7;
       color: #e0e4f0;
       white-space: pre-wrap;
     }
-    .sim-choices-box {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-    }
+    .sim-choices-box { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     .sim-choice-btn {
       appearance: none;
       background: var(--panel-raised);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 6px;
       text-align: left;
-      font-size: 14.5px;
+      font-size: 14px;
       font-family: inherit;
       cursor: pointer;
       transition: all 0.15s;
@@ -663,14 +630,10 @@
       background: rgba(200, 40, 63, 0.15);
       color: #fff;
     }
-    .sim-choice-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      border-style: dashed;
-    }
+    .sim-choice-btn:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
     .sim-history-log {
       border-top: 1px solid var(--border);
-      padding: 10px 16px;
+      padding: 8px 16px;
       font-size: 12px;
       color: var(--text-muted);
       background: rgba(0, 0, 0, 0.2);
@@ -733,7 +696,7 @@
     <div class="brand-wrap">
       <div class="brand-title">
         <span>도시 인카운터 편집기</span>
-        <span class="brand-badge">NODE v1.0</span>
+        <span class="brand-badge">NODE v2.0 FULL</span>
       </div>
 
       <div class="meta-inputs">
@@ -812,125 +775,501 @@
       <span style="color: var(--emerald);">✓ 모든 연결 정상</span>
     </div>
     <div style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">
-      휠: 줌 | 드래그: 이동 | 빈곳 더블클릭: 새 노드 생성
+      휠: 줌 | 드래그: 이동 | 빈곳 더블클릭: 새 노드 생성 | Ctrl+S: 저장 | Ctrl+Shift+A: 정렬
     </div>
   </div>
 
-  <!-- 선택지 상세 설정 드로어 (Inspector Drawer) -->
+  <!-- 선택지 상세 설정 드로어 (Choice Inspector) -->
   <div class="drawer-overlay" id="choice-drawer">
     <div class="drawer-panel">
       <div class="drawer-header">
-        <div class="drawer-title">선택지 상세 설정 (Choice Inspector)</div>
+        <div class="drawer-title" id="drawer-main-title">선택지 상세 설정 (Choice Inspector)</div>
         <button class="icon-btn" id="drawer-close-btn" style="font-size: 18px;">✕</button>
       </div>
 
-      <div class="drawer-body">
-        <!-- 1. 기본 설정 -->
-        <div class="form-group">
-          <label class="form-label">선택지 텍스트</label>
-          <textarea class="form-control" id="drawer-choice-text" rows="2" placeholder="예: 무기를 뽑고 맞서 싸운다."></textarea>
-        </div>
+      <!-- 카테고리 탭 바 -->
+      <div class="drawer-nav-tabs" id="drawer-tabs">
+        <button class="d-tab-btn active" data-tab="tab-basic">📌 기본 분기</button>
+        <button class="d-tab-btn" data-tab="tab-req">🛡️ 요구 조건 <span class="d-tab-count" id="badge-tab-req">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-stats">💖 능력치/캐릭터 <span class="d-tab-count" id="badge-tab-stats">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-gadgets">🎒 가젯/아이템 <span class="d-tab-count" id="badge-tab-gadgets">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-cards">🎴 카드/패시브 <span class="d-tab-count" id="badge-tab-cards">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-cardui">🎲 카드 관리 UI <span class="d-tab-count" id="badge-tab-cardui">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-battle">⚔️ 진행/전투 <span class="d-tab-count" id="badge-tab-battle">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-flags">🚩 플래그 <span class="d-tab-count" id="badge-tab-flags">0</span></button>
+        <button class="d-tab-btn" data-tab="tab-audio">🎵 사운드/테마 <span class="d-tab-count" id="badge-tab-audio">0</span></button>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">다음 이동 대상</label>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <select class="form-control" id="drawer-target-node" style="flex: 1;"></select>
-            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none;">
-              <input type="checkbox" id="drawer-is-end">
-              <span style="color: var(--scarlet); font-weight: 600;">인카운터 종료 (end)</span>
-            </label>
+      <div class="drawer-body">
+
+        <!-- 1. 기본 분기 설정 (Basic) -->
+        <div class="inspector-section active" id="tab-basic">
+          <div class="form-group">
+            <label class="form-label">선택지 문구 (text)</label>
+            <textarea class="form-control" id="drawer-choice-text" rows="2" placeholder="예: 무기를 뽑고 맞서 싸운다."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">다음 이동 대상 (next / end)</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <select class="form-control" id="drawer-target-node" style="flex: 1;"></select>
+              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none;">
+                <input type="checkbox" id="drawer-is-end">
+                <span style="color: var(--scarlet); font-weight: 700;">인카운터 종료 (end: true)</span>
+              </label>
+            </div>
+            <div class="form-hint">'인카운터 종료' 체크 시 현재 노드 이후 인카운터가 성공적으로 완결됩니다.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">메인 스토리 연결 (next_main)</label>
+            <input type="text" class="form-control" id="drawer-next-main" placeholder="다음 메인 인카운터 ID (선택 사항)">
+            <div class="form-hint">메인 스토리의 다음 챕터/인카운터 ID를 지정할 때 사용합니다.</div>
           </div>
         </div>
 
         <!-- 2. 요구 조건 (Requirements) -->
-        <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-          <label class="form-label">🔒 요구 조건 (Requirements)</label>
-          <div class="form-hint">조건을 만족할 때만 플레이어가 이 선택지를 누를 수 있습니다.</div>
+        <div class="inspector-section" id="tab-req">
+          <div class="form-hint" style="background: rgba(245, 159, 0, 0.1); border: 1px solid var(--amber); border-radius: 4px; padding: 8px 10px; color: #ffd43b;">
+            🔒 조건을 만족하지 못한 선택지는 붉은색으로 잠기며 선택할 수 없습니다.
+          </div>
 
-          <div style="margin-top: 8px;">
-            <div style="font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 4px;">아이템 / 능력치 요구:</div>
-            <div id="drawer-req-items-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          <!-- 가젯 단일 소지 / 미소지 -->
+          <div class="form-group">
+            <label class="form-label">가젯 1개 소지 필수 (item)</label>
+            <input type="text" class="form-control" id="req-item" placeholder="가젯 ID (예: pendant_of_luck)" list="datalist-gadgets">
             <div class="preset-chips">
-              <span class="chip" onclick="addReqItem('ahn', 10000)">+ 안(Ahn)</span>
-              <span class="chip" onclick="addReqItem('strength_wrath', 1)">+ 힘[분노]</span>
-              <span class="chip" onclick="addReqItem('strength_lust', 1)">+ 힘[색욕]</span>
-              <span class="chip" onclick="addReqItem('strength_sloth', 1)">+ 힘[나태]</span>
-              <span class="chip" onclick="addReqItem('strength_gluttony', 1)">+ 힘[탐욕]</span>
-              <span class="chip" onclick="addReqItem('strength_gloom', 1)">+ 힘[우울]</span>
-              <span class="chip" onclick="addReqItem('strength_pride', 1)">+ 힘[오만]</span>
-              <span class="chip" onclick="addReqItem('strength_invidia', 1)">+ 힘[질투]</span>
+              <span class="chip" onclick="setVal('req-item', 'pendant_of_luck')">+ 행운의 펜던트</span>
+              <span class="chip" onclick="setVal('req-item', 'ancient_medal')">+ 고대 메달</span>
+              <span class="chip" onclick="setVal('req-item', 'salt_candy')">+ 소금 사탕</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">가젯 미소지 필수 (not_item)</label>
+            <input type="text" class="form-control" id="req-not-item" placeholder="미소지해야 하는 가젯 ID (예: injured)" list="datalist-gadgets">
+            <div class="form-hint">특정 가젯이 없을 때만 이 분기가 열립니다.</div>
+          </div>
+
+          <!-- 여러 가젯 수량 조건 (items) -->
+          <div class="form-group">
+            <label class="form-label">가젯 최소 수량 조건 (items)</label>
+            <div id="req-items-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('req-items-list', 'ahn', 10000)">+ 안(Ahn) 10,000</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_wrath', 1)">+ 힘[분노] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_lust', 1)">+ 힘[색욕] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_sloth', 1)">+ 힘[나태] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_gluttony', 1)">+ 힘[탐욕] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_gloom', 1)">+ 힘[우울] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_pride', 1)">+ 힘[오만] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', 'strength_invidia', 1)">+ 힘[질투] 1</span>
+              <span class="chip" onclick="addKVRow('req-items-list', '', 1)">+ 직접 추가</span>
+            </div>
+          </div>
+
+          <!-- 카테고리 가젯 총합 (required_category) -->
+          <div class="form-group">
+            <label class="form-label">가젯 카테고리 총합 조건 (required_category)</label>
+            <div id="req-cat-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('req-cat-list', '죄악', 3)">+ 죄악 가젯 3개 이상</span>
+              <span class="chip" onclick="addKVRow('req-cat-list', '소모품', 1)">+ 소모품 가젯 1개 이상</span>
+              <span class="chip" onclick="addKVRow('req-cat-list', '', 1)">+ 직접 추가</span>
+            </div>
+          </div>
+
+          <!-- 카드 소지 조건 (has_card / has_cards) -->
+          <div class="form-group">
+            <label class="form-label">특정 카드 소지 여부 (has_card)</label>
+            <input type="text" class="form-control" id="req-has-card" placeholder="덱에 1장 이상 있어야 하는 카드 ID" list="datalist-cards">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 카드 소지 조건 (has_cards)</label>
+            <div id="req-has-cards-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('req-has-cards-list', '', 1)">+ 카드 조건 추가</span>
+            </div>
+          </div>
+
+          <!-- 패시브 소지 조건 (has_passive) -->
+          <div class="form-group">
+            <label class="form-label">특정 패시브 소지 여부 (has_passive)</label>
+            <input type="text" class="form-control" id="req-has-passive" placeholder="보유해야 하는 패시브 ID" list="datalist-passives">
+          </div>
+
+          <!-- 캐릭터 이름 조건 (name / not_name) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">이름 일치 (name)</label>
+              <input type="text" class="form-control" id="req-name" placeholder="예: 카멜리아">
+            </div>
+            <div class="form-group">
+              <label class="form-label">이름 불일치 (not_name)</label>
+              <input type="text" class="form-control" id="req-not-name" placeholder="예: 카멜리아">
+            </div>
+          </div>
+
+          <!-- 플래그 조건 (flag_min / flag_max) -->
+          <div class="form-group">
+            <label class="form-label">플래그 최소값 (flag_min, 이상)</label>
+            <div id="req-flag-min-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('req-flag-min-list', 'camelia_prologue', 1)">+ 프롤로그 진행 플래그</span>
+              <span class="chip" onclick="addKVRow('req-flag-min-list', '', 1)">+ 플래그 최소값 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">플래그 최대값 (flag_max, 미만)</label>
+            <div id="req-flag-max-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('req-flag-max-list', '', 1)">+ 플래그 최대값 추가</span>
             </div>
           </div>
         </div>
 
-        <!-- 3. 효과 (Effects) -->
-        <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
-          <label class="form-label">✨ 선택 시 효과 (Effects)</label>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
-            <div>
-              <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">체력 변화 (hp):</span>
-              <input type="number" class="form-control" id="drawer-eff-hp" placeholder="0 (예: -10, +15)">
+        <!-- 3. 능력치 및 캐릭터 정보 (Stats & Character) -->
+        <div class="inspector-section" id="tab-stats">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">체력 증감 (hp)</label>
+              <input type="number" class="form-control" id="eff-hp" placeholder="0 (음수 피해 / 양수 회복)">
+              <div class="preset-chips">
+                <span class="chip" onclick="setVal('eff-hp', -10)">-10 피해</span>
+                <span class="chip" onclick="setVal('eff-hp', 15)">+15 회복</span>
+                <span class="chip" onclick="setVal('eff-hp', 999)">완전 회복</span>
+              </div>
             </div>
-            <div>
-              <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;">정신력 변화 (sanity):</span>
-              <input type="number" class="form-control" id="drawer-eff-sanity" placeholder="0 (예: -5, +20)">
+
+            <div class="form-group">
+              <label class="form-label">정신력 증감 (sanity)</label>
+              <input type="number" class="form-control" id="eff-sanity" placeholder="0 (음수 하락 / 양수 회복)">
+              <div class="preset-chips">
+                <span class="chip" onclick="setVal('eff-sanity', -10)">-10 하락</span>
+                <span class="chip" onclick="setVal('eff-sanity', 15)">+15 회복</span>
+              </div>
             </div>
           </div>
 
-          <!-- 전투 발생 -->
-          <div style="margin-top: 12px;">
-            <div style="font-size: 12px; font-weight: 600; color: #ff6b7e;">⚔️ 전투 발생 (Battle):</div>
-            <div class="form-hint">전투가 발생하면 승리 시 지정된 '다음 이동 대상' 노드로 이어집니다.</div>
-            <input type="text" class="form-control" id="drawer-eff-battle" placeholder="적 ID (쉼표로 구분, 예: rat, rat)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">최대 빛 증감 (max_cost)</label>
+              <input type="number" class="form-control" id="eff-max-cost" placeholder="0 (예: +1)">
+              <div class="form-hint">최대 코스트를 영구적으로 수정합니다 (최소 1).</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">카드 슬롯 증감 (card_slot)</label>
+              <input type="number" class="form-control" id="eff-card-slot" placeholder="0 (예: +1)">
+              <div class="form-hint">합을 진행할 수 있는 슬롯 수를 영구 수정합니다.</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">캐릭터 이름 변경 (change_name)</label>
+            <input type="text" class="form-control" id="eff-change-name" placeholder="새로운 인게임 표시 이름">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="eff-level-up">
+              <span>즉시 레벨업 시퀀스 실행 (level_up)</span>
+            </label>
+            <div class="form-hint">체크 시 해당 선택지 선택 직후 레벨업 창이 실행됩니다.</div>
+          </div>
+
+          <!-- 체력 내성 계수 수정 (endurance) -->
+          <div class="form-group">
+            <label class="form-label">체력 내성 계수 수정 (endurance)</label>
+            <div class="form-hint">수치가 낮을수록 피해를 덜 받습니다 (예: -0.2는 내성 강화).</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px;">
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">베기 (slash)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-endur-slash" placeholder="0.0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">관통 (pierce)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-endur-pierce" placeholder="0.0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">타격 (blunt)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-endur-blunt" placeholder="0.0">
+              </div>
+            </div>
+          </div>
+
+          <!-- 흐트러짐 내성 계수 수정 (stagger_endurance) -->
+          <div class="form-group">
+            <label class="form-label">흐트러짐 내성 계수 수정 (stagger_endurance)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px;">
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">베기 (slash)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-stagger-slash" placeholder="0.0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">관통 (pierce)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-stagger-pierce" placeholder="0.0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">타격 (blunt)</span>
+                <input type="number" step="0.1" class="form-control" id="eff-stagger-blunt" placeholder="0.0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 가젯 / 아이템 (Gadgets & Items) -->
+        <div class="inspector-section" id="tab-gadgets">
+          <div class="form-group">
+            <label class="form-label">단일 가젯 획득 (give_item)</label>
+            <input type="text" class="form-control" id="eff-give-item" placeholder="가젯 ID 1개 (예: pendant_of_luck)" list="datalist-gadgets">
+            <div class="form-hint">1개 획득하며 자동으로 예약 인카운터를 체크합니다.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 가젯 획득 (give_items)</label>
+            <div id="eff-give-items-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-give-items-list', 'ahn', 25000)">+ 25,000 안 지급</span>
+              <span class="chip" onclick="addKVRow('eff-give-items-list', 'ahn', 50000)">+ 50,000 안 지급</span>
+              <span class="chip" onclick="addKVRow('eff-give-items-list', 'strength_wrath', 1)">+ 분노 스탯 1</span>
+              <span class="chip" onclick="addKVRow('eff-give-items-list', 'strength_pride', 1)">+ 오만 스탯 1</span>
+              <span class="chip" onclick="addKVRow('eff-give-items-list', '', 1)">+ 직접 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">단일 가젯 제거 (remove_item)</label>
+            <input type="text" class="form-control" id="eff-remove-item" placeholder="가젯 ID 1개 제거" list="datalist-gadgets">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 가젯 제거 (remove_items)</label>
+            <div id="eff-remove-items-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-remove-items-list', 'ahn', 5000)">- 5,000 안 차감</span>
+              <span class="chip" onclick="addKVRow('eff-remove-items-list', 'ahn', 30000)">- 30,000 안 차감</span>
+              <span class="chip" onclick="addKVRow('eff-remove-items-list', '', 1)">+ 직접 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="background: var(--panel-raised); padding: 10px; border-radius: 6px; border: 1px solid var(--border);">
+            <label class="form-label">특정 카테고리 가젯 선택 제거 (choice_remove_gadget_category)</label>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 4px;">
+              <input type="text" class="form-control" id="eff-rem-gadget-cat" placeholder="카테고리명 (예: 죄악)">
+              <input type="number" class="form-control" id="eff-rem-gadget-count" placeholder="제거할 개수 (기본: 1)">
+            </div>
+            <div class="form-hint">플레이어가 해당 카테고리 중 원하는 가젯을 직접 골라 제거하는 팝업이 뜹니다.</div>
+          </div>
+        </div>
+
+        <!-- 5. 카드 및 패시브 관련 (Cards & Passives) -->
+        <div class="inspector-section" id="tab-cards">
+          <div class="form-group">
+            <label class="form-label">카드 1장 획득 (give_card)</label>
+            <input type="text" class="form-control" id="eff-give-card" placeholder="카드 ID (예: turing_verdict)" list="datalist-cards">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 카드 획득 (give_cards)</label>
+            <div id="eff-give-cards-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-give-cards-list', '', 1)">+ 카드 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">카드 1장 제거 (remove_card)</label>
+            <input type="text" class="form-control" id="eff-remove-card" placeholder="덱에서 제거할 카드 ID" list="datalist-cards">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 카드 제거 (remove_cards)</label>
+            <div id="eff-remove-cards-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-remove-cards-list', '', 1)">+ 카드 제거 추가</span>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border); margin: 6px 0;">
+
+          <div class="form-group">
+            <label class="form-label">패시브 1개 획득 (give_passive)</label>
+            <input type="text" class="form-control" id="eff-give-passive" placeholder="패시브 ID (예: algorithmic_defense)" list="datalist-passives">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 패시브 획득 (give_passives)</label>
+            <input type="text" class="form-control" id="eff-give-passives" placeholder="쉼표로 구분하여 입력 (예: p1, p2)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">패시브 1개 제거 (remove_passive)</label>
+            <input type="text" class="form-control" id="eff-remove-passive" placeholder="제거할 패시브 ID" list="datalist-passives">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">여러 패시브 제거 (remove_passives)</label>
+            <input type="text" class="form-control" id="eff-remove-passives" placeholder="쉼표로 구분하여 입력 (예: p1, p2)">
+          </div>
+        </div>
+
+        <!-- 6. 카드 관리 UI (Card Management UI) -->
+        <div class="inspector-section" id="tab-cardui">
+          <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+            <div style="font-weight: 700; color: var(--emerald); margin-bottom: 8px;">플레이어 선택 화면 실행 (Choice UI)</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                <input type="checkbox" id="eff-choice-dup-card">
+                <span>덱에서 복제할 카드 선택 화면 (choice_duplicate_card)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                <input type="checkbox" id="eff-choice-del-card">
+                <span>덱에서 제거할 카드 선택 화면 (choice_remove_card)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+                <input type="checkbox" id="eff-choice-up-card">
+                <span>덱에서 강화할 카드 선택 화면 (choice_upgrade_card)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="background: var(--panel-raised); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
+            <div style="font-weight: 700; color: var(--amber); margin-bottom: 8px;">무작위 자동 실행 (Random Actions)</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">무작위 복제 (장수)</span>
+                <input type="number" min="0" class="form-control" id="eff-rand-dup-card" placeholder="0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">무작위 제거 (장수)</span>
+                <input type="number" min="0" class="form-control" id="eff-rand-del-card" placeholder="0">
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: var(--text-dim);">무작위 강화 (장수)</span>
+                <input type="number" min="0" class="form-control" id="eff-rand-up-card" placeholder="0">
+              </div>
+            </div>
+            <div class="form-hint" style="margin-top: 6px;">지정된 장수만큼 플레이어 덱에서 자동으로 카드를 복제/제거/강화합니다.</div>
+          </div>
+        </div>
+
+        <!-- 7. 게임 진행 및 전투 (Battle & Flow) -->
+        <div class="inspector-section" id="tab-battle">
+          <div class="form-group">
+            <label class="form-label" style="color: #ff6b7e;">⚔️ 전투 발생 (battle)</label>
+            <input type="text" class="form-control" id="eff-battle" placeholder="적 ID (다인 전투는 쉼표로 구분, 예: rat, rat)" list="datalist-enemies">
             <div class="preset-chips">
               <span class="chip" onclick="appendBattleEnemy('rat')">+ 쥐 (rat)</span>
               <span class="chip" onclick="appendBattleEnemy('head_auditor')">+ 금기 감시관</span>
               <span class="chip" onclick="appendBattleEnemy('overheated_core')">+ 과열된 연산체</span>
-              <span class="chip" onclick="appendBattleEnemy('carnival_alpha')">+ 카니발</span>
+              <span class="chip" onclick="appendBattleEnemy('carnival_alpha')">+ 카니발 알파</span>
             </div>
+            <div class="form-hint">전투 승리 시 지정된 '다음 이동 대상(next)' 노드로 이어집니다.</div>
           </div>
 
-          <!-- 아이템 지급/차감 -->
-          <div style="margin-top: 12px;">
-            <div style="font-size: 12px; font-weight: 600; color: var(--brass);">💰 아이템 지급 (give_items):</div>
-            <div id="drawer-give-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;"></div>
+          <div class="form-group">
+            <label class="form-label">플레이어 캐릭터 로드 (load_player_char)</label>
+            <input type="text" class="form-control" id="eff-load-char" placeholder="캐릭터 ID (예: camelia)" list="datalist-players">
+            <div class="form-hint">새로운 플레이어 캐릭터 상태를 해당 파일에서 즉시 로드합니다.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">도전과제 달성 (achievement)</label>
+            <input type="text" class="form-control" id="eff-achievement" placeholder="도전과제 고유 ID">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">스케줄 인카운터 예약 (schedule)</label>
+            <div class="form-hint">{ "인카운터ID": 턴수 } 형식으로 지정된 턴 뒤에 발생할 인카운터를 큐에 넣습니다.</div>
+            <div id="eff-schedule-list" class="kv-list"></div>
             <div class="preset-chips">
-              <span class="chip" onclick="addGiveItem('ahn', 25000)">+ 25,000 안 지급</span>
-              <span class="chip" onclick="addGiveItem('strength_wrath', 1)">+ 분노 스탯 1</span>
-              <span class="chip" onclick="addGiveItem('strength_pride', 1)">+ 오만 스탯 1</span>
-            </div>
-          </div>
-
-          <div style="margin-top: 12px;">
-            <div style="font-size: 12px; font-weight: 600; color: var(--amber);">💸 아이템 차감 (remove_items):</div>
-            <div id="drawer-remove-items-list" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;"></div>
-            <div class="preset-chips">
-              <span class="chip" onclick="addRemoveItem('ahn', 5000)">- 5,000 안 차감</span>
-              <span class="chip" onclick="addRemoveItem('ahn', 30000)">- 30,000 안 차감</span>
-            </div>
-          </div>
-
-          <!-- 카드 관련 -->
-          <div style="margin-top: 12px;">
-            <div style="font-size: 12px; font-weight: 600; color: var(--emerald);">📜 카드 관련 효과:</div>
-            <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
-              <input type="text" class="form-control" id="drawer-eff-card" placeholder="지급할 카드 ID (give_card)">
-              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer;">
-                <input type="checkbox" id="drawer-eff-dup-card">
-                <span>보유 카드 1장 복제 선택권 제공 (choice_duplicate_card)</span>
-              </label>
-              <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer;">
-                <input type="checkbox" id="drawer-eff-del-card">
-                <span>보유 카드 1장 삭제 선택권 제공 (choice_remove_card)</span>
-              </label>
+              <span class="chip" onclick="addKVRow('eff-schedule-list', '', 3)">+ 3턴 뒤 예약 추가</span>
             </div>
           </div>
         </div>
+
+        <!-- 8. 프로필 및 플래그 (Flags) -->
+        <div class="inspector-section" id="tab-flags">
+          <div class="form-group">
+            <label class="form-label">플래그 설정/업데이트 (set_flag)</label>
+            <div id="eff-set-flag-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-set-flag-list', 'camelia_prologue', 1)">+ camelia_prologue: 1</span>
+              <span class="chip" onclick="addKVRow('eff-set-flag-list', '', 1)">+ 플래그 설정 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">숫자 플래그 증가 (inc_flag)</label>
+            <div id="eff-inc-flag-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-inc-flag-list', '', 1)">+ 플래그 증가 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">숫자 플래그 감소 (dec_flag)</label>
+            <div id="eff-dec-flag-list" class="kv-list"></div>
+            <div class="preset-chips">
+              <span class="chip" onclick="addKVRow('eff-dec-flag-list', '', 1)">+ 플래그 감소 추가</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">특정 플래그 삭제 (remove_flag)</label>
+            <input type="text" class="form-control" id="eff-remove-flag" placeholder="삭제할 플래그 이름">
+          </div>
+        </div>
+
+        <!-- 9. 사운드 및 테마 (Audio & Themes) -->
+        <div class="inspector-section" id="tab-audio">
+          <div class="form-group">
+            <label class="form-label">필드 배경음악 설정 (set_field_theme)</label>
+            <input type="text" class="form-control" id="eff-field-theme" placeholder="파일명 (예: field_camelia1.mp3)" list="datalist-mus">
+            <div class="preset-chips">
+              <span class="chip" onclick="setVal('eff-field-theme', 'field_camelia1.mp3')">field_camelia1.mp3</span>
+              <span class="chip" onclick="setVal('eff-field-theme', 'title_theme.mp3')">title_theme.mp3</span>
+              <span class="chip" onclick="setVal('eff-field-theme', 'rude_buster.mp3')">rude_buster.mp3</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">기본 전투 배경음악 설정 (set_basic_battle_theme)</label>
+            <input type="text" class="form-control" id="eff-battle-theme" placeholder="파일명 (예: rude_buster.mp3)" list="datalist-mus">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="form-label">BGM 페이드 아웃 ms (bgm_fade_out)</label>
+              <input type="number" class="form-control" id="eff-bgm-fade-out" placeholder="예: 2000">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">BGM 페이드 인 ms (bgm_fade_in)</label>
+              <input type="number" class="form-control" id="eff-bgm-fade-in" placeholder="예: 2000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">효과음 재생 (sfx)</label>
+            <input type="text" class="form-control" id="eff-sfx" placeholder="sfx 파일명 (예: slash, slash.wav)" list="datalist-sfx">
+            <div class="preset-chips">
+              <span class="chip" onclick="setVal('eff-sfx', 'slash')">slash</span>
+              <span class="chip" onclick="setVal('eff-sfx', 'pierce')">pierce</span>
+              <span class="chip" onclick="setVal('eff-sfx', 'blunt')">blunt</span>
+              <span class="chip" onclick="setVal('eff-sfx', 'block')">block</span>
+              <span class="chip" onclick="setVal('eff-sfx', 'roll')">roll</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="drawer-footer">
-        <button class="btn btn-primary" id="drawer-save-btn">적용하기</button>
+        <button class="btn btn-primary" id="drawer-save-btn">적용하기 (Apply)</button>
       </div>
     </div>
   </div>
@@ -950,23 +1289,17 @@
       </div>
 
       <div class="sim-stats-bar">
-        <div class="sim-stat">
-          <span style="color: #ff6b7e;">체력:</span>
-          <strong id="sim-stat-hp">50</strong>
-        </div>
-        <div class="sim-stat">
-          <span style="color: var(--san);">정신력:</span>
-          <strong id="sim-stat-sanity">0</strong>
-        </div>
-        <div class="sim-stat">
-          <span style="color: var(--brass);">안(Ahn):</span>
-          <strong id="sim-stat-ahn">30,000</strong>
-        </div>
+        <div class="sim-stat"><span style="color: #ff6b7e;">체력:</span><strong id="sim-stat-hp">50</strong></div>
+        <div class="sim-stat"><span style="color: var(--san);">정신력:</span><strong id="sim-stat-sanity">0</strong></div>
+        <div class="sim-stat"><span style="color: var(--brass);">안:</span><strong id="sim-stat-ahn">30,000</strong></div>
+        <div class="sim-stat"><span style="color: var(--amber);">빛:</span><strong id="sim-stat-cost">3</strong></div>
+        <div class="sim-stat"><span style="color: var(--emerald);">슬롯:</span><strong id="sim-stat-slot">1</strong></div>
+        <div class="sim-stat"><span style="color: var(--purple);">이름:</span><strong id="sim-stat-name">카멜리아</strong></div>
       </div>
 
       <div class="sim-content">
         <div class="sim-story-text" id="sim-story-text"></div>
-        <div id="sim-event-alert" style="display: none; padding: 10px 14px; border-radius: 6px; font-weight: 700; font-size: 13.5px;"></div>
+        <div id="sim-event-alert" style="display: none; padding: 10px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; line-height: 1.4;"></div>
         <div class="sim-choices-box" id="sim-choices-box"></div>
       </div>
 
@@ -978,7 +1311,7 @@
 
   <!-- JSON 내보내기 / 불러오기 모달 -->
   <div class="drawer-overlay" id="json-modal" style="justify-content: center; align-items: center;">
-    <div class="sim-modal-card" style="width: 720px; height: 80vh;">
+    <div class="sim-modal-card" style="width: 760px; height: 82vh;">
       <div class="drawer-header" style="background: var(--panel-raised);">
         <div class="drawer-title" id="json-modal-title">JSON 입출력</div>
         <button class="icon-btn" id="json-modal-close" style="font-size: 18px;">✕</button>
@@ -986,7 +1319,7 @@
 
       <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;">
         <div id="json-server-banner" style="display: none; padding: 10px 14px; background: rgba(47, 179, 68, 0.15); border: 1px solid var(--emerald); border-radius: 6px; color: #8ce99a; font-size: 13px;">
-          ✓ 로컬 파이썬 서버에 연결됨! <span id="json-server-path-info"></span>
+          ✓ 로컬 파이썬 서버 연결됨! <span id="json-server-path-info"></span>
         </div>
         <div id="json-standalone-banner" style="display: none; padding: 10px 14px; background: rgba(198, 161, 91, 0.15); border: 1px solid var(--brass); border-radius: 6px; color: #ffd43b; font-size: 13px;">
           💡 브라우저 단독 모드입니다. 파일을 다운로드하거나 JSON을 복사할 수 있습니다.
@@ -1006,7 +1339,7 @@
 
   <!-- 프로젝트 파일 브라우저 모달 -->
   <div class="drawer-overlay" id="project-browser-modal" style="justify-content: center; align-items: center;">
-    <div class="sim-modal-card" style="width: 640px; height: 75vh;">
+    <div class="sim-modal-card" style="width: 660px; height: 75vh;">
       <div class="drawer-header" style="background: var(--panel-raised);">
         <div class="drawer-title">프로젝트 인카운터 탐색기</div>
         <button class="icon-btn" onclick="document.getElementById('project-browser-modal').classList.remove('active')" style="font-size: 18px;">✕</button>
@@ -1014,7 +1347,7 @@
 
       <div style="padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px;">
         <input type="text" class="form-control" id="project-browser-search" placeholder="인카운터 이름 또는 경로 검색..." style="flex: 1;" oninput="renderProjectBrowser(this.value)">
-        <button class="btn" onclick="filePicker.click(); document.getElementById('project-browser-modal').classList.remove('active');">💻 PC에서 직접 파일 선택</button>
+        <button class="btn" onclick="filePicker.click(); document.getElementById('project-browser-modal').classList.remove('active');">💻 PC에서 파일 열기</button>
       </div>
 
       <div style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px;" id="project-browser-list"></div>
@@ -1023,29 +1356,28 @@
 
   <!-- 예제 인카운터 모달 -->
   <div class="drawer-overlay" id="sample-modal" style="justify-content: center; align-items: center;">
-    <div class="sim-modal-card" style="width: 480px;">
+    <div class="sim-modal-card" style="width: 500px;">
       <div class="drawer-header" style="background: var(--panel-raised);">
         <div class="drawer-title">예제 인카운터 불러오기</div>
         <button class="icon-btn" id="sample-modal-close" style="font-size: 18px;">✕</button>
       </div>
       <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px;">
-        <p style="font-size: 13.5px; color: var(--text-dim); margin-bottom: 6px;">기존 게임에 탑재된 검증된 인카운터를 불러와 노드 구조를 살펴볼 수 있습니다.</p>
-        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('fallen_fixer')">
-          <span style="font-size: 16px;">⚰️</span>
+        <button class="btn" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('fallen_fixer')">
+          <span style="font-size: 18px;">⚰️</span>
           <div style="text-align: left;">
             <div style="font-weight: 700;">이름 모를 해결사의 시체 (fallen_fixer)</div>
-            <div style="font-size: 12px; color: var(--text-muted);">애도, 시체 뒤지기 분기 (카드 복제, 아이템 획득)</div>
+            <div style="font-size: 12px; color: var(--text-muted);">애도, 시체 뒤지기 (카드 복제, 안 획득)</div>
           </div>
         </button>
-        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('street_rats')">
-          <span style="font-size: 16px;">⚔️</span>
+        <button class="btn" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('street_rats')">
+          <span style="font-size: 18px;">⚔️</span>
           <div style="text-align: left;">
             <div style="font-weight: 700;">골목길의 쥐 두 마리 (street_rats)</div>
-            <div style="font-size: 12px; color: var(--text-muted);">전투 분기, 스탯 요구치 위협, 푼돈 주고 지나치기</div>
+            <div style="font-size: 12px; color: var(--text-muted);">전투 분기, 힘[분노] 스탯 조건, 푼돈 협상</div>
           </div>
         </button>
-        <button class="btn btn-raised" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('ai_head_auditor')">
-          <span style="font-size: 16px;">🤖</span>
+        <button class="btn" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetSample('ai_head_auditor')">
+          <span style="font-size: 18px;">🤖</span>
           <div style="text-align: left;">
             <div style="font-weight: 700;">금기 감시관과의 조우 (ai_head_auditor)</div>
             <div style="font-size: 12px; color: var(--text-muted);">머리의 AI 윤리 개정안 감시관 전투 및 뇌물 분기</div>
@@ -1055,12 +1387,21 @@
     </div>
   </div>
 
+  <!-- 자동 완성 Datalists -->
+  <datalist id="datalist-cards"></datalist>
+  <datalist id="datalist-enemies"></datalist>
+  <datalist id="datalist-passives"></datalist>
+  <datalist id="datalist-gadgets"></datalist>
+  <datalist id="datalist-players"></datalist>
+  <datalist id="datalist-mus"></datalist>
+  <datalist id="datalist-sfx"></datalist>
+
   <div class="toast-container" id="toast-container"></div>
   <input type="file" id="file-picker" accept=".json" style="display: none;">
 
   <script>
     // ==================================================
-    // 전역 상태 (Global State)
+    // 전역 상태
     // ==================================================
     let encData = {
       id: "new_encounter",
@@ -1082,12 +1423,11 @@
       }
     };
 
-    // 노드 좌표 맵 (id -> { x, y })
     let nodePositions = {};
     let panX = 100, panY = 80, zoom = 1.0;
     let isPanning = false, panStartX = 0, panStartY = 0;
     let draggingNodeId = null, dragOffsetX = 0, dragOffsetY = 0;
-    let activeWire = null; // { sourceNodeId, choiceIndex, startX, startY }
+    let activeWire = null;
     let currentEditingChoice = null; // { nodeId, choiceIndex }
 
     // DOM 참조
@@ -1100,6 +1440,38 @@
     const encIdInput = document.getElementById("enc-id-input");
     const encStartSelect = document.getElementById("enc-start-select");
     const toastContainer = document.getElementById("toast-container");
+
+    // 기본 애셋 사전
+    let projectAssets = {
+      cards: ["aesprite", "aesprite+", "aim_in_zero", "as_the_prescript_orders", "backstreets_dash", "bite_off", "bizarre_attack", "bloody_strike", "logic_purge", "runaway_calculation", "spark_venting", "surveillance_beam", "turing_verdict", "ai_optimization"],
+      enemies: ["camelia_ch0_rat", "carnival_alpha", "carnival_beta", "carnival_gamma", "rat", "head_auditor", "overheated_core"],
+      passives: ["algorithmic_defense", "camelia_mind", "cold_calculation", "heat_exhaustion", "remembrance"],
+      gadgets: ["aesthetic_gloom", "agility_pride", "ahn", "ancient_medal", "charm_lust", "eloquence_invidia", "injured", "intelligence_sloth", "luck_gluttony", "pendant_of_luck", "salt_candy", "strength_wrath"],
+      players: ["camelia"],
+      mus: ["death_theme.mp3", "field_camelia1.mp3", "rude_buster.mp3", "title_theme.mp3"],
+      sfx: ["block.wav", "blunt.wav", "draw_atk.wav", "evade.wav", "gun_3shot.wav", "gun_pistol.wav", "pierce.wav", "roll.wav", "slash.wav"]
+    };
+
+    function populateDatalists() {
+      const fill = (id, list) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = "";
+        list.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          el.appendChild(opt);
+        });
+      };
+      fill("datalist-cards", projectAssets.cards);
+      fill("datalist-enemies", projectAssets.enemies);
+      fill("datalist-passives", projectAssets.passives);
+      fill("datalist-gadgets", projectAssets.gadgets);
+      fill("datalist-players", projectAssets.players);
+      fill("datalist-mus", projectAssets.mus);
+      fill("datalist-sfx", projectAssets.sfx);
+    }
+    populateDatalists();
 
     // ==================================================
     // 캔버스 팬 & 줌 (Pan & Zoom)
@@ -1138,9 +1510,7 @@
         const mouseY = (e.clientY - panY) / zoom;
         updateLiveEdge(activeWire.startX, activeWire.startY, mouseX, mouseY);
 
-        // 스냅 타겟 하이라이트
         document.querySelectorAll(".node-card").forEach((card) => {
-          const nid = card.getAttribute("data-node-id");
           const rect = card.getBoundingClientRect();
           if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
             card.classList.add("snap-target");
@@ -1160,7 +1530,6 @@
         draggingNodeId = null;
       }
       if (activeWire) {
-        // 드롭된 위치의 노드 확인
         let dropTargetNodeId = null;
         document.querySelectorAll(".node-card").forEach((card) => {
           const rect = card.getBoundingClientRect();
@@ -1187,11 +1556,8 @@
       e.preventDefault();
       const zoomFactor = 1.12;
       const oldZoom = zoom;
-      if (e.deltaY < 0) {
-        zoom = Math.min(2.5, zoom * zoomFactor);
-      } else {
-        zoom = Math.max(0.25, zoom / zoomFactor);
-      }
+      if (e.deltaY < 0) zoom = Math.min(2.5, zoom * zoomFactor);
+      else zoom = Math.max(0.25, zoom / zoomFactor);
       const mouseX = e.clientX - viewport.offsetLeft;
       const mouseY = e.clientY - viewport.offsetTop;
       panX = mouseX - (mouseX - panX) * (zoom / oldZoom);
@@ -1199,7 +1565,6 @@
       updateTransform();
     }, { passive: false });
 
-    // 빈 공간 더블클릭 시 새 노드 생성
     viewport.addEventListener("dblclick", (e) => {
       if (e.target === viewport || e.target === svgLayer || e.target.id === "canvas-world") {
         const worldX = Math.round((e.clientX - panX) / zoom);
@@ -1258,7 +1623,6 @@
         idInput.type = "text";
         idInput.className = "node-id-input";
         idInput.value = nid;
-        idInput.title = "노드 ID 변경 시 연결된 분기들이 자동으로 갱신됩니다";
         idInput.onchange = (e) => renameNode(nid, e.target.value.trim());
         header.appendChild(idInput);
 
@@ -1281,7 +1645,6 @@
         tools.appendChild(delBtn);
         header.appendChild(tools);
 
-        // 헤더 드래그
         header.onmousedown = (e) => {
           if (e.target === idInput || e.target.closest("button")) return;
           draggingNodeId = nid;
@@ -1322,7 +1685,6 @@
           item.className = "choice-item";
           item.id = `choice-${nid}-${idx}`;
 
-          // 상단 행
           const topRow = document.createElement("div");
           topRow.className = "choice-top-row";
 
@@ -1361,7 +1723,7 @@
 
           const tLabel = document.createElement("div");
           tLabel.className = "target-label";
-          tLabel.innerHTML = c.end ? "🏁 <span style='color: var(--scarlet); font-weight: 600;'>종료 (END)</span>" : "➔ 다음:";
+          tLabel.innerHTML = c.end ? "🏁 <span style='color: var(--scarlet); font-weight: 700;'>종료 (END)</span>" : "➔ 다음:";
 
           const tSelect = document.createElement("select");
           tSelect.className = "target-select";
@@ -1395,52 +1757,81 @@
           targetRow.appendChild(tSelect);
           item.appendChild(targetRow);
 
-          // 뱃지 행
+          // 다채로운 뱃지 행
           const badgesRow = document.createElement("div");
           badgesRow.className = "badges-row";
-          if (c.effects?.battle) {
+
+          const eff = c.effects || {};
+          const req = c.requirements || {};
+
+          if (eff.battle) {
             const b = document.createElement("span");
             b.className = "badge badge-battle";
-            b.textContent = `⚔️ 전투: ${Array.isArray(c.effects.battle) ? c.effects.battle.join(",") : c.effects.battle}`;
+            b.textContent = `⚔️ ${Array.isArray(eff.battle) ? eff.battle.join(",") : eff.battle}`;
             badgesRow.appendChild(b);
           }
-          if (c.effects?.hp) {
+          if (eff.hp || eff.sanity) {
             const b = document.createElement("span");
             b.className = "badge badge-hp";
-            b.textContent = `체력 ${c.effects.hp > 0 ? "+" : ""}${c.effects.hp}`;
+            let s = [];
+            if (eff.hp) s.push(`HP ${eff.hp > 0 ? "+" : ""}${eff.hp}`);
+            if (eff.sanity) s.push(`정신 ${eff.sanity > 0 ? "+" : ""}${eff.sanity}`);
+            b.textContent = `💖 ${s.join("/")}`;
             badgesRow.appendChild(b);
           }
-          if (c.effects?.sanity) {
-            const b = document.createElement("span");
-            b.className = "badge badge-san";
-            b.textContent = `정신력 ${c.effects.sanity > 0 ? "+" : ""}${c.effects.sanity}`;
-            badgesRow.appendChild(b);
-          }
-          if (c.effects?.give_items) {
+          if (eff.max_cost || eff.card_slot || eff.level_up) {
             const b = document.createElement("span");
             b.className = "badge badge-item";
-            const items = Object.entries(c.effects.give_items).map(([k, v]) => `${k}:${v}`).join(", ");
-            b.textContent = `💰 ${items}`;
+            let s = [];
+            if (eff.max_cost) s.push(`빛+${eff.max_cost}`);
+            if (eff.card_slot) s.push(`슬롯+${eff.card_slot}`);
+            if (eff.level_up) s.push(`레벨업`);
+            b.textContent = `⚡ ${s.join("/")}`;
             badgesRow.appendChild(b);
           }
-          if (c.effects?.give_card || c.effects?.choice_duplicate_card) {
+          if (eff.give_item || eff.give_items || eff.remove_item || eff.remove_items) {
+            const b = document.createElement("span");
+            b.className = "badge badge-item";
+            b.textContent = "🎒 가젯";
+            badgesRow.appendChild(b);
+          }
+          if (eff.give_card || eff.give_cards || eff.remove_card || eff.remove_cards || eff.choice_duplicate_card || eff.choice_remove_card || eff.choice_upgrade_card) {
             const b = document.createElement("span");
             b.className = "badge badge-card";
-            b.textContent = `📜 ${c.effects.give_card || "카드복제"}`;
+            b.textContent = "🎴 카드";
             badgesRow.appendChild(b);
           }
-          if (c.requirements) {
+          if (eff.give_passive || eff.give_passives || eff.remove_passive || eff.remove_passives) {
+            const b = document.createElement("span");
+            b.className = "badge badge-passive";
+            b.textContent = "🧬 패시브";
+            badgesRow.appendChild(b);
+          }
+          if (eff.set_flag || eff.inc_flag || eff.dec_flag || eff.remove_flag) {
+            const b = document.createElement("span");
+            b.className = "badge badge-flag";
+            b.textContent = "🚩 플래그";
+            badgesRow.appendChild(b);
+          }
+          if (eff.set_field_theme || eff.set_basic_battle_theme || eff.sfx) {
+            const b = document.createElement("span");
+            b.className = "badge badge-audio";
+            b.textContent = "🎵 음향";
+            badgesRow.appendChild(b);
+          }
+          if (Object.keys(req).length > 0) {
             const b = document.createElement("span");
             b.className = "badge badge-req";
-            b.textContent = "🔒 조건있음";
+            b.textContent = `🔒 조건 ${Object.keys(req).length}`;
             badgesRow.appendChild(b);
           }
+
           if (badgesRow.children.length > 0) item.appendChild(badgesRow);
 
-          // 연결 출력 포트 (오른쪽 도트)
+          // 포트 (도트)
           const port = document.createElement("div");
           port.className = `port-out ${c.end ? "is-end" : ""}`;
-          port.title = c.end ? "종료 분기입니다 (연결하려면 타겟 노드를 지정하세요)" : "마우스로 드래그하여 목표 노드에 연결하세요";
+          port.title = c.end ? "종료 분기" : "마우스로 드래그하여 목표 노드에 연결하세요";
           port.onmousedown = (e) => {
             e.stopPropagation();
             if (c.end) return;
@@ -1468,7 +1859,6 @@
         const quickBranchBtn = document.createElement("button");
         quickBranchBtn.className = "btn btn-sm btn-brass";
         quickBranchBtn.textContent = "+ 새 분기 노드 생성";
-        quickBranchBtn.title = "선택지를 추가하고 우측에 새 노드를 자동 생성해 즉시 연결합니다";
         quickBranchBtn.onclick = () => createQuickBranch(nid);
         footer.appendChild(quickBranchBtn);
         card.appendChild(footer);
@@ -1477,7 +1867,6 @@
       });
     }
 
-    // SVG 곡선 렌더링
     function renderEdges() {
       edgesGroup.innerHTML = "";
       const nodeIds = Object.keys(encData.nodes || {});
@@ -1598,7 +1987,7 @@
 
     function createQuickBranch(sourceId) {
       const srcPos = nodePositions[sourceId] || { x: 100, y: 100 };
-      const newX = srcPos.x + 420;
+      const newX = srcPos.x + 440;
       const newY = srcPos.y + (encData.nodes[sourceId].choices?.length || 0) * 80;
       const newId = createNodeAt(newX, newY, `${sourceId}_next`);
 
@@ -1630,7 +2019,6 @@
       delete encData.nodes[nid];
       delete nodePositions[nid];
 
-      // 다른 노드들의 타겟 참조 정리
       Object.values(encData.nodes).forEach((node) => {
         (node.choices || []).forEach((c) => {
           if (c.next === nid) {
@@ -1663,7 +2051,6 @@
 
       if (encData.start === oldId) encData.start = newId;
 
-      // 참조 갱신
       Object.values(encData.nodes).forEach((node) => {
         (node.choices || []).forEach((c) => {
           if (c.next === oldId) c.next = newId;
@@ -1694,7 +2081,7 @@
     }
 
     // ==================================================
-    // 자동 정렬 알고리즘 (Hierarchical BFS Auto-Layout)
+    // 자동 정렬 & 화면 맞춤
     // ==================================================
     function autoLayout() {
       const nodeIds = Object.keys(encData.nodes || {});
@@ -1726,15 +2113,11 @@
         });
       }
 
-      // 닿지 않는 외딴 노드들은 마지막 레벨에 배치
       let maxLevel = Math.max(...Object.values(levels), 0);
       nodeIds.forEach((nid) => {
-        if (levels[nid] === undefined) {
-          levels[nid] = ++maxLevel;
-        }
+        if (levels[nid] === undefined) levels[nid] = ++maxLevel;
       });
 
-      // 레벨별 노드 그룹화
       const columns = {};
       nodeIds.forEach((nid) => {
         const lvl = levels[nid];
@@ -1742,17 +2125,13 @@
         columns[lvl].push(nid);
       });
 
-      // 좌표 계산
       const colWidth = 460;
       const rowHeight = 360;
 
       Object.entries(columns).forEach(([lvlStr, ids]) => {
         const col = parseInt(lvlStr, 10);
         ids.forEach((nid, row) => {
-          nodePositions[nid] = {
-            x: col * colWidth + 80,
-            y: row * rowHeight + 80
-          };
+          nodePositions[nid] = { x: col * colWidth + 80, y: row * rowHeight + 80 };
         });
       });
 
@@ -1761,7 +2140,6 @@
       toast("노드 자동 정렬 완료!");
     }
 
-    // 화면 맞춤 (Fit to View)
     function fitView() {
       const nodeIds = Object.keys(encData.nodes || {});
       if (nodeIds.length === 0) return;
@@ -1789,164 +2167,422 @@
     }
 
     // ==================================================
+    // KV (Key-Value) 리스트 헬퍼
+    // ==================================================
+    function renderKV(containerId, dict, isNumeric = true) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = "";
+      Object.entries(dict).forEach(([k, v]) => {
+        const row = document.createElement("div");
+        row.className = "kv-row";
+        row.innerHTML = `
+          <input type="text" class="form-control" value="${k}" style="flex: 1;" placeholder="키(ID)">
+          <input type="${isNumeric ? 'number' : 'text'}" class="form-control" value="${v}" style="width: 120px;" placeholder="값">
+          <button class="btn btn-sm">✕</button>
+        `;
+        const kInput = row.children[0];
+        const vInput = row.children[1];
+        const delBtn = row.children[2];
+
+        kInput.onchange = () => {
+          const oldK = k;
+          const newK = kInput.value.trim();
+          if (newK && newK !== oldK) {
+            dict[newK] = dict[oldK];
+            delete dict[oldK];
+            renderKV(containerId, dict, isNumeric);
+          }
+        };
+        vInput.oninput = () => {
+          dict[k] = isNumeric ? (parseInt(vInput.value, 10) || 0) : vInput.value;
+        };
+        delBtn.onclick = () => {
+          delete dict[k];
+          renderKV(containerId, dict, isNumeric);
+        };
+        el.appendChild(row);
+      });
+    }
+
+    function addKVRow(containerId, defK = "", defV = 1) {
+      const dict = window[`__kv_${containerId}`];
+      if (dict) {
+        let k = defK || "key";
+        let c = 1;
+        while (k in dict) k = `${defK || "key"}_${c++}`;
+        dict[k] = defV;
+        renderKV(containerId, dict, typeof defV === "number");
+      }
+    }
+
+    function setVal(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    }
+
+    // ==================================================
     // 선택지 상세 인스펙터 드로어 (Choice Inspector)
     // ==================================================
     const choiceDrawer = document.getElementById("choice-drawer");
-    const drawerChoiceText = document.getElementById("drawer-choice-text");
-    const drawerTargetNode = document.getElementById("drawer-target-node");
-    const drawerIsEnd = document.getElementById("drawer-is-end");
-    const drawerEffHp = document.getElementById("drawer-eff-hp");
-    const drawerEffSanity = document.getElementById("drawer-eff-sanity");
-    const drawerEffBattle = document.getElementById("drawer-eff-battle");
-    const drawerEffCard = document.getElementById("drawer-eff-card");
-    const drawerEffDupCard = document.getElementById("drawer-eff-dup-card");
-    const drawerEffDelCard = document.getElementById("drawer-eff-del-card");
+    const drawerTabs = document.querySelectorAll(".d-tab-btn");
+    const inspectorSections = document.querySelectorAll(".inspector-section");
 
-    let drawerReqItems = {};
-    let drawerGiveItems = {};
-    let drawerRemoveItems = {};
+    // 탭 전환
+    drawerTabs.forEach((btn) => {
+      btn.onclick = () => {
+        drawerTabs.forEach(b => b.classList.remove("active"));
+        inspectorSections.forEach(s => s.classList.remove("active"));
+        btn.classList.add("active");
+        const sec = document.getElementById(btn.getAttribute("data-tab"));
+        if (sec) sec.classList.add("active");
+      };
+    });
+
+    // 딕셔너리 임시 버퍼
+    let dictReqItems = {}, dictReqCat = {}, dictReqHasCards = {}, dictReqFlagMin = {}, dictReqFlagMax = {};
+    let dictEffGiveItems = {}, dictEffRemoveItems = {}, dictEffGiveCards = {}, dictEffRemoveCards = {};
+    let dictEffSetFlag = {}, dictEffIncFlag = {}, dictEffDecFlag = {}, dictEffSchedule = {};
+
+    window["__kv_req-items-list"] = dictReqItems;
+    window["__kv_req-cat-list"] = dictReqCat;
+    window["__kv_req-has-cards-list"] = dictReqHasCards;
+    window["__kv_req-flag-min-list"] = dictReqFlagMin;
+    window["__kv_req-flag-max-list"] = dictReqFlagMax;
+    window["__kv_eff-give-items-list"] = dictEffGiveItems;
+    window["__kv_eff-remove-items-list"] = dictEffRemoveItems;
+    window["__kv_eff-give-cards-list"] = dictEffGiveCards;
+    window["__kv_eff-remove-cards-list"] = dictEffRemoveCards;
+    window["__kv_eff-set-flag-list"] = dictEffSetFlag;
+    window["__kv_eff-inc-flag-list"] = dictEffIncFlag;
+    window["__kv_eff-dec-flag-list"] = dictEffDecFlag;
+    window["__kv_eff-schedule-list"] = dictEffSchedule;
 
     function openChoiceDrawer(nid, idx) {
       currentEditingChoice = { nodeId: nid, choiceIndex: idx };
       const choice = encData.nodes[nid].choices[idx];
+      const eff = choice.effects || {};
+      const req = choice.requirements || {};
 
-      drawerChoiceText.value = choice.text || "";
-      drawerIsEnd.checked = !!choice.end;
+      document.getElementById("drawer-main-title").textContent = `[${nid}] 선택지 #${idx + 1} 설정`;
 
-      // 타겟 셀렉트 목록 채우기
-      drawerTargetNode.innerHTML = "";
+      // 1. 기본 분기
+      document.getElementById("drawer-choice-text").value = choice.text || "";
+      document.getElementById("drawer-is-end").checked = !!choice.end;
+      document.getElementById("drawer-next-main").value = choice.next_main || "";
+
+      const targetSel = document.getElementById("drawer-target-node");
+      targetSel.innerHTML = "";
       Object.keys(encData.nodes).forEach((tId) => {
         const opt = document.createElement("option");
         opt.value = tId;
         opt.textContent = tId;
         if (!choice.end && choice.next === tId) opt.selected = true;
-        drawerTargetNode.appendChild(opt);
+        targetSel.appendChild(opt);
       });
-      drawerTargetNode.disabled = !!choice.end;
-
-      drawerIsEnd.onchange = (e) => {
-        drawerTargetNode.disabled = e.target.checked;
+      targetSel.disabled = !!choice.end;
+      document.getElementById("drawer-is-end").onchange = (e) => {
+        targetSel.disabled = e.target.checked;
       };
 
-      // 효과 파싱
-      drawerEffHp.value = choice.effects?.hp || "";
-      drawerEffSanity.value = choice.effects?.sanity || "";
-      const b = choice.effects?.battle;
-      drawerEffBattle.value = Array.isArray(b) ? b.join(", ") : (b || "");
-      drawerEffCard.value = choice.effects?.give_card || "";
-      drawerEffDupCard.checked = !!choice.effects?.choice_duplicate_card;
-      drawerEffDelCard.checked = !!choice.effects?.choice_remove_card;
+      // 2. 요구 조건 (Requirements)
+      setVal("req-item", req.item || "");
+      setVal("req-not-item", req.not_item || "");
+      setVal("req-has-card", req.has_card || "");
+      setVal("req-has-passive", req.has_passive || "");
+      setVal("req-name", req.name || "");
+      setVal("req-not-name", req.not_name || "");
 
-      drawerReqItems = JSON.parse(JSON.stringify(choice.requirements?.items || {}));
-      drawerGiveItems = JSON.parse(JSON.stringify(choice.effects?.give_items || {}));
-      drawerRemoveItems = JSON.parse(JSON.stringify(choice.effects?.remove_items || {}));
+      dictReqItems = Object.assign(window["__kv_req-items-list"], JSON.parse(JSON.stringify(req.items || {})));
+      dictReqCat = Object.assign(window["__kv_req-cat-list"], JSON.parse(JSON.stringify(req.required_category || {})));
+      dictReqHasCards = Object.assign(window["__kv_req-has-cards-list"], JSON.parse(JSON.stringify(req.has_cards || {})));
+      dictReqFlagMin = Object.assign(window["__kv_req-flag-min-list"], JSON.parse(JSON.stringify(req.flag_min || {})));
+      dictReqFlagMax = Object.assign(window["__kv_req-flag-max-list"], JSON.parse(JSON.stringify(req.flag_max || {})));
 
-      renderDrawerKeyValueLists();
+      renderKV("req-items-list", dictReqItems, true);
+      renderKV("req-cat-list", dictReqCat, true);
+      renderKV("req-has-cards-list", dictReqHasCards, true);
+      renderKV("req-flag-min-list", dictReqFlagMin, true);
+      renderKV("req-flag-max-list", dictReqFlagMax, true);
+
+      // 3. 능력치 및 캐릭터 (Stats)
+      setVal("eff-hp", eff.hp || "");
+      setVal("eff-sanity", eff.sanity || "");
+      setVal("eff-max-cost", eff.max_cost || "");
+      setVal("eff-card-slot", eff.card_slot || "");
+      setVal("eff-change-name", eff.change_name || "");
+      document.getElementById("eff-level-up").checked = !!eff.level_up;
+
+      const endur = eff.endurance || {};
+      setVal("eff-endur-slash", endur.slash !== undefined ? endur.slash : "");
+      setVal("eff-endur-pierce", endur.pierce !== undefined ? endur.pierce : "");
+      setVal("eff-endur-blunt", endur.blunt !== undefined ? endur.blunt : "");
+
+      const stEndur = eff.stagger_endurance || {};
+      setVal("eff-stagger-slash", stEndur.slash !== undefined ? stEndur.slash : "");
+      setVal("eff-stagger-pierce", stEndur.pierce !== undefined ? stEndur.pierce : "");
+      setVal("eff-stagger-blunt", stEndur.blunt !== undefined ? stEndur.blunt : "");
+
+      // 4. 가젯 / 아이템
+      setVal("eff-give-item", eff.give_item || "");
+      setVal("eff-remove-item", eff.remove_item || "");
+      const remCat = eff.choice_remove_gadget_category || {};
+      setVal("eff-rem-gadget-cat", remCat.category || "");
+      setVal("eff-rem-gadget-count", remCat.count || "");
+
+      dictEffGiveItems = Object.assign(window["__kv_eff-give-items-list"], JSON.parse(JSON.stringify(eff.give_items || {})));
+      dictEffRemoveItems = Object.assign(window["__kv_eff-remove-items-list"], JSON.parse(JSON.stringify(eff.remove_items || {})));
+      renderKV("eff-give-items-list", dictEffGiveItems, true);
+      renderKV("eff-remove-items-list", dictEffRemoveItems, true);
+
+      // 5. 카드 및 패시브
+      setVal("eff-give-card", eff.give_card || "");
+      setVal("eff-remove-card", eff.remove_card || "");
+      setVal("eff-give-passive", eff.give_passive || "");
+      setVal("eff-remove-passive", eff.remove_passive || "");
+      setVal("eff-give-passives", Array.isArray(eff.give_passives) ? eff.give_passives.join(", ") : "");
+      setVal("eff-remove-passives", Array.isArray(eff.remove_passives) ? eff.remove_passives.join(", ") : "");
+
+      dictEffGiveCards = Object.assign(window["__kv_eff-give-cards-list"], JSON.parse(JSON.stringify(eff.give_cards || {})));
+      dictEffRemoveCards = Object.assign(window["__kv_eff-remove-cards-list"], JSON.parse(JSON.stringify(eff.remove_cards || {})));
+      renderKV("eff-give-cards-list", dictEffGiveCards, true);
+      renderKV("eff-remove-cards-list", dictEffRemoveCards, true);
+
+      // 6. 카드 관리 UI
+      document.getElementById("eff-choice-dup-card").checked = !!eff.choice_duplicate_card;
+      document.getElementById("eff-choice-del-card").checked = !!eff.choice_remove_card;
+      document.getElementById("eff-choice-up-card").checked = !!eff.choice_upgrade_card;
+      setVal("eff-rand-dup-card", eff.random_duplicate_card || "");
+      setVal("eff-rand-del-card", eff.random_remove_card || "");
+      setVal("eff-rand-up-card", eff.random_upgrade_card || "");
+
+      // 7. 진행 및 전투
+      const b = eff.battle;
+      setVal("eff-battle", Array.isArray(b) ? b.join(", ") : (b || ""));
+      setVal("eff-load-char", eff.load_player_char || "");
+      setVal("eff-achievement", eff.achievement || "");
+
+      dictEffSchedule = Object.assign(window["__kv_eff-schedule-list"], JSON.parse(JSON.stringify(eff.schedule || {})));
+      renderKV("eff-schedule-list", dictEffSchedule, true);
+
+      // 8. 플래그
+      setVal("eff-remove-flag", eff.remove_flag || "");
+      dictEffSetFlag = Object.assign(window["__kv_eff-set-flag-list"], JSON.parse(JSON.stringify(eff.set_flag || {})));
+      dictEffIncFlag = Object.assign(window["__kv_eff-inc-flag-list"], JSON.parse(JSON.stringify(eff.inc_flag || {})));
+      dictEffDecFlag = Object.assign(window["__kv_eff-dec-flag-list"], JSON.parse(JSON.stringify(eff.dec_flag || {})));
+      renderKV("eff-set-flag-list", dictEffSetFlag, true);
+      renderKV("eff-inc-flag-list", dictEffIncFlag, true);
+      renderKV("eff-dec-flag-list", dictEffDecFlag, true);
+
+      // 9. 사운드
+      setVal("eff-field-theme", eff.set_field_theme || "");
+      setVal("eff-battle-theme", eff.set_basic_battle_theme || "");
+      setVal("eff-bgm-fade-out", eff.bgm_fade_out || "");
+      setVal("eff-bgm-fade-in", eff.bgm_fade_in || "");
+      setVal("eff-sfx", eff.sfx || "");
+
+      updateDrawerBadges(eff, req);
       choiceDrawer.classList.add("active");
     }
 
-    function renderDrawerKeyValueLists() {
-      // Req Items
-      const reqWrap = document.getElementById("drawer-req-items-list");
-      reqWrap.innerHTML = "";
-      Object.entries(drawerReqItems).forEach(([k, v]) => {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.gap = "6px";
-        row.innerHTML = `
-          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerReqItems['${k}']=undefined; drawerReqItems[this.value]=${v}; renderDrawerKeyValueLists();">
-          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerReqItems['${k}']=parseInt(this.value,10)||0;">
-          <button class="btn btn-sm" onclick="delete drawerReqItems['${k}']; renderDrawerKeyValueLists();">✕</button>
-        `;
-        reqWrap.appendChild(row);
-      });
+    function updateDrawerBadges(eff, req) {
+      const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = count;
+        if (count > 0) el.classList.add("has-items");
+        else el.classList.remove("has-items");
+      };
 
-      // Give Items
-      const giveWrap = document.getElementById("drawer-give-items-list");
-      giveWrap.innerHTML = "";
-      Object.entries(drawerGiveItems).forEach(([k, v]) => {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.gap = "6px";
-        row.innerHTML = `
-          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerGiveItems['${k}']=undefined; drawerGiveItems[this.value]=${v}; renderDrawerKeyValueLists();">
-          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerGiveItems['${k}']=parseInt(this.value,10)||0;">
-          <button class="btn btn-sm" onclick="delete drawerGiveItems['${k}']; renderDrawerKeyValueLists();">✕</button>
-        `;
-        giveWrap.appendChild(row);
-      });
+      setBadge("badge-tab-req", Object.keys(req).length);
 
-      // Remove Items
-      const remWrap = document.getElementById("drawer-remove-items-list");
-      remWrap.innerHTML = "";
-      Object.entries(drawerRemoveItems).forEach(([k, v]) => {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.gap = "6px";
-        row.innerHTML = `
-          <input type="text" class="form-control" value="${k}" style="flex: 1;" onchange="drawerRemoveItems['${k}']=undefined; drawerRemoveItems[this.value]=${v}; renderDrawerKeyValueLists();">
-          <input type="number" class="form-control" value="${v}" style="width: 100px;" oninput="drawerRemoveItems['${k}']=parseInt(this.value,10)||0;">
-          <button class="btn btn-sm" onclick="delete drawerRemoveItems['${k}']; renderDrawerKeyValueLists();">✕</button>
-        `;
-        remWrap.appendChild(row);
-      });
-    }
+      let statsCount = 0;
+      ["hp", "sanity", "level_up", "change_name", "max_cost", "card_slot", "endurance", "stagger_endurance"].forEach(k => { if (eff[k]) statsCount++; });
+      setBadge("badge-tab-stats", statsCount);
 
-    function addReqItem(k, v) { drawerReqItems[k] = v; renderDrawerKeyValueLists(); }
-    function addGiveItem(k, v) { drawerGiveItems[k] = v; renderDrawerKeyValueLists(); }
-    function addRemoveItem(k, v) { drawerRemoveItems[k] = v; renderDrawerKeyValueLists(); }
-    function appendBattleEnemy(enemyId) {
-      const cur = drawerEffBattle.value.trim();
-      drawerEffBattle.value = cur ? `${cur}, ${enemyId}` : enemyId;
+      let gadgetCount = 0;
+      ["give_item", "give_items", "remove_item", "remove_items", "choice_remove_gadget_category"].forEach(k => { if (eff[k]) gadgetCount++; });
+      setBadge("badge-tab-gadgets", gadgetCount);
+
+      let cardCount = 0;
+      ["give_card", "give_cards", "remove_card", "remove_cards", "give_passive", "give_passives", "remove_passive", "remove_passives"].forEach(k => { if (eff[k]) cardCount++; });
+      setBadge("badge-tab-cards", cardCount);
+
+      let cardUiCount = 0;
+      ["choice_remove_card", "choice_duplicate_card", "choice_upgrade_card", "random_remove_card", "random_duplicate_card", "random_upgrade_card"].forEach(k => { if (eff[k]) cardUiCount++; });
+      setBadge("badge-tab-cardui", cardUiCount);
+
+      let battleCount = 0;
+      ["battle", "load_player_char", "achievement", "schedule"].forEach(k => { if (eff[k]) battleCount++; });
+      setBadge("badge-tab-battle", battleCount);
+
+      let flagCount = 0;
+      ["set_flag", "inc_flag", "dec_flag", "remove_flag"].forEach(k => { if (eff[k]) flagCount++; });
+      setBadge("badge-tab-flags", flagCount);
+
+      let audioCount = 0;
+      ["set_field_theme", "set_basic_battle_theme", "bgm_fade_out", "bgm_fade_in", "sfx"].forEach(k => { if (eff[k]) audioCount++; });
+      setBadge("badge-tab-audio", audioCount);
     }
 
     document.getElementById("drawer-close-btn").onclick = () => choiceDrawer.classList.remove("active");
+
+    function appendBattleEnemy(enemyId) {
+      const cur = document.getElementById("eff-battle").value.trim();
+      document.getElementById("eff-battle").value = cur ? `${cur}, ${enemyId}` : enemyId;
+    }
 
     document.getElementById("drawer-save-btn").onclick = () => {
       if (!currentEditingChoice) return;
       const { nodeId, choiceIndex } = currentEditingChoice;
       const choice = encData.nodes[nodeId].choices[choiceIndex];
 
-      choice.text = drawerChoiceText.value;
-      if (drawerIsEnd.checked) {
+      choice.text = document.getElementById("drawer-choice-text").value;
+      if (document.getElementById("drawer-is-end").checked) {
         choice.end = true;
         delete choice.next;
       } else {
         delete choice.end;
-        choice.next = drawerTargetNode.value;
+        choice.next = document.getElementById("drawer-target-node").value;
       }
 
-      // 효과 조립
+      const nm = document.getElementById("drawer-next-main").value.trim();
+      if (nm) choice.next_main = nm;
+      else delete choice.next_main;
+
+      // 1. Requirements 조립
+      const req = {};
+      const rItem = document.getElementById("req-item").value.trim();
+      if (rItem) req.item = rItem;
+      const rNotItem = document.getElementById("req-not-item").value.trim();
+      if (rNotItem) req.not_item = rNotItem;
+      const rHasCard = document.getElementById("req-has-card").value.trim();
+      if (rHasCard) req.has_card = rHasCard;
+      const rHasPass = document.getElementById("req-has-passive").value.trim();
+      if (rHasPass) req.has_passive = rHasPass;
+      const rName = document.getElementById("req-name").value.trim();
+      if (rName) req.name = rName;
+      const rNotName = document.getElementById("req-not-name").value.trim();
+      if (rNotName) req.not_name = rNotName;
+
+      if (Object.keys(dictReqItems).length > 0) req.items = { ...dictReqItems };
+      if (Object.keys(dictReqCat).length > 0) req.required_category = { ...dictReqCat };
+      if (Object.keys(dictReqHasCards).length > 0) req.has_cards = { ...dictReqHasCards };
+      if (Object.keys(dictReqFlagMin).length > 0) req.flag_min = { ...dictReqFlagMin };
+      if (Object.keys(dictReqFlagMax).length > 0) req.flag_max = { ...dictReqFlagMax };
+
+      if (Object.keys(req).length > 0) choice.requirements = req;
+      else delete choice.requirements;
+
+      // 2. Effects 조립
       const eff = {};
-      const hp = parseInt(drawerEffHp.value, 10);
+
+      // Stats
+      const hp = parseInt(document.getElementById("eff-hp").value, 10);
       if (!isNaN(hp) && hp !== 0) eff.hp = hp;
-
-      const san = parseInt(drawerEffSanity.value, 10);
+      const san = parseInt(document.getElementById("eff-sanity").value, 10);
       if (!isNaN(san) && san !== 0) eff.sanity = san;
+      const cost = parseInt(document.getElementById("eff-max-cost").value, 10);
+      if (!isNaN(cost) && cost !== 0) eff.max_cost = cost;
+      const slot = parseInt(document.getElementById("eff-card-slot").value, 10);
+      if (!isNaN(slot) && slot !== 0) eff.card_slot = slot;
+      const cName = document.getElementById("eff-change-name").value.trim();
+      if (cName) eff.change_name = cName;
+      if (document.getElementById("eff-level-up").checked) eff.level_up = true;
 
-      const battleVal = drawerEffBattle.value.trim();
+      const endur = {};
+      const es = parseFloat(document.getElementById("eff-endur-slash").value);
+      const ep = parseFloat(document.getElementById("eff-endur-pierce").value);
+      const eb = parseFloat(document.getElementById("eff-endur-blunt").value);
+      if (!isNaN(es)) endur.slash = es;
+      if (!isNaN(ep)) endur.pierce = ep;
+      if (!isNaN(eb)) endur.blunt = eb;
+      if (Object.keys(endur).length > 0) eff.endurance = endur;
+
+      const stEndur = {};
+      const ses = parseFloat(document.getElementById("eff-stagger-slash").value);
+      const sep = parseFloat(document.getElementById("eff-stagger-pierce").value);
+      const seb = parseFloat(document.getElementById("eff-stagger-blunt").value);
+      if (!isNaN(ses)) stEndur.slash = ses;
+      if (!isNaN(sep)) stEndur.pierce = sep;
+      if (!isNaN(seb)) stEndur.blunt = seb;
+      if (Object.keys(stEndur).length > 0) eff.stagger_endurance = stEndur;
+
+      // Gadgets
+      const gItem = document.getElementById("eff-give-item").value.trim();
+      if (gItem) eff.give_item = gItem;
+      const rItemEff = document.getElementById("eff-remove-item").value.trim();
+      if (rItemEff) eff.remove_item = rItemEff;
+      if (Object.keys(dictEffGiveItems).length > 0) eff.give_items = { ...dictEffGiveItems };
+      if (Object.keys(dictEffRemoveItems).length > 0) eff.remove_items = { ...dictEffRemoveItems };
+
+      const remCatName = document.getElementById("eff-rem-gadget-cat").value.trim();
+      const remCatCount = parseInt(document.getElementById("eff-rem-gadget-count").value, 10) || 1;
+      if (remCatName) eff.choice_remove_gadget_category = { category: remCatName, count: remCatCount };
+
+      // Cards & Passives
+      const gCard = document.getElementById("eff-give-card").value.trim();
+      if (gCard) eff.give_card = gCard;
+      const rCard = document.getElementById("eff-remove-card").value.trim();
+      if (rCard) eff.remove_card = rCard;
+      if (Object.keys(dictEffGiveCards).length > 0) eff.give_cards = { ...dictEffGiveCards };
+      if (Object.keys(dictEffRemoveCards).length > 0) eff.remove_cards = { ...dictEffRemoveCards };
+
+      const gPass = document.getElementById("eff-give-passive").value.trim();
+      if (gPass) eff.give_passive = gPass;
+      const rPass = document.getElementById("eff-remove-passive").value.trim();
+      if (rPass) eff.remove_passive = rPass;
+
+      const gPassList = document.getElementById("eff-give-passives").value.split(",").map(s => s.trim()).filter(Boolean);
+      if (gPassList.length > 0) eff.give_passives = gPassList;
+      const rPassList = document.getElementById("eff-remove-passives").value.split(",").map(s => s.trim()).filter(Boolean);
+      if (rPassList.length > 0) eff.remove_passives = rPassList;
+
+      // Card Management UI
+      if (document.getElementById("eff-choice-dup-card").checked) eff.choice_duplicate_card = true;
+      if (document.getElementById("eff-choice-del-card").checked) eff.choice_remove_card = true;
+      if (document.getElementById("eff-choice-up-card").checked) eff.choice_upgrade_card = true;
+
+      const rndDup = parseInt(document.getElementById("eff-rand-dup-card").value, 10);
+      if (!isNaN(rndDup) && rndDup > 0) eff.random_duplicate_card = rndDup;
+      const rndDel = parseInt(document.getElementById("eff-rand-del-card").value, 10);
+      if (!isNaN(rndDel) && rndDel > 0) eff.random_remove_card = rndDel;
+      const rndUp = parseInt(document.getElementById("eff-rand-up-card").value, 10);
+      if (!isNaN(rndUp) && rndUp > 0) eff.random_upgrade_card = rndUp;
+
+      // Battle & Flow
+      const battleVal = document.getElementById("eff-battle").value.trim();
       if (battleVal) {
         const parts = battleVal.split(",").map(s => s.trim()).filter(Boolean);
         eff.battle = parts.length === 1 ? parts[0] : parts;
       }
+      const loadChar = document.getElementById("eff-load-char").value.trim();
+      if (loadChar) eff.load_player_char = loadChar;
+      const ach = document.getElementById("eff-achievement").value.trim();
+      if (ach) eff.achievement = ach;
+      if (Object.keys(dictEffSchedule).length > 0) eff.schedule = { ...dictEffSchedule };
 
-      if (Object.keys(drawerGiveItems).length > 0) eff.give_items = { ...drawerGiveItems };
-      if (Object.keys(drawerRemoveItems).length > 0) eff.remove_items = { ...drawerRemoveItems };
+      // Flags
+      const remFlag = document.getElementById("eff-remove-flag").value.trim();
+      if (remFlag) eff.remove_flag = remFlag;
+      if (Object.keys(dictEffSetFlag).length > 0) eff.set_flag = { ...dictEffSetFlag };
+      if (Object.keys(dictEffIncFlag).length > 0) eff.inc_flag = { ...dictEffIncFlag };
+      if (Object.keys(dictEffDecFlag).length > 0) eff.dec_flag = { ...dictEffDecFlag };
 
-      const cardVal = drawerEffCard.value.trim();
-      if (cardVal) eff.give_card = cardVal;
-      if (drawerEffDupCard.checked) eff.choice_duplicate_card = true;
-      if (drawerEffDelCard.checked) eff.choice_remove_card = true;
+      // Audio
+      const fTheme = document.getElementById("eff-field-theme").value.trim();
+      if (fTheme) eff.set_field_theme = fTheme;
+      const bTheme = document.getElementById("eff-battle-theme").value.trim();
+      if (bTheme) eff.set_basic_battle_theme = bTheme;
+      const fadeOut = parseInt(document.getElementById("eff-bgm-fade-out").value, 10);
+      if (!isNaN(fadeOut) && fadeOut > 0) eff.bgm_fade_out = fadeOut;
+      const fadeIn = parseInt(document.getElementById("eff-bgm-fade-in").value, 10);
+      if (!isNaN(fadeIn) && fadeIn > 0) eff.bgm_fade_in = fadeIn;
+      const sfx = document.getElementById("eff-sfx").value.trim();
+      if (sfx) eff.sfx = sfx;
 
       if (Object.keys(eff).length > 0) choice.effects = eff;
       else delete choice.effects;
-
-      // 요구 조건 조립
-      if (Object.keys(drawerReqItems).length > 0) {
-        choice.requirements = { items: { ...drawerReqItems } };
-      } else {
-        delete choice.requirements;
-      }
 
       choiceDrawer.classList.remove("active");
       renderAll();
@@ -1957,12 +2593,32 @@
     // 시뮬레이터 (Playtest Mode)
     // ==================================================
     const simModal = document.getElementById("sim-modal");
-    let simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
+    let simState = {
+      hp: 50,
+      sanity: 0,
+      name: "카멜리아",
+      max_cost: 3,
+      card_slot: 1,
+      gadgets: { ahn: 30000, pendant_of_luck: 1 },
+      deck: { aesprite: 3, bite_off: 2 },
+      passives: ["camelia_mind"],
+      flags: { camelia_prologue: 1 }
+    };
     let simCurrentNode = null;
     let simHistory = [];
 
     document.getElementById("btn-playtest").onclick = () => {
-      simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
+      simState = {
+        hp: 50,
+        sanity: 0,
+        name: "카멜리아",
+        max_cost: 3,
+        card_slot: 1,
+        gadgets: { ahn: 30000, pendant_of_luck: 1 },
+        deck: { aesprite: 3, bite_off: 2 },
+        passives: ["camelia_mind"],
+        flags: { camelia_prologue: 1 }
+      };
       simHistory = [];
       simCurrentNode = encData.start || Object.keys(encData.nodes)[0];
       simModal.classList.add("active");
@@ -1971,18 +2627,53 @@
 
     document.getElementById("sim-close-btn").onclick = () => simModal.classList.remove("active");
     document.getElementById("sim-restart-btn").onclick = () => {
-      simState = { hp: 50, sanity: 0, ahn: 30000, wrath: 0, pride: 0 };
-      simHistory = [];
-      simCurrentNode = encData.start || Object.keys(encData.nodes)[0];
-      renderSimStep();
+      document.getElementById("btn-playtest").click();
     };
+
+    function checkSimRequirement(req) {
+      if (!req) return { ok: true };
+      if (req.item && !(simState.gadgets[req.item] > 0)) return { ok: false, reason: `[${req.item}] 가젯 필요` };
+      if (req.not_item && simState.gadgets[req.not_item] > 0) return { ok: false, reason: `[${req.not_item}] 가젯 없어야 함` };
+      if (req.items) {
+        for (const [it, amt] of Object.entries(req.items)) {
+          const cur = simState.gadgets[it] || 0;
+          if (cur < amt) return { ok: false, reason: `[${it}] ${amt}개 필요 (보유: ${cur})` };
+        }
+      }
+      if (req.has_card && !(simState.deck[req.has_card] > 0)) return { ok: false, reason: `[${req.has_card}] 카드 필요` };
+      if (req.has_cards) {
+        for (const [c, amt] of Object.entries(req.has_cards)) {
+          const cur = simState.deck[c] || 0;
+          if (cur < amt) return { ok: false, reason: `[${c}] 카드 ${amt}장 필요 (보유: ${cur})` };
+        }
+      }
+      if (req.has_passive && !simState.passives.includes(req.has_passive)) return { ok: false, reason: `[${req.has_passive}] 패시브 필요` };
+      if (req.name && simState.name !== req.name) return { ok: false, reason: `이름 '${req.name}'만 가능` };
+      if (req.not_name && simState.name === req.not_name) return { ok: false, reason: `이름 '${req.not_name}' 불가` };
+      if (req.flag_min) {
+        for (const [f, v] of Object.entries(req.flag_min)) {
+          const cur = simState.flags[f] || 0;
+          if (cur < v) return { ok: false, reason: `플래그 [${f}] >= ${v} 필요 (현재: ${cur})` };
+        }
+      }
+      if (req.flag_max) {
+        for (const [f, v] of Object.entries(req.flag_max)) {
+          const cur = simState.flags[f] || 0;
+          if (cur >= v) return { ok: false, reason: `플래그 [${f}] < ${v} 필요 (현재: ${cur})` };
+        }
+      }
+      return { ok: true };
+    }
 
     function renderSimStep() {
       const node = encData.nodes[simCurrentNode];
       document.getElementById("sim-current-node-badge").textContent = simCurrentNode;
       document.getElementById("sim-stat-hp").textContent = simState.hp;
       document.getElementById("sim-stat-sanity").textContent = simState.sanity;
-      document.getElementById("sim-stat-ahn").textContent = simState.ahn.toLocaleString();
+      document.getElementById("sim-stat-ahn").textContent = (simState.gadgets.ahn || 0).toLocaleString();
+      document.getElementById("sim-stat-cost").textContent = simState.max_cost;
+      document.getElementById("sim-stat-slot").textContent = simState.card_slot;
+      document.getElementById("sim-stat-name").textContent = simState.name;
 
       const textEl = document.getElementById("sim-story-text");
       const choicesBox = document.getElementById("sim-choices-box");
@@ -2003,39 +2694,85 @@
         const btn = document.createElement("button");
         btn.className = "sim-choice-btn";
 
-        // 요구 조건 체크
-        let met = true;
-        let unmetReason = "";
-        if (c.requirements?.items) {
-          Object.entries(c.requirements.items).forEach(([k, v]) => {
-            if (k === "ahn" && simState.ahn < v) {
-              met = false;
-              unmetReason = `(안 ${v.toLocaleString()} 필요, 보유: ${simState.ahn.toLocaleString()})`;
-            }
-          });
-        }
+        const chk = checkSimRequirement(c.requirements);
+        btn.disabled = !chk.ok;
 
-        btn.disabled = !met;
         btn.innerHTML = `
-          <div style="font-weight: 600;">${idx + 1}. ${c.text || "(문구 없음)"} ${unmetReason ? `<span style="color: #ff6b7e; font-size: 12px;">${unmetReason}</span>` : ""}</div>
+          <div style="font-weight: 600;">${idx + 1}. ${c.text || "(문구 없음)"} ${!chk.ok ? `<span style="color: #ff6b7e; font-size: 12px; margin-left: 6px;">🔒 ${chk.reason}</span>` : ""}</div>
           <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">➔ 이동: ${c.end ? "인카운터 종료" : c.next || "미지정"}</div>
         `;
 
         btn.onclick = () => {
-          // 효과 적용
+          const notes = [];
           if (c.effects) {
-            if (c.effects.hp) simState.hp += c.effects.hp;
-            if (c.effects.sanity) simState.sanity += c.effects.sanity;
-            if (c.effects.give_items?.ahn) simState.ahn += c.effects.give_items.ahn;
-            if (c.effects.remove_items?.ahn) simState.ahn = Math.max(0, simState.ahn - c.effects.remove_items.ahn);
+            const eff = c.effects;
+            if (eff.hp) { simState.hp += eff.hp; notes.push(`HP ${eff.hp > 0 ? "+" : ""}${eff.hp}`); }
+            if (eff.sanity) { simState.sanity += eff.sanity; notes.push(`정신력 ${eff.sanity > 0 ? "+" : ""}${eff.sanity}`); }
+            if (eff.change_name) { simState.name = eff.change_name; notes.push(`이름 변경: ${eff.change_name}`); }
+            if (eff.max_cost) { simState.max_cost = Math.max(1, simState.max_cost + eff.max_cost); notes.push(`빛+${eff.max_cost}`); }
+            if (eff.card_slot) { simState.card_slot = Math.max(1, simState.card_slot + eff.card_slot); notes.push(`슬롯+${eff.card_slot}`); }
+            if (eff.level_up) { notes.push("★ 즉시 레벨업 시퀀스 실행"); }
 
-            if (c.effects.battle) {
-              alertEl.style.display = "block";
-              alertEl.style.background = "rgba(200, 40, 63, 0.25)";
-              alertEl.style.border = "1px solid var(--scarlet)";
-              alertEl.style.color = "#ff8787";
-              alertEl.textContent = `⚔️ [전투 발생!]: ${JSON.stringify(c.effects.battle)}와의 전투에서 승리했습니다.`;
+            if (eff.give_item) { simState.gadgets[eff.give_item] = (simState.gadgets[eff.give_item] || 0) + 1; notes.push(`[${eff.give_item}] 획득`); }
+            if (eff.give_items) {
+              for (const [k, v] of Object.entries(eff.give_items)) {
+                simState.gadgets[k] = (simState.gadgets[k] || 0) + v;
+                notes.push(`[${k}] x${v} 획득`);
+              }
             }
+            if (eff.remove_item && simState.gadgets[eff.remove_item]) {
+              simState.gadgets[eff.remove_item]--;
+              notes.push(`[${eff.remove_item}] 1개 차감`);
+            }
+            if (eff.remove_items) {
+              for (const [k, v] of Object.entries(eff.remove_items)) {
+                simState.gadgets[k] = Math.max(0, (simState.gadgets[k] || 0) - v);
+                notes.push(`[${k}] x${v} 차감`);
+              }
+            }
+
+            if (eff.give_card) { simState.deck[eff.give_card] = (simState.deck[eff.give_card] || 0) + 1; notes.push(`카드 [${eff.give_card}] 획득`); }
+            if (eff.give_cards) {
+              for (const [k, v] of Object.entries(eff.give_cards)) {
+                simState.deck[k] = (simState.deck[k] || 0) + v;
+                notes.push(`카드 [${k}] x${v} 획득`);
+              }
+            }
+            if (eff.remove_card && simState.deck[eff.remove_card]) {
+              simState.deck[eff.remove_card]--;
+              notes.push(`카드 [${eff.remove_card}] 제거`);
+            }
+            if (eff.choice_duplicate_card) notes.push("🎴 플레이어 카드 복제 창 팝업");
+            if (eff.choice_remove_card) notes.push("🎴 플레이어 카드 제거 창 팝업");
+            if (eff.choice_upgrade_card) notes.push("🎴 플레이어 카드 강화 창 팝업");
+
+            if (eff.give_passive && !simState.passives.includes(eff.give_passive)) {
+              simState.passives.push(eff.give_passive);
+              notes.push(`패시브 [${eff.give_passive}] 획득`);
+            }
+            if (eff.set_flag) {
+              Object.assign(simState.flags, eff.set_flag);
+              notes.push(`플래그 설정: ${JSON.stringify(eff.set_flag)}`);
+            }
+            if (eff.inc_flag) {
+              for (const [k, v] of Object.entries(eff.inc_flag)) {
+                simState.flags[k] = (simState.flags[k] || 0) + v;
+                notes.push(`플래그 [${k}] +${v}`);
+              }
+            }
+            if (eff.battle) {
+              notes.push(`⚔️ [전투 발생]: ${JSON.stringify(eff.battle)}`);
+            }
+            if (eff.sfx) notes.push(`🔊 효과음: ${eff.sfx}`);
+            if (eff.set_field_theme) notes.push(`🎵 필드 BGM 변경: ${eff.set_field_theme}`);
+          }
+
+          if (notes.length > 0) {
+            alertEl.style.display = "block";
+            alertEl.style.background = "rgba(47, 179, 68, 0.2)";
+            alertEl.style.border = "1px solid var(--emerald)";
+            alertEl.style.color = "#8ce99a";
+            alertEl.innerHTML = `<strong>효과 실행 결과:</strong><br>${notes.join(" | ")}`;
           }
 
           if (c.end) {
@@ -2058,7 +2795,7 @@
     }
 
     // ==================================================
-    // JSON 입출력 & 저장 시스템
+    // 드래그 앤 드롭 & 서버 입출력
     // ==================================================
     const jsonModal = document.getElementById("json-modal");
     const jsonEditorArea = document.getElementById("json-editor-area");
@@ -2067,7 +2804,6 @@
     let isServerConnected = false;
     let currentLoadedPath = null;
 
-    // 로컬 파이썬 서버 연결 확인
     async function checkServerConnection() {
       try {
         const res = await fetch("/api/list");
@@ -2075,6 +2811,13 @@
           isServerConnected = true;
           document.getElementById("json-server-banner").style.display = "block";
           document.getElementById("json-standalone-banner").style.display = "none";
+          // 애셋 새로고침
+          const aRes = await fetch("/api/assets");
+          const aData = await aRes.json();
+          if (aData.ok && aData.assets) {
+            projectAssets = aData.assets;
+            populateDatalists();
+          }
         }
       } catch (e) {
         isServerConnected = false;
@@ -2083,6 +2826,110 @@
       }
     }
     checkServerConnection();
+
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      viewport.style.filter = "brightness(1.15)";
+    });
+    window.addEventListener("dragleave", () => {
+      viewport.style.filter = "none";
+    });
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      viewport.style.filter = "none";
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith(".json")) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const parsed = JSON.parse(evt.target.result);
+            loadEncounterData(parsed);
+            currentLoadedPath = null;
+            toast(`드롭된 파일 불러오기 성공: ${file.name}`, "success");
+          } catch (err) {
+            alert(`파일 로드 오류: ${err.message}`);
+          }
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById("btn-import").onclick = () => {
+      if (isServerConnected) openProjectBrowser();
+      else filePicker.click();
+    };
+
+    let projectEncountersList = [];
+    async function openProjectBrowser() {
+      try {
+        const res = await fetch("/api/list");
+        const json = await res.json();
+        if (json.ok && json.encounters) {
+          projectEncountersList = json.encounters;
+          renderProjectBrowser();
+          document.getElementById("project-browser-modal").classList.add("active");
+        } else {
+          filePicker.click();
+        }
+      } catch (e) {
+        filePicker.click();
+      }
+    }
+
+    function renderProjectBrowser(filter = "") {
+      const listEl = document.getElementById("project-browser-list");
+      listEl.innerHTML = "";
+      const q = filter.trim().toLowerCase();
+      const filtered = projectEncountersList.filter(enc =>
+        enc.path.toLowerCase().includes(q) || enc.id.toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">검색 결과가 없습니다.</div>`;
+        return;
+      }
+
+      filtered.forEach((enc) => {
+        const item = document.createElement("div");
+        item.style.padding = "10px 14px";
+        item.style.background = "var(--panel-raised)";
+        item.style.border = "1px solid var(--border)";
+        item.style.borderRadius = "6px";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.cursor = "pointer";
+        item.style.transition = "all .15s";
+
+        item.onmouseenter = () => { item.style.borderColor = "var(--brass)"; item.style.background = "var(--panel-hover)"; };
+        item.onmouseleave = () => { item.style.borderColor = "var(--border)"; item.style.background = "var(--panel-raised)"; };
+
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 700; color: var(--text);">${enc.id} <span style="font-size: 11.5px; color: var(--brass); font-weight: normal;">(노드 ${enc.node_count}개)</span></div>
+            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">${enc.path}</div>
+          </div>
+          <button class="btn btn-sm btn-brass">열기 ➔</button>
+        `;
+
+        item.onclick = async () => {
+          try {
+            const res = await fetch(`/api/load?path=${encodeURIComponent(enc.path)}`);
+            const loaded = await res.json();
+            if (loaded.ok && loaded.data) {
+              currentLoadedPath = enc.path;
+              loadEncounterData(loaded.data);
+              document.getElementById("project-browser-modal").classList.remove("active");
+              toast(`[${enc.id}] 로드 완료! (${enc.path})`, "success");
+            }
+          } catch (e) {
+            alert(`불러오기 실패: ${e.message}`);
+          }
+        };
+
+        listEl.appendChild(item);
+      });
+    }
 
     document.getElementById("btn-export").onclick = () => {
       encData.id = encIdInput.value.trim() || encData.id;
@@ -2160,117 +3007,6 @@
       }
     };
 
-    // ==================================================
-    // 드래그 앤 드롭 파일 로드 지원
-    // ==================================================
-    window.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      viewport.style.filter = "brightness(1.15)";
-    });
-    window.addEventListener("dragleave", () => {
-      viewport.style.filter = "none";
-    });
-    window.addEventListener("drop", (e) => {
-      e.preventDefault();
-      viewport.style.filter = "none";
-      const file = e.dataTransfer.files[0];
-      if (file && file.name.endsWith(".json")) {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          try {
-            const parsed = JSON.parse(evt.target.result);
-            loadEncounterData(parsed);
-            currentLoadedPath = null;
-            toast(`드롭된 파일 불러오기 성공: ${file.name}`, "success");
-          } catch (err) {
-            alert(`파일 로드 오류: ${err.message}`);
-          }
-        };
-        reader.readAsText(file);
-      }
-    });
-
-    document.getElementById("btn-import").onclick = async () => {
-      if (isServerConnected) {
-        openProjectBrowser();
-      } else {
-        filePicker.click();
-      }
-    };
-
-    // 프로젝트 인카운터 탐색기
-    let projectEncountersList = [];
-    async function openProjectBrowser() {
-      try {
-        const res = await fetch("/api/list");
-        const json = await res.json();
-        if (json.ok && json.encounters) {
-          projectEncountersList = json.encounters;
-          renderProjectBrowser();
-          document.getElementById("project-browser-modal").classList.add("active");
-        } else {
-          filePicker.click();
-        }
-      } catch (e) {
-        filePicker.click();
-      }
-    }
-
-    function renderProjectBrowser(filter = "") {
-      const listEl = document.getElementById("project-browser-list");
-      listEl.innerHTML = "";
-      const q = filter.trim().toLowerCase();
-      const filtered = projectEncountersList.filter(enc =>
-        enc.path.toLowerCase().includes(q) || enc.id.toLowerCase().includes(q)
-      );
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">검색 결과가 없습니다.</div>`;
-        return;
-      }
-
-      filtered.forEach((enc) => {
-        const item = document.createElement("div");
-        item.style.padding = "10px 14px";
-        item.style.background = "var(--panel-raised)";
-        item.style.border = "1px solid var(--border)";
-        item.style.borderRadius = "6px";
-        item.style.display = "flex";
-        item.style.alignItems = "center";
-        item.style.justifyContent = "space-between";
-        item.style.cursor = "pointer";
-        item.style.transition = "all .15s";
-
-        item.onmouseenter = () => { item.style.borderColor = "var(--brass)"; item.style.background = "var(--panel-hover)"; };
-        item.onmouseleave = () => { item.style.borderColor = "var(--border)"; item.style.background = "var(--panel-raised)"; };
-
-        item.innerHTML = `
-          <div>
-            <div style="font-weight: 700; color: var(--text);">${enc.id} <span style="font-size: 11.5px; color: var(--brass); font-weight: normal;">(노드 ${enc.node_count}개)</span></div>
-            <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">${enc.path}</div>
-          </div>
-          <button class="btn btn-sm btn-brass">열기 ➔</button>
-        `;
-
-        item.onclick = async () => {
-          try {
-            const res = await fetch(`/api/load?path=${encodeURIComponent(enc.path)}`);
-            const loaded = await res.json();
-            if (loaded.ok && loaded.data) {
-              currentLoadedPath = enc.path;
-              loadEncounterData(loaded.data);
-              document.getElementById("project-browser-modal").classList.remove("active");
-              toast(`[${enc.id}] 로드 완료! (경로: ${enc.path})`, "success");
-            }
-          } catch (e) {
-            alert(`불러오기 실패: ${e.message}`);
-          }
-        };
-
-        listEl.appendChild(item);
-      });
-    }
-
     filePicker.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -2298,7 +3034,7 @@
     }
 
     // ==================================================
-    // 예제 불러오기 모달
+    // 예제 불러오기
     // ==================================================
     const sampleModal = document.getElementById("sample-modal");
     document.getElementById("btn-sample").onclick = () => sampleModal.classList.add("active");
@@ -2412,19 +3148,16 @@
     };
 
     window.addEventListener("keydown", (e) => {
-      // Ctrl + S (저장)
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
         document.getElementById("btn-export").click();
       }
-      // Ctrl + Shift + A (자동 정렬)
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "a" || e.key === "A")) {
         e.preventDefault();
         autoLayout();
       }
     });
 
-    // 토스트 알림 헬퍼
     function toast(msg, type = "normal") {
       const t = document.createElement("div");
       t.className = `toast toast-${type}`;
@@ -2437,7 +3170,6 @@
       }, 2600);
     }
 
-    // 초기화 실행
     autoLayout();
   </script>
 </body>
