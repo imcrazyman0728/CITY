@@ -176,7 +176,16 @@ button { font: inherit; color: inherit; }
 }
 
 .title-mark { font: 700 clamp(64px, 13vw, 148px)/0.9 var(--serif); letter-spacing: .02em; margin: 0; text-shadow: 0 4px 18px rgba(0,0,0,.9); }
-.title-sub { font: 400 clamp(17px, 2.4vw, 22px)/1.7 var(--serif); color: var(--dim); margin: 20px 0 44px; max-width: 30ch; text-wrap: balance; text-shadow: 0 2px 10px rgba(0,0,0,.8); }
+.title-sub {
+  font: 400 clamp(17px, 2.4vw, 22px)/1.7 var(--serif);
+  color: var(--dim);
+  margin: 20px 0 44px;
+  max-width: 38ch;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+  text-shadow: 0 2px 10px rgba(0,0,0,.8);
+}
 .menu { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .menu .btn { min-width: 220px; text-align: left; padding: 12px 20px; backdrop-filter: blur(4px); box-shadow: 0 4px 16px rgba(0,0,0,.4); }
 .title-foot { margin-top: 52px; color: var(--faint); font-size: 13px; max-width: 64ch; text-wrap: balance; text-shadow: 0 2px 6px rgba(0,0,0,.8); }
@@ -219,6 +228,50 @@ button { font: inherit; color: inherit; }
 .chip.sin { border-color: #5b2330; color: #e9a0ad; }
 
 .node-screen { background: var(--ink); }
+.encounter-pack-badge {
+  position: fixed;
+  top: 58px;
+  right: 28px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(18, 20, 28, 0.92);
+  border: 1px solid rgba(200, 160, 90, 0.45);
+  border-radius: 6px;
+  color: var(--brass);
+  font: 500 13px var(--serif);
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  animation: badgeFadeIn 0.25s ease both;
+}
+.encounter-pack-badge::before {
+  content: "✦";
+  font-size: 10px;
+  color: var(--scarlet);
+}
+.node-screen:not(.has-hud) .encounter-pack-badge {
+  top: 20px;
+}
+@media (max-width: 640px) {
+  .encounter-pack-badge {
+    top: 52px;
+    right: 14px;
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .node-screen:not(.has-hud) .encounter-pack-badge {
+    top: 14px;
+  }
+}
+@keyframes badgeFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .page-wrap { flex: 1; display: flex; justify-content: flex-start; align-items: flex-start; padding: clamp(24px, 6vh, 72px) clamp(20px, 7vw, 120px) 80px; }
 .page { position: relative; width: min(100%, 38rem); padding-left: 28px; }
 .page::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 4px; background: var(--scarlet); border-radius: 2px; opacity: .85; }

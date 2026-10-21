@@ -445,6 +445,7 @@ export async function apply_effects(effects) {
 export async function run_encounter(encounter) {
   let current = encounter.start;
   const visited = new Set();
+  const pack_name = encounter._expansion_name || encounter.expansion_pack_name || null;
 
   for (;;) {
     const node = encounter.nodes[current];
@@ -454,12 +455,12 @@ export async function run_encounter(encounter) {
       // 노드 진입 효과는 본문을 보여주기 전에 적용(main.py와 동일: 텍스트 출력 후 즉시 적용)
       visited.add(current);
       const pending = apply_effects(node.effects);
-      ui().showText?.(node.text);
+      ui().showText?.(node.text, { pack_name });
       await pending;
     }
     if (game.ended) return { type: "end" };
     if (node.end) {
-      await ui().node({ text: node.text, choices: [{ text: "계속", chance: null, met: true }] });
+      await ui().node({ text: node.text, choices: [{ text: "계속", chance: null, met: true }], pack_name });
       return { type: "end" };
     }
 
@@ -477,7 +478,7 @@ export async function run_encounter(encounter) {
 
     let select;
     for (;;) {
-      select = await ui().node({ text: node.text, choices: view });
+      select = await ui().node({ text: node.text, choices: view, pack_name });
       if (select >= 0 && select < choices.length && view[select].met) break;
     }
     const choice = choices[select];

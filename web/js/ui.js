@@ -157,6 +157,7 @@ export function update_hud() {
     if (!node_state.root.isConnected) return;
     node_state.hud = build_hud();
     node_state.root.prepend(node_state.hud.el);
+    node_state.root.classList.add("has-hud");
   }
   const { hud } = node_state;
   hud.name.textContent = p.name;
@@ -171,13 +172,14 @@ function ensure_node_screen() {
   if (node_state && currentKind() === "node" && node_state.root.isConnected) return node_state;
   const has_player = !!E.game.player_char;
   const hud = has_player ? build_hud() : null;
+  const pack_badge = h("div", { class: "encounter-pack-badge", style: { display: "none" } });
   const page = h("div", { class: "page" });
   const text = h("div", { class: "page-text" });
   const choices = h("div", { class: "choices", role: "group", "aria-label": "선택지" });
   page.append(text, choices);
-  const root = h("div", { class: "screen node-screen" }, hud?.el, h("div", { class: "page-wrap" }, page));
+  const root = h("div", { class: `screen node-screen ${hud ? "has-hud" : ""}` }, hud?.el, pack_badge, h("div", { class: "page-wrap" }, page));
   mount(root, "node");
-  node_state = { root, hud, text, choices, shown_text: null };
+  node_state = { root, hud, text, choices, pack_badge, shown_text: null };
   update_hud();
   return node_state;
 }
@@ -196,13 +198,31 @@ function render_text(st, text) {
   st.root.scrollTop = 0;
 }
 
-function show_text(text) {
+function show_text(text, { pack_name } = {}) {
   const st = ensure_node_screen();
+  if (st.pack_badge) {
+    if (pack_name) {
+      st.pack_badge.textContent = pack_name;
+      st.pack_badge.style.display = "";
+    } else {
+      st.pack_badge.textContent = "";
+      st.pack_badge.style.display = "none";
+    }
+  }
   render_text(st, text);
 }
 
-function show_node({ text, choices }) {
+function show_node({ text, choices, pack_name }) {
   const st = ensure_node_screen();
+  if (st.pack_badge) {
+    if (pack_name) {
+      st.pack_badge.textContent = pack_name;
+      st.pack_badge.style.display = "";
+    } else {
+      st.pack_badge.textContent = "";
+      st.pack_badge.style.display = "none";
+    }
+  }
   render_text(st, text);
   update_hud();
   return new Promise((resolve) => {

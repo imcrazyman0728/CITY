@@ -1150,12 +1150,24 @@ def choose_story():
 def load_main_story(story_name):
     path = BASE_DIR / "encounter_main" / story_name
     encounters = {}
-    for file in path.glob("*.json"):
-        data = load_json(file)
-        if data and "id" in data:
-            encounters[data["id"]] = data
-        else:
-            print(f"경고: {file.name} 로드 실패 (데이터 누락)")
+    if path.exists():
+        for file in path.glob("*.json"):
+            data = load_json(file)
+            if data and "id" in data:
+                encounters[data["id"]] = data
+            else:
+                print(f"경고: {file.name} 로드 실패 (데이터 누락)")
+    for p_dir in get_enabled_pack_dirs():
+        p_story = p_dir / "encounter_main" / story_name
+        if p_story.exists():
+            shop_info_file = p_dir / "shop_info.json"
+            p_info = load_json(shop_info_file) if shop_info_file.exists() else {}
+            p_name = p_info.get("name", p_dir.name)
+            for file in p_story.glob("*.json"):
+                data = load_json(file)
+                if data and "id" in data:
+                    data["_expansion_name"] = p_name
+                    encounters[data["id"]] = data
     return encounters
 
 
@@ -1168,6 +1180,9 @@ def load_common_encounters():
             if data:
                 result.append(data)
     for p_dir in get_enabled_pack_dirs():
+        shop_info_file = p_dir / "shop_info.json"
+        p_info = load_json(shop_info_file) if shop_info_file.exists() else {}
+        p_name = p_info.get("name", p_dir.name)
         norm_dir = p_dir / "encounter_normal"
         if norm_dir.exists():
             c_dir = norm_dir / "common"
@@ -1175,10 +1190,12 @@ def load_common_encounters():
                 for f in sorted(c_dir.glob("*.json")):
                     d = load_json(f)
                     if d:
+                        d["_expansion_name"] = p_name
                         result.append(d)
             for f in sorted(norm_dir.glob("*.json")):
                 d = load_json(f)
                 if d and not any(r.get("id") == d.get("id") for r in result):
+                    d["_expansion_name"] = p_name
                     result.append(d)
     return result
 
@@ -1198,6 +1215,23 @@ def load_special_encounters():
             if data:
                 encounters.append(data)
         result[folder.name] = encounters
+
+    for p_dir in get_enabled_pack_dirs():
+        shop_info_file = p_dir / "shop_info.json"
+        p_info = load_json(shop_info_file) if shop_info_file.exists() else {}
+        p_name = p_info.get("name", p_dir.name)
+        p_norm = p_dir / "encounter_normal"
+        if p_norm.exists():
+            for folder in p_norm.iterdir():
+                if not folder.is_dir() or folder.name in ("common", "schedule"):
+                    continue
+                if folder.name not in result:
+                    result[folder.name] = []
+                for file in folder.glob("*.json"):
+                    data = load_json(file)
+                    if data:
+                        data["_expansion_name"] = p_name
+                        result[folder.name].append(data)
     return result
 
 
@@ -3030,6 +3064,16 @@ def apply_effects(effects):
             for enc_id, delay in value.items():
                 path = BASE_DIR / "encounter_normal" / "schedule" / f"{enc_id}.json"
                 data = load_json(path)
+                if not data:
+                    for p_dir in get_enabled_pack_dirs():
+                        p_path = p_dir / "encounter_normal" / "schedule" / f"{enc_id}.json"
+                        if p_path.exists():
+                            data = load_json(p_path)
+                            if data:
+                                shop_info_file = p_dir / "shop_info.json"
+                                p_info = load_json(shop_info_file) if shop_info_file.exists() else {}
+                                data["_expansion_name"] = p_info.get("name", p_dir.name)
+                                break
                 if data:
                     game.scheduled.append({"after": delay, "encounter": data})
                 else:
@@ -3134,12 +3178,17 @@ def get_valid_choices(node):
 def run_encounter(encounter):
     current_node = encounter["start"]
     visited_nodes = set()
+    exp_name = encounter.get("_expansion_name") or encounter.get("expansion_pack_name")
 
     while True:
         clear_screen()
         node = encounter["nodes"][current_node]
 
-        print("\n" + "=" * 50)
+        if exp_name:
+            print(f"[{exp_name}]")
+            print("=" * 50)
+        else:
+            print("\n" + "=" * 50)
         print(node["text"])
         print("=" * 50)
 

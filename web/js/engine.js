@@ -116,8 +116,10 @@ export function rebuild_active_data() {
     if (d.panics) Object.assign(game.data.panics, d.panics);
     if (d.gadgets) Object.assign(game.data.gadgets, d.gadgets);
     if (d.players) Object.assign(game.data.players, d.players);
+    const pack_name = pack.name || pack.id;
     if (d.common && Array.isArray(d.common)) {
       for (const enc of d.common) {
+        if (!enc._expansion_name) enc._expansion_name = pack_name;
         if (!game.data.common.some((c) => c.id === enc.id)) {
           game.data.common.push(enc);
         }
@@ -125,11 +127,28 @@ export function rebuild_active_data() {
     }
     if (d.special) {
       for (const [k, v] of Object.entries(d.special)) {
-        game.data.special[k] = (game.data.special[k] ?? []).concat(v);
+        if (Array.isArray(v)) {
+          for (const enc of v) {
+            if (!enc._expansion_name) enc._expansion_name = pack_name;
+          }
+          game.data.special[k] = (game.data.special[k] ?? []).concat(v);
+        }
       }
     }
-    if (d.stories) Object.assign(game.data.stories, d.stories);
-    if (d.schedule) Object.assign(game.data.schedule, d.schedule);
+    if (d.stories) {
+      for (const story_map of Object.values(d.stories)) {
+        for (const enc of Object.values(story_map)) {
+          if (!enc._expansion_name) enc._expansion_name = pack_name;
+        }
+      }
+      Object.assign(game.data.stories, d.stories);
+    }
+    if (d.schedule) {
+      for (const enc of Object.values(d.schedule)) {
+        if (!enc._expansion_name) enc._expansion_name = pack_name;
+      }
+      Object.assign(game.data.schedule, d.schedule);
+    }
   }
 }
 

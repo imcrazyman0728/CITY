@@ -66,31 +66,50 @@ def load_expansion_packs():
                         print(f"이미지 복사 실패 ({img_file}): {e}")
                     break
 
+            pack_name = info.get("name", folder.name)
             norm_dir = folder / "encounter_normal"
             common_encs = []
             special_encs = {}
             if norm_dir.exists():
                 common_sub = norm_dir / "common"
                 if common_sub.exists():
-                    common_encs.extend(load(f) for f in sorted(common_sub.glob("*.json")))
+                    for f in sorted(common_sub.glob("*.json")):
+                        d = load(f)
+                        if d:
+                            d["_expansion_name"] = pack_name
+                            common_encs.append(d)
                 for f in sorted(norm_dir.glob("*.json")):
                     data = load(f)
                     if data:
+                        data["_expansion_name"] = pack_name
                         common_encs.append(data)
                 for sub in sorted(norm_dir.iterdir()):
                     if sub.is_dir() and sub.name not in ("common", "schedule"):
-                        special_encs[sub.name] = [load(f) for f in sorted(sub.glob("*.json"))]
+                        sub_encs = []
+                        for f in sorted(sub.glob("*.json")):
+                            d = load(f)
+                            if d:
+                                d["_expansion_name"] = pack_name
+                                sub_encs.append(d)
+                        special_encs[sub.name] = sub_encs
 
             main_dir = folder / "encounter_main"
             stories_encs = {}
             if main_dir.exists():
                 for sub in sorted(main_dir.iterdir()):
                     if sub.is_dir():
-                        stories_encs[sub.name] = encounters_by_id(sub)
+                        s_map = encounters_by_id(sub)
+                        for d in s_map.values():
+                            d["_expansion_name"] = pack_name
+                        stories_encs[sub.name] = s_map
+
+            sched_map = by_stem(norm_dir / "schedule") if norm_dir.exists() else {}
+            for d in sched_map.values():
+                d["_expansion_name"] = pack_name
 
             pack_data = {
                 "id": folder.name,
-                "name": info.get("name", folder.name),
+                "name": pack_name,
                 "price": int(info.get("price", 0)),
                 "tags": info.get("tags", []),
                 "shop": info.get("shop", "common"),
@@ -108,7 +127,7 @@ def load_expansion_packs():
                     "common": common_encs,
                     "special": special_encs,
                     "stories": stories_encs,
-                    "schedule": by_stem(norm_dir / "schedule") if norm_dir.exists() else {},
+                    "schedule": sched_map,
                 },
             }
             packs[folder.name] = pack_data
