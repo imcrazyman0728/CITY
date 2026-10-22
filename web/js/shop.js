@@ -55,8 +55,8 @@ export function openShop() {
         const dealIds = new Set(p.hot_deal_packs ?? []);
         filteredPacks = allPacks.filter((pk) => dealIds.has(pk.id) && pk.shop === "hot_deal");
       } else if (currentTab === "reward") {
-        // 리워드 확장팩 (잠김)
-        filteredPacks = allPacks.filter((pk) => pk.shop === "reward");
+        const unlockedRewardIds = new Set(p.unlocked_reward_packs ?? []);
+        filteredPacks = allPacks.filter((pk) => pk.shop === "reward" && unlockedRewardIds.has(pk.id));
       }
 
       // 검색어 필터
@@ -94,7 +94,7 @@ export function openShop() {
 
       const tabsRow = h("div", { class: "shop-tabs-row", role: "tablist" }, tabItems.map(([id, label]) =>
         h("button", {
-          class: `shop-tab-btn ${id === currentTab ? "active" : ""} ${id === "reward" ? "tab-locked" : ""}`,
+          class: `shop-tab-btn ${id === currentTab ? "active" : ""}`,
           role: "tab",
           "aria-selected": String(id === currentTab),
           onclick: () => { currentTab = id; draw(); }
@@ -136,14 +136,17 @@ export function openShop() {
       function renderGridContent() {
         clear(contentArea);
 
-        // 리워드 탭 잠금 표시
+        // 리워드 탭 해금 안내
         if (currentTab === "reward") {
-          contentArea.append(h("div", { class: "shop-locked-notice" },
-            h("div", { style: { fontSize: "40px", marginBottom: "12px" } }, "🔒"),
-            h("h2", { style: { margin: "0 0 8px" } }, "리워드 확장팩은 잠겨 있습니다"),
-            h("p", { class: "muted", style: { margin: 0 } }, "도전과제를 클리어하면 상점에서 해금되는 확장팩 칸입니다."),
-            h("p", { class: "muted", style: { fontSize: "13px", marginTop: "6px" } }, "(현재 도전과제 시스템 준비 중으로 추후 공개됩니다)")));
-          return;
+          const unlockedRewardIds = new Set(p.unlocked_reward_packs ?? []);
+          if (filteredPacks.length === 0) {
+            contentArea.append(h("div", { class: "shop-locked-notice" },
+              h("div", { style: { fontSize: "40px", marginBottom: "12px" } }, "🔒"),
+              h("h2", { style: { margin: "0 0 8px" } }, "해금된 리워드 확장팩이 없습니다"),
+              h("p", { class: "muted", style: { margin: 0 } }, "서재에서 도전과제를 달성하고 보상을 수령하여 리워드 확장팩을 해금하세요!"),
+              h("p", { class: "muted", style: { fontSize: "13px", marginTop: "6px" } }, `현재 해금된 리워드 확장팩: ${unlockedRewardIds.size}개`)));
+            return;
+          }
         }
 
         // 오늘의 핫딜 리롤 남은 시간 안내

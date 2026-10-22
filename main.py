@@ -3482,6 +3482,9 @@ def load_profile():
         data = {
             "death_count": 0,
             "achievements": [],
+            "claimed_achievements": [],
+            "char_uptie": {},
+            "unlocked_reward_packs": [],
             "unlocked_cards": [],
             "unlocked_enemies": [],
             "enemy_kills": {},
@@ -3490,28 +3493,239 @@ def load_profile():
             "lunacy": 0,
             "purchased_packs": [],
             "enabled_packs": [],
+            "hot_deal_packs": [],
+            "hot_deal_last_reroll": 0,
         }
         save_profile(data)
         return data
 
     with open(PROFILE_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
+    data.setdefault("death_count", 0)
+    data.setdefault("achievements", [])
+    data.setdefault("claimed_achievements", [])
+    data.setdefault("char_uptie", {})
+    data.setdefault("unlocked_reward_packs", [])
+    data.setdefault("unlocked_cards", [])
+    data.setdefault("unlocked_enemies", [])
+    data.setdefault("enemy_kills", {})
+    data.setdefault("unlocked_gadgets", [])
+    data.setdefault("flags", {})
     data.setdefault("lunacy", 0)
     data.setdefault("purchased_packs", [])
     data.setdefault("enabled_packs", [])
+    data.setdefault("hot_deal_packs", [])
+    data.setdefault("hot_deal_last_reroll", 0)
     return data
 
 
-def give_achievement(achievement_name):
+def load_achievement_data(ach_id):
+    p = BASE_DIR / "achievements" / f"{ach_id}.json"
+    if p.exists():
+        return load_json(p)
+    for p_dir in get_enabled_pack_dirs():
+        p_ach = p_dir / "achievements" / f"{ach_id}.json"
+        if p_ach.exists():
+            return load_json(p_ach)
+    return None
+
+
+def get_all_achievements():
+    results = {}
+    ach_dir = BASE_DIR / "achievements"
+    if ach_dir.exists():
+        for f in sorted(ach_dir.glob("*.json")):
+            data = load_json(f)
+            if data and "id" in data:
+                results[data["id"]] = data
+    for p_dir in get_enabled_pack_dirs():
+        p_ach = p_dir / "achievements"
+        if p_ach.exists():
+            for f in sorted(p_ach.glob("*.json")):
+                data = load_json(f)
+                if data and "id" in data and data["id"] not in results:
+                    results[data["id"]] = data
+    return results
+
+
+def give_achievement(achievement_id):
     achievements = game.profile.setdefault("achievements", [])
-    if achievement_name in achievements:
+    if achievement_id in achievements:
         return
 
-    achievements.append(achievement_name)
+    achievements.append(achievement_id)
     save_profile(game.profile)
-    print("\n" + "=" * 40)
-    print(f"도전과제 달성!\n{achievement_name}")
-    print("=" * 40)
+    ach_data = load_achievement_data(achievement_id)
+    name = ach_data.get("name", achievement_id) if ach_data else achievement_id
+    print("\n" + "=" * 50)
+    print(f"★ 도전과제 달성!\n[{name}]")
+    print("서재에서 보상을 수령할 수 있습니다.")
+    print("=" * 50)
+
+
+def claim_achievement_reward(ach_id):
+    ach_data = load_achievement_data(ach_id)
+    if not ach_data:
+        return False, []
+
+    achievements = game.profile.setdefault("achievements", [])
+    claimed = game.profile.setdefault("claimed_achievements", [])
+
+    if ach_id not in achievements:
+        return False, ["아직 달성하지 않은 도전과제입니다."]
+    if ach_id in claimed:
+        return False, ["이미 보상을 수령한 도전과제입니다."]
+
+    rewards_raw = ach_data.get("reward") or ach_data.get("rewards") or []
+    if isinstance(rewards_raw, dict):
+        rewards_list = [rewards_raw]
+    elif isinstance(rewards_raw, list):
+        rewards_list = rewards_raw
+    else:
+        rewards_list = []
+
+    reward_messages = []
+
+    for r in rewards_list:
+        if not isinstance(r, dict):
+            continue
+        # 1. 광기
+        if "lunacy" in r:
+            amt = int(r["lunacy"])
+            game.profile["lunacy"] = game.profile.get("lunacy", 0) + amt
+            reward_messages.append(f"광기 {amt}개 획득 (현재 소지: {game.profile['lunacy']} 광기)")
+
+        # 2. 동기화
+        if "char_uptie" in r or "character_uptie" in r:
+            char_key = r.get("char_uptie") or r.get("character_uptie")
+            uptie_map = game.profile.setdefault("char_uptie", {})
+            cur_uptie = uptie_map.get(char_key, 1)
+            new_uptie = cur_uptie + 1
+            uptie_map[char_key] = new_uptie
+            reward_messages.append(f"캐릭터 [{char_key}] 동기화 단계 상승 ({cur_uptie}단계 → {new_uptie}단계)")
+
+        # 3. 리워드 확장팩
+        if "reward_expension" in r or "reward_expansion" in r:
+            pack_id = r.get("reward_expension") or r.get("reward_expansion")
+            unlocked = game.profile.setdefault("unlocked_reward_packs", [])
+            if pack_id not in unlocked:
+                unlocked.append(pack_id)
+            packs = get_expansion_pack_list()
+            p_name = packs.get(pack_id, {}).get("name", pack_id)
+            reward_messages.append(f"상점에서 리워드 확장팩 [{p_name}] 해금")
+
+    claimed.append(ach_id)
+    save_profile(game.profile)
+    return True, reward_messages
+
+
+def manage_achievements_cli():
+    while True:
+        clear_screen()
+        ach_dict = get_all_achievements()
+        ach_list = list(ach_dict.values())
+        achieved_set = set(game.profile.get("achievements", []))
+        claimed_set = set(game.profile.get("claimed_achievements", []))
+
+        print("=" * 50)
+        print("서재 - 도전과제")
+        print("=" * 50)
+        unlocked_count = len([a for a in ach_list if a.get("id") in achieved_set])
+        claimed_count = len([a for a in ach_list if a.get("id") in claimed_set])
+        print(f"달성 현황: {unlocked_count} / {len(ach_list)} 달성 | 보상 수령: {claimed_count} / {len(ach_list)}")
+        print("-" * 50)
+
+        if not ach_list:
+            print("등록된 도전과제가 없습니다.")
+            print("=" * 50)
+            pause()
+            break
+
+        for i, ach in enumerate(ach_list, 1):
+            a_id = ach["id"]
+            is_unlocked = a_id in achieved_set
+            is_claimed = a_id in claimed_set
+            is_hidden = bool(ach.get("hidden")) and not is_unlocked
+
+            if is_claimed:
+                status_str = "[수령 완료]"
+            elif is_unlocked:
+                status_str = "[★ 보상 수령 가능!]"
+            else:
+                status_str = "[미달성]"
+
+            print(f"{i}. {status_str} {ach.get('name', a_id)}")
+            cond_str = "???" if is_hidden else ach.get("condition", "조건 없음")
+            print(f"   - 조건: {cond_str}")
+            if is_claimed:
+                print(f"   - 플레이버: “{ach.get('flavor_text', '')}”")
+            else:
+                flavor_note = "??? (보상을 수령하면 공개됩니다)" if is_unlocked else "???"
+                print(f"   - 플레이버: {flavor_note}")
+
+            rewards_raw = ach.get("reward") or ach.get("rewards") or []
+            if isinstance(rewards_raw, dict):
+                rewards_raw = [rewards_raw]
+            reward_strs = []
+            for r in rewards_raw:
+                if not isinstance(r, dict):
+                    continue
+                if "lunacy" in r:
+                    reward_strs.append(f"광기 +{r['lunacy']}")
+                if "char_uptie" in r or "character_uptie" in r:
+                    ckey = r.get("char_uptie") or r.get("character_uptie")
+                    reward_strs.append(f"[{ckey}] 동기화 +1")
+                if "reward_expension" in r or "reward_expansion" in r:
+                    pid = r.get("reward_expension") or r.get("reward_expansion")
+                    reward_strs.append(f"확장팩 [{pid}] 해금")
+            if reward_strs:
+                print(f"   - 보상: {', '.join(reward_strs)}")
+            print()
+
+        print("=" * 50)
+        print("[번호] 선택하여 보상 수령 및 상세 보기")
+        print("0. 돌아가기")
+
+        try:
+            cmd = input("\n> ").strip()
+            if cmd == "0":
+                break
+            idx = int(cmd) - 1
+            if 0 <= idx < len(ach_list):
+                target = ach_list[idx]
+                t_id = target["id"]
+                if t_id in achieved_set and t_id not in claimed_set:
+                    ok, msgs = claim_achievement_reward(t_id)
+                    clear_screen()
+                    print("=" * 50)
+                    print(f"✦ 도전과제 보상 수령!\n[{target.get('name', t_id)}]")
+                    print("-" * 50)
+                    if target.get("flavor_text"):
+                        print(f"“{target['flavor_text']}”")
+                        print("-" * 50)
+                    print("[획득한 보상]")
+                    for m in msgs:
+                        print(f"- {m}")
+                    print("=" * 50)
+                    pause()
+                elif t_id in claimed_set:
+                    clear_screen()
+                    print("=" * 50)
+                    print(f"[수령 완료] {target.get('name', t_id)}")
+                    print(f"조건: {target.get('condition', '')}")
+                    print("-" * 50)
+                    if target.get("flavor_text"):
+                        print(f"“{target['flavor_text']}”")
+                    print("=" * 50)
+                    pause()
+                else:
+                    if target.get("hidden"):
+                        print("\n비밀 도전과제입니다. 게임을 진행하여 해금해보세요.")
+                    else:
+                        print("\n아직 달성하지 못한 도전과제입니다.")
+                    pause()
+        except (ValueError, IndexError):
+            continue
 
 
 def show_profile():
@@ -4001,6 +4215,7 @@ def library_menu():
         print("3. 도감")
         print("4. 크레딧")
         print("5. 확장팩 관리")
+        print("6. 도전과제")
         print("0. 돌아가기")
 
         cmd = input("\n> ").strip()
@@ -4018,6 +4233,8 @@ def library_menu():
             pause()
         elif cmd == "5":
             manage_expansion_packs()
+        elif cmd == "6":
+            manage_achievements_cli()
         elif cmd == "0":
             break
 
@@ -4111,11 +4328,48 @@ def suppression_mode():
     game.ending_name = None
 
 
+def get_char_uptie_level(char_id):
+    uptie = 1
+    if hasattr(game, "profile") and game.profile:
+        uptie_map = game.profile.get("char_uptie", {})
+        base_id = char_id.rstrip("0123456789")
+        if char_id in uptie_map:
+            uptie = uptie_map[char_id]
+        elif base_id and base_id in uptie_map:
+            uptie = uptie_map[base_id]
+    return uptie
+
+
 def load_player_char_file(char_id):
-    path = BASE_DIR / "player" / "char" / f"{char_id}.json"
-    if not path.exists():
+    uptie = get_char_uptie_level(char_id)
+    base_id = char_id.rstrip("0123456789")
+    candidates = []
+    if base_id:
+        for u in range(uptie, 0, -1):
+            candidates.append(f"{base_id}{u}")
+    for u in range(uptie, 0, -1):
+        candidates.append(f"{char_id}{u}")
+    if base_id:
+        candidates.append(base_id)
+    candidates.append(char_id)
+
+    found_path = None
+    for cand in candidates:
+        p = BASE_DIR / "player" / "char" / f"{cand}.json"
+        if p.exists():
+            found_path = p
+            break
+        for p_dir in get_enabled_pack_dirs():
+            p_cand = p_dir / "player" / "char" / f"{cand}.json"
+            if p_cand.exists():
+                found_path = p_cand
+                break
+        if found_path:
+            break
+
+    if not found_path:
         raise Exception(f"캐릭터 없음: {char_id}")
-    return load_json(path)
+    return load_json(found_path)
 
 
 def load_and_set_player(full_path):
@@ -4131,7 +4385,9 @@ def create_player_char(char_id):
     if not data:
         return f"오류: {char_id} 캐릭터 데이터를 불러올 수 없습니다."
     game.player_char = PlayerChar(data)
-    return f"{game.player_char.name} 로 플레이 시작!"
+    uptie = get_char_uptie_level(char_id)
+    uptie_str = f" (동기화 {uptie}단계)" if uptie > 1 else ""
+    return f"{game.player_char.name}{uptie_str} 로 플레이 시작!"
 
 
 def start_game_menu():
@@ -4309,7 +4565,7 @@ def show_shop_menu():
         print("=" * 50)
         print(f"현재 소지 광기 : {lunacy} 광기\n" + "-" * 50)
         print("1. 통상 확장팩")
-        print("2. 리워드 확장팩 (잠김)")
+        print("2. 리워드 확장팩")
         print("3. 오늘의 핫딜!")
         print("4. 확장팩 검색 (이름/태그)")
         print("0. 돌아가기\n" + "=" * 50)
@@ -4319,13 +4575,18 @@ def show_shop_menu():
             common_packs = [p for p in packs.values() if p.get("shop", "common") == "common"]
             browse_packs_cli("통상 확장팩", common_packs)
         elif cmd == "2":
-            clear_screen()
-            print("=" * 50)
-            print("🔒 리워드 확장팩은 잠겨 있습니다.")
-            print("도전과제를 클리어하면 상점에서 해금되는 확장팩 칸입니다.")
-            print("(현재 도전과제 기능 준비 중으로 추후 공개됩니다)")
-            print("=" * 50)
-            pause()
+            unlocked_reward_ids = set(game.profile.get("unlocked_reward_packs", []))
+            reward_packs = [p for p in packs.values() if p.get("shop") == "reward" and p["id"] in unlocked_reward_ids]
+            if not reward_packs:
+                clear_screen()
+                print("=" * 50)
+                print("🔒 해금된 리워드 확장팩이 없습니다.")
+                print("서재에서 도전과제를 달성하고 보상을 수령하여 리워드 확장팩을 해금하세요!")
+                print(f"(현재 해금된 리워드 확장팩: {len(unlocked_reward_ids)}개)")
+                print("=" * 50)
+                pause()
+            else:
+                browse_packs_cli("리워드 확장팩", reward_packs)
         elif cmd == "3":
             hot_pool = [p for p in packs.values() if p.get("shop") == "hot_deal"]
             now_ms = int(time.time() * 1000)

@@ -1,0 +1,9 @@
+{
+    "id" : "camelia_chapter1",
+    "name" : "소음기",
+    "condition" : "'메인스토리 - 선홍빛 참회록'의 1막을 완료한다.",
+    "flavor_text" : "어머니의 조언처럼.",
+    "hidden" : false,
+    "reward" : [{"lunacy" : 100}, {"char_uptie" : "camelia"}, {"reward_expension" : "dumb_thumb"}]
+    
+}

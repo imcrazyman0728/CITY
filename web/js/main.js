@@ -35,7 +35,8 @@ async function boot() {
   E.set_data(bundle);
 
   E.game.profile = store.loadProfile(bundle.profile_default);
-  for (const k of ["achievements", "unlocked_cards", "unlocked_enemies", "unlocked_gadgets", "purchased_packs", "enabled_packs"]) E.game.profile[k] ??= [];
+  for (const k of ["achievements", "claimed_achievements", "unlocked_reward_packs", "unlocked_cards", "unlocked_enemies", "unlocked_gadgets", "purchased_packs", "enabled_packs"]) E.game.profile[k] ??= [];
+  E.game.profile.char_uptie ??= {};
   E.game.profile.lunacy ??= 0;
   E.game.profile.enemy_kills ??= {};
   E.game.profile.flags ??= {};

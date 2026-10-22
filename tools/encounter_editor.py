@@ -56,6 +56,7 @@ class EditorHandler(http.server.SimpleHTTPRequestHandler):
                 "gadgets": get_ids("gadgets/*.json"),
                 "schedule": get_ids("encounter_normal/schedule/**/*.json") + get_ids("expension_pack/**/encounter_normal/schedule/**/*.json"),
                 "players": get_ids("player/char/*.json"),
+                "achievements": get_ids("achievements/*.json") + get_ids("expension_pack/**/achievements/*.json"),
                 "mus": get_files("mus/*"),
                 "sfx": get_files("sfx/*"),
             }

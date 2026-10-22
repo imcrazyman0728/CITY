@@ -1,0 +1,60 @@
+{
+    "id" : "camelia1",
+
+    "status" :
+    {
+        "name" : "???",
+
+        "max_hp" : 60,
+
+        "max_sanity" : 30,
+
+        "stagger_resist" : 20,
+
+        "panic_type" : "falling_flowers",
+
+        "max_cost" : 3,
+
+        "card_slot" : 2,
+
+        "speed" : {
+            "min" : 2,
+            "max" : 5
+
+        },
+
+        "endurance" : 
+        {
+            "slash" : 1.0,
+            "pierce" : 1.0,
+            "blunt" : 1.5
+        },
+
+        "stagger_endurance" :
+        {
+            "slash" : 0.8,
+            "pierce" : 1.0,
+            "blunt" : 1.2   
+        },
+
+        "passives" :
+        [
+        ],
+
+        "deck" :
+        {
+            "slash_camelia" : 3,
+            "cleave_camelia" : 2,
+            "will_camelia" : 2
+        },
+
+        "card_pool" :
+        [
+            "determination",
+            "crossing_slash",
+            "get_off",
+            "refuse",
+            "execution"
+        ]
+    }
+}

@@ -1077,3 +1077,213 @@ button { font: inherit; color: inherit; }
   .lib-pack-actions { width: 100%; }
   .lib-pack-actions button { width: 100%; }
 }
+
+/* ---------- 도전과제 ---------- */
+.achievements-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+.ach-summary-bar {
+  display: flex;
+  gap: 20px;
+  padding: 12px 18px;
+  background: rgba(26, 29, 39, 0.65);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+}
+.ach-summary-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.ach-stat-label {
+  font-size: 13px;
+  color: var(--dim);
+}
+.ach-stat-val {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--brass);
+  font-size: 16px;
+}
+.ach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ach-card {
+  background: var(--raised);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  padding: 16px 20px;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+  position: relative;
+}
+.ach-card.ach-ready {
+  border-color: rgba(211, 169, 79, 0.7);
+  background: linear-gradient(135deg, rgba(35, 30, 24, 0.9), rgba(22, 24, 32, 0.95));
+  box-shadow: 0 4px 18px rgba(211, 169, 79, 0.15);
+  cursor: pointer;
+}
+.ach-card.ach-ready:hover {
+  transform: translateY(-2px);
+  border-color: var(--brass);
+  box-shadow: 0 6px 24px rgba(211, 169, 79, 0.28);
+}
+.ach-card.ach-claimed {
+  border-color: rgba(72, 106, 84, 0.4);
+  background: rgba(18, 22, 20, 0.5);
+  cursor: pointer;
+}
+.ach-card.ach-locked {
+  opacity: 0.75;
+}
+.ach-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ach-name {
+  font: 600 17px var(--serif);
+  margin: 0;
+  color: var(--text);
+}
+.ach-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ach-badge.badge-ready {
+  background: var(--scarlet);
+  color: #fff;
+  animation: pulseReady 1.6s infinite ease-in-out;
+}
+@keyframes pulseReady {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(197, 48, 48, 0.6); }
+  50% { transform: scale(1.04); box-shadow: 0 0 10px 2px rgba(197, 48, 48, 0.7); }
+}
+.ach-badge.badge-claimed {
+  background: rgba(68, 122, 89, 0.25);
+  color: #8ed5a6;
+  border: 1px solid rgba(68, 122, 89, 0.5);
+}
+.ach-badge.badge-locked {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--faint);
+  border: 1px solid var(--line);
+}
+.ach-condition {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--dim);
+}
+.ach-condition strong {
+  color: var(--text);
+}
+.ach-flavor {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--brass);
+  line-height: 1.5;
+}
+.ach-flavor.ach-flavor-hidden {
+  color: var(--faint);
+  font-style: normal;
+}
+.ach-rewards-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ach-reward-chip {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line-2);
+  color: var(--text);
+}
+.ach-reward-chip.chip-lunacy {
+  border-color: rgba(180, 50, 70, 0.4);
+  color: #fca5a5;
+  background: rgba(180, 50, 70, 0.1);
+}
+.ach-reward-chip.chip-uptie {
+  border-color: rgba(200, 160, 80, 0.4);
+  color: var(--brass);
+  background: rgba(200, 160, 80, 0.1);
+}
+.ach-reward-chip.chip-pack {
+  border-color: rgba(80, 130, 200, 0.4);
+  color: #93c5fd;
+  background: rgba(80, 130, 200, 0.1);
+}
+.ach-claim-modal {
+  text-align: center;
+  padding: 8px;
+}
+.ach-claim-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.ach-claim-title {
+  font: 700 22px var(--serif);
+  color: var(--brass);
+  margin: 0;
+}
+.ach-sparkle {
+  color: var(--scarlet);
+  font-size: 18px;
+}
+.ach-modal-name {
+  font: 600 20px var(--serif);
+  margin: 8px 0 12px;
+}
+.ach-modal-cond {
+  color: var(--dim);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.ach-modal-flavor {
+  font: italic 16px/1.6 var(--serif);
+  color: var(--brass);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px 18px;
+  border-left: 3px solid var(--brass);
+  border-radius: 4px;
+  margin: 12px 0 18px;
+  text-align: left;
+}
+.ach-modal-rewards-box {
+  background: rgba(22, 25, 34, 0.85);
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  text-align: left;
+}
+.ach-modal-rewards-box h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ach-reward-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}

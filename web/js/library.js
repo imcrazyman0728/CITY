@@ -31,11 +31,12 @@ export function openLibrary(initial = "graves") {
     let tab = initial, sub = "cards";
     const draw = () => {
       const body = h("div", {});
-      body.append(tabs([["graves", "공동묘지"], ["clears", "명예의 전당"], ["book", "도감"], ["packs", "확장팩"], ["credits", "크레딧"]], tab, (t) => { tab = t; draw(); }));
+      body.append(tabs([["graves", "공동묘지"], ["clears", "명예의 전당"], ["book", "도감"], ["packs", "확장팩"], ["achievements", "도전과제"], ["credits", "크레딧"]], tab, (t) => { tab = t; draw(); }));
       if (tab === "graves") body.append(graves_view());
       else if (tab === "clears") body.append(clears_view());
       else if (tab === "book") body.append(book_view(sub, (s) => { sub = s; draw(); }));
       else if (tab === "packs") body.append(packs_view(() => draw(), () => { openShop().then(() => draw()); }));
+      else if (tab === "achievements") body.append(achievements_view(() => draw()));
       else body.append(credits_view());
       mount(frame("서재", "", body, () => resolve()), "library");
     };
@@ -244,7 +245,11 @@ export function openProfile() {
       h("dt", {}, "해금한 카드"), h("dd", {}, `${(p.unlocked_cards ?? []).length}종`),
       h("dt", {}, "만난 적"), h("dd", {}, `${(p.unlocked_enemies ?? []).length}종`)),
     h("h3", {}, "도전과제"),
-    ach.length ? h("ul", {}, ach.map((a) => h("li", {}, a))) : h("p", { class: "muted" }, "없음"),
+    ach.length ? h("ul", {}, ach.map((a) => {
+      const achData = E.load_achievement_data?.(a);
+      const isClaimed = (p.claimed_achievements ?? []).includes(a);
+      return h("li", {}, `${achData?.name ?? a} ${isClaimed ? "(수령 완료)" : "(보상 미수령)"}`);
+    })) : h("p", { class: "muted" }, "없음"),
     h("p", { class: "muted", style: { marginTop: "16px", fontSize: "13px" } }, "기록은 이 브라우저에만 저장됩니다. 다른 기기나 브라우저와는 공유되지 않아요."),
     h("div", { class: "modal-actions" },
       h("button", { class: "btn btn-ghost", onclick: async () => {
@@ -257,4 +262,186 @@ export function openProfile() {
       } }, "기록 초기화"),
       h("button", { class: "btn btn-primary", onclick: () => m.close() }, "닫기"))));
   return m.promise;
+}
+
+
+// ==================================================
+// 도전과제 (Achievements)
+// ==================================================
+export function claim_achievement_reward(ach_id) {
+  const ach_data = E.load_achievement_data?.(ach_id);
+  if (!ach_data) return { ok: false, messages: [] };
+
+  const p = E.game.profile;
+  p.achievements ??= [];
+  p.claimed_achievements ??= [];
+  p.unlocked_reward_packs ??= [];
+  p.char_uptie ??= {};
+
+  if (!p.achievements.includes(ach_id)) {
+    return { ok: false, messages: ["아직 달성하지 않은 도전과제입니다."] };
+  }
+  if (p.claimed_achievements.includes(ach_id)) {
+    return { ok: false, messages: ["이미 보상을 수령한 도전과제입니다."] };
+  }
+
+  let rewards_list = ach_data.reward ?? ach_data.rewards ?? [];
+  if (!Array.isArray(rewards_list)) rewards_list = [rewards_list];
+
+  const messages = [];
+
+  for (const r of rewards_list) {
+    if (!r || typeof r !== "object") continue;
+
+    // 1. 광기 지급
+    if ("lunacy" in r) {
+      const amt = Number(r.lunacy) || 0;
+      p.lunacy = (p.lunacy ?? 0) + amt;
+      messages.push(`광기 ${amt}개 획득 (현재 소지: ${p.lunacy} 광기)`);
+    }
+
+    // 2. 메인스토리 캐릭터 동기화 단계 상승
+    if ("char_uptie" in r || "character_uptie" in r) {
+      const char_key = r.char_uptie || r.character_uptie;
+      const cur_uptie = p.char_uptie[char_key] ?? 1;
+      const new_uptie = cur_uptie + 1;
+      p.char_uptie[char_key] = new_uptie;
+      messages.push(`[${char_key}] 동기화 단계 상승 (${cur_uptie}단계 → ${new_uptie}단계)`);
+    }
+
+    // 3. 리워드 확장팩 상점 해금
+    if ("reward_expension" in r || "reward_expansion" in r) {
+      const pack_id = r.reward_expension || r.reward_expansion;
+      if (!p.unlocked_reward_packs.includes(pack_id)) {
+        p.unlocked_reward_packs.push(pack_id);
+      }
+      const pack_name = E.game.data?.expansion_packs?.[pack_id]?.name || pack_id;
+      messages.push(`상점에서 리워드 확장팩 [${pack_name}] 해금`);
+    }
+  }
+
+  p.claimed_achievements.push(ach_id);
+  E.game.hooks?.save_profile?.(p);
+  return { ok: true, messages, flavor_text: ach_data.flavor_text || "" };
+}
+
+function achievements_view(on_change) {
+  const p = E.game.profile;
+  const allAch = Object.values(E.get_all_achievements?.() ?? {});
+  const unlocked = new Set(p.achievements ?? []);
+  const claimed = new Set(p.claimed_achievements ?? []);
+
+  const totalCount = allAch.length;
+  const unlockedCount = allAch.filter((a) => unlocked.has(a.id)).length;
+  const claimedCount = allAch.filter((a) => claimed.has(a.id)).length;
+
+  const wrap = h("div", { class: "achievements-container" });
+
+  const summary = h("div", { class: "ach-summary-bar" },
+    h("div", { class: "ach-summary-stat" },
+      h("span", { class: "ach-stat-label" }, "달성한 도전과제"),
+      h("span", { class: "ach-stat-val" }, `${unlockedCount} / ${totalCount}`)),
+    h("div", { class: "ach-summary-stat" },
+      h("span", { class: "ach-stat-label" }, "보상 수령"),
+      h("span", { class: "ach-stat-val" }, `${claimedCount} / ${totalCount}`)));
+  wrap.append(summary);
+
+  if (!allAch.length) {
+    wrap.append(h("p", { class: "muted", style: { padding: "40px 0", textAlign: "center" } }, "등록된 도전과제가 없습니다."));
+    return wrap;
+  }
+
+  const list = h("div", { class: "ach-list" });
+
+  allAch.forEach((ach) => {
+    const isUnlocked = unlocked.has(ach.id);
+    const isClaimed = claimed.has(ach.id);
+    const isHidden = !!ach.hidden && !isUnlocked;
+
+    const card = h("div", {
+      class: `ach-card ${isClaimed ? "ach-claimed" : isUnlocked ? "ach-ready" : "ach-locked"}`,
+      role: isUnlocked ? "button" : undefined,
+      tabindex: isUnlocked ? 0 : undefined,
+      onclick: () => {
+        if (isUnlocked && !isClaimed) {
+          const result = claim_achievement_reward(ach.id);
+          if (result.ok) {
+            modal(h("div", { class: "ach-claim-modal" },
+              h("div", { class: "ach-claim-header" },
+                h("span", { class: "ach-sparkle" }, "✦"),
+                h("h2", { class: "ach-claim-title" }, "도전과제 보상 수령!"),
+                h("span", { class: "ach-sparkle" }, "✦")),
+              h("h3", { class: "ach-modal-name" }, ach.name),
+              ach.flavor_text ? h("blockquote", { class: "ach-modal-flavor" }, `“${ach.flavor_text}”`) : null,
+              h("div", { class: "ach-modal-rewards-box" },
+                h("h4", {}, "획득한 보상"),
+                h("ul", { class: "ach-reward-list" },
+                  result.messages.map((m) => h("li", {}, m)))),
+              h("div", { class: "modal-actions", style: { justifyContent: "center", marginTop: "24px" } },
+                h("button", { class: "btn btn-primary", onclick: (e) => { e.target.closest("dialog")?.close(); on_change(); } }, "확인"))), { dismissible: true });
+            on_change();
+          }
+        } else if (isClaimed) {
+          modal(h("div", { class: "ach-claim-modal" },
+            h("span", { class: "ach-badge badge-claimed", style: { marginBottom: "8px", display: "inline-block" } }, "✓ 수령 완료"),
+            h("h2", { class: "ach-modal-name" }, ach.name),
+            h("p", { class: "ach-modal-cond" }, `달성 조건: ${ach.condition}`),
+            ach.flavor_text ? h("blockquote", { class: "ach-modal-flavor" }, `“${ach.flavor_text}”`) : null,
+            h("div", { class: "modal-actions", style: { justifyContent: "center", marginTop: "20px" } },
+              h("button", { class: "btn btn-ghost", onclick: (e) => e.target.closest("dialog")?.close() }, "닫기"))), { dismissible: true });
+        } else {
+          toast(isHidden ? "비밀 도전과제입니다. 게임을 진행하여 해금해보세요." : "아직 조건을 달성하지 못한 도전과제입니다.");
+        }
+      }
+    });
+
+    const header = h("div", { class: "ach-card-head" });
+    const nameEl = h("h3", { class: "ach-name" }, ach.name);
+    let badgeEl;
+    if (isClaimed) {
+      badgeEl = h("span", { class: "ach-badge badge-claimed" }, "✓ 수령 완료");
+    } else if (isUnlocked) {
+      badgeEl = h("span", { class: "ach-badge badge-ready" }, "★ 보상 받기");
+    } else {
+      badgeEl = h("span", { class: "ach-badge badge-locked" }, isHidden ? "🔒 비밀" : "🔒 미달성");
+    }
+    header.append(nameEl, badgeEl);
+
+    const condText = isHidden ? "???" : (ach.condition || "조건 없음");
+    const condEl = h("p", { class: "ach-condition" },
+      h("strong", {}, "조건: "),
+      condText);
+
+    let flavorEl = null;
+    if (isClaimed) {
+      flavorEl = h("p", { class: "ach-flavor" }, `“${ach.flavor_text || ""}”`);
+    } else {
+      flavorEl = h("p", { class: "ach-flavor ach-flavor-hidden" }, isUnlocked ? "“??? (클릭하여 보상을 받으면 공개됩니다)”" : "“???”");
+    }
+
+    const rewardsRow = h("div", { class: "ach-rewards-row" });
+    let rewards_list = ach.reward ?? ach.rewards ?? [];
+    if (!Array.isArray(rewards_list)) rewards_list = [rewards_list];
+    rewards_list.forEach((r) => {
+      if (!r || typeof r !== "object") return;
+      if ("lunacy" in r) {
+        rewardsRow.append(h("span", { class: "ach-reward-chip chip-lunacy" }, `광기 +${r.lunacy}`));
+      }
+      if ("char_uptie" in r || "character_uptie" in r) {
+        const cname = r.char_uptie || r.character_uptie;
+        rewardsRow.append(h("span", { class: "ach-reward-chip chip-uptie" }, `${cname} 동기화 +1`));
+      }
+      if ("reward_expension" in r || "reward_expansion" in r) {
+        const pid = r.reward_expension || r.reward_expansion;
+        const pname = E.game.data?.expansion_packs?.[pid]?.name || pid;
+        rewardsRow.append(h("span", { class: "ach-reward-chip chip-pack" }, `확장팩 [${pname}]`));
+      }
+    });
+
+    card.append(header, condEl, flavorEl, rewardsRow);
+    list.append(card);
+  });
+
+  wrap.append(list);
+  return wrap;
 }

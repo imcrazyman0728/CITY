@@ -52,7 +52,7 @@ export const CARD_GRADE_MAP = { paperback: "보급", hardcover: "고급", limite
 // ==================================================
 export const game = {
   data: null,
-  profile: { death_count: 0, achievements: [], flags: {} },
+  profile: { death_count: 0, achievements: [], claimed_achievements: [], char_uptie: {}, unlocked_reward_packs: [], flags: {} },
   common_deck: [],
   story_name: null,
   main_encounters: {},
@@ -94,6 +94,7 @@ export function rebuild_active_data() {
     panics: { ...(base_data.panics ?? {}) },
     gadgets: { ...(base_data.gadgets ?? {}) },
     players: { ...(base_data.players ?? {}) },
+    achievements: { ...(base_data.achievements ?? {}) },
     common: [...(base_data.common ?? [])],
     special: { ...(base_data.special ?? {}) },
     stories: { ...(base_data.stories ?? {}) },
@@ -116,6 +117,7 @@ export function rebuild_active_data() {
     if (d.panics) Object.assign(game.data.panics, d.panics);
     if (d.gadgets) Object.assign(game.data.gadgets, d.gadgets);
     if (d.players) Object.assign(game.data.players, d.players);
+    if (d.achievements) Object.assign(game.data.achievements, d.achievements);
     const pack_name = pack.name || pack.id;
     if (d.common && Array.isArray(d.common)) {
       for (const enc of d.common) {
@@ -160,6 +162,8 @@ export const load_status_data = status_data;
 export const load_passive_data = passive_data;
 export const load_panic_data = panic_data;
 export const load_gadget_data = gadget_data;
+export const load_achievement_data = (id) => game.data.achievements?.[id] ?? null;
+export const get_all_achievements = () => game.data.achievements ?? {};
 
 export function load_enemy(id) {
   const d = game.data.enemies[id];

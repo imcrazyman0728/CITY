@@ -224,11 +224,35 @@ function expand_deck(char) {
 const gadget_name = (id) => E.load_gadget_data(id)?.name ?? id;
 const passive_name = (id) => E.load_passive_data(id)?.name ?? id;
 
+export function get_char_uptie_level(char_id) {
+  const p = game.profile;
+  const uptie_map = p?.char_uptie ?? {};
+  const base_id = char_id.replace(/\d+$/, "");
+  return uptie_map[char_id] ?? (base_id ? uptie_map[base_id] : null) ?? 1;
+}
+
 export function create_player_char(char_id) {
-  const data = game.data.players[char_id];
+  const uptie = get_char_uptie_level(char_id);
+  const base_id = char_id.replace(/\d+$/, "");
+  const candidates = [];
+  if (base_id) {
+    for (let u = uptie; u >= 1; u--) candidates.push(`${base_id}${u}`);
+  }
+  for (let u = uptie; u >= 1; u--) candidates.push(`${char_id}${u}`);
+  if (base_id) candidates.push(base_id);
+  candidates.push(char_id);
+
+  let data = null;
+  for (const cand of candidates) {
+    if (cand && game.data.players?.[cand]) {
+      data = game.data.players[cand];
+      break;
+    }
+  }
   if (!data) return `오류: ${char_id} 캐릭터 데이터를 불러올 수 없습니다.`;
   game.player_char = new E.PlayerChar(data);
-  return `${game.player_char.name} 로 플레이 시작!`;
+  const uptie_str = uptie > 1 ? ` (동기화 ${uptie}단계)` : "";
+  return `${game.player_char.name}${uptie_str} 로 플레이 시작!`;
 }
 
 export async function apply_effects(effects) {
@@ -386,9 +410,12 @@ export async function apply_effects(effects) {
           } else notes.push("복제할 카드가 없습니다.");
         }
         break;
-      case "achievement":
-        if (give_achievement(value)) notes.push(`도전과제 달성! ${value}`);
+      case "achievement": {
+        const ach_data = E.load_achievement_data?.(value);
+        const name = ach_data?.name ?? value;
+        if (give_achievement(value)) notes.push(`★ 도전과제 달성! [${name}] (서재에서 보상 수령 가능)`);
         break;
+      }
       case "level_up": flush(); await handle_level_up(); break;
       case "set_field_theme": game.field_theme = value; game.hooks.bgm(value, { fade_ms: 1000 }); break;
       case "set_basic_battle_theme": game.basic_battle_theme = value; break;

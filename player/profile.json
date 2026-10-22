@@ -1,21 +1,15 @@
 {
-    "death_count": 0,
-    "achievements": [],
-    "unlocked_gadgets": [
-        "intelligence_sloth",
-        "aesthetic_gloom",
-        "strength_wrath"
-    ],
-    "flags": {
-        "levelup_hp": 5,
-        "levelup_sanity": 5,
-        "vending_unlocked": 1,
-        "camelia_prologue": 1
+    "char_uptie": {
+        "camelia": 2
     },
-    "unlocked_cards": [],
-    "enemy_kills": {},
-    "unlocked_enemies": [],
-    "lunacy": 0,
-    "purchased_packs": [],
-    "enabled_packs": []
+    "achievements": [
+        "camelia_chapter1"
+    ],
+    "claimed_achievements": [
+        "camelia_chapter1"
+    ],
+    "unlocked_reward_packs": [
+        "dumb_thumb"
+    ],
+    "lunacy": 100
 }
